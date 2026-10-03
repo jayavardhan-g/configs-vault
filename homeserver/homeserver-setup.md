@@ -95,13 +95,15 @@ sudo cp files/etc/ssh/sshd_config.d/10-key-only.conf /etc/ssh/sshd_config.d/
 sudo chmod 700 ~/.ssh
 sudo sshd -t && sudo systemctl restart sshd
 ```
-LTS kernel, intended as the default boot entry (CachyOS uses `limine-entry-tool`, driven
-by `/etc/default/limine`) — **see Notes, the saved file doesn't currently say this**:
+LTS kernel as the default boot entry (CachyOS uses `limine-entry-tool`, driven by
+`/etc/default/limine`). Done by `~/nas-setup/phase3c-pin-kernel.sh`, which backs the file
+up, sets this line and regenerates the entries:
 ```
 BOOT_ORDER="*lts, *, *fallback, Snapshots"
 ```
 ```bash
 sudo limine-entry-tool
+uname -r          # after a reboot: ...-cachyos-lts
 ```
 BIOS (Power menu, done by hand): **AC BACK → Always On** (Gigabyte's name for "restore on
 AC power loss"). ErP Disabled; Power On by Keyboard/Mouse/Password Disabled. No "Halt On"
@@ -241,15 +243,12 @@ applied — rerun only when testing.
 | qBittorrent | `http://<nas-lan-ip>:8080` | `http://<nas>.<tailnet>.ts.net:8080` |
 
 ## Notes
-- **LTS pin not saved (found 2026-10-04):** the server's `/etc/default/limine` still reads
-  `BOOT_ORDER="*, *lts, *fallback, Snapshots"`, which lists the normal `linux-cachyos`
-  kernel first. It was running `6.18.x-cachyos-lts` at the time, so either it was picked
-  by hand at the boot menu or `limine.conf` was edited some other way. The server's own
-  `~/nas-setup/phase3c-pin-kernel.sh` does exactly the Phase 3 edit (with a backup) but was
-  **never run** — no `.bak` exists and the file is unchanged since 2026-09-09, even though
-  the server-side README says the reboot came up on "the correct pinned kernel". Run
-  `sudo bash ~/nas-setup/phase3c-pin-kernel.sh`, then check `uname -r` after a reboot. The
-  stored copy is the file as found, not the intended version.
+- **LTS pin was written but not applied until 2026-10-04.** `phase3c-pin-kernel.sh` existed
+  from setup but was never run: `/etc/default/limine` still had
+  `BOOT_ORDER="*, *lts, *fallback, Snapshots"` (normal kernel first), though the server
+  happened to be booted into LTS and the server-side README claimed it was pinned. Ran it
+  on 2026-10-04 03:51; after the 03:52 reboot `uname -r` → `6.18.52-1-cachyos-lts`. Backup:
+  `/etc/default/limine.bak.<epoch>`.
 - **CMOS battery is dying:** after a power cut the BIOS stops at "load optimized defaults"
   and waits for a keypress, and it can also reset AC BACK. Until the CR2032 is replaced,
   the server won't reliably come back on its own. After replacing it, redo the BIOS

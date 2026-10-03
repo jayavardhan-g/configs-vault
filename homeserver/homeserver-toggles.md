@@ -50,45 +50,6 @@ account — Tailscale admin console → Machines → the server → **Share…**
 Tailscale, accept, and open `http://<nas>.<tailnet>.ts.net:8096`. Stop: admin console →
 Machines → the server → Share… → revoke. Nothing is exposed to the internet this way.
 
-### Share files with a friend
-
-**A. Public download link (read-only, no account for them)** — Tailscale Funnel serves a
-folder directly, with a browsable listing:
-```bash
-mkdir -p /srv/nas/share                 # put what you want to share in here
-tailscale funnel --bg --set-path=/files /srv/nas/share
-tailscale funnel status
-```
-Send `https://<nas>.<tailnet>.ts.net/files/`. Anyone with the link can download, no
-password, so only put things there you're fine being public.
-**Stop:** `tailscale funnel --https=443 --set-path=/files off` (Jellyfin's Funnel on `/`
-keeps running). `tailscale funnel --https=443 off` stops **both**.
-
-**B. Private two-way folder (they can upload too)** — share the machine over Tailscale and
-give them their own Samba login:
-```bash
-sudo useradd -M -s /usr/bin/nologin <friend>     # no shell, no home — Samba only
-sudo smbpasswd -a <friend>                        # their Samba password, typed by you
-sudo mkdir -p /srv/nas/<friend> && sudo chown <user>:<user> /srv/nas/<friend>
-```
-Append to `/etc/samba/smb.conf`, then `sudo systemctl reload smb`:
-```ini
-[<friend>]
-   path = /srv/nas/<friend>
-   valid users = <user> <friend>
-   read only = no
-   force user = <user>
-```
-Tailscale admin console → Machines → the server → **Share…** → their email. They install
-Tailscale, accept, and open `smb://<nas>.<tailnet>.ts.net/<friend>`. `force user` makes
-everything they upload owned by you. They see only their folder, not `nas`.
-**Stop:** `sudo smbpasswd -d <friend>` (login disabled), and revoke the share in the admin
-console. **Start again:** `sudo smbpasswd -e <friend>` and re-share. **Remove for good:**
-`sudo smbpasswd -x <friend> && sudo userdel <friend>`, delete the `[<friend>]` block,
-reload smb.
-A shared machine also exposes the Jellyfin and qBittorrent login pages to them (both still
-need passwords); restrict with Tailscale ACLs if that matters.
-
 ### Tailscale (remote access)
 | | Command |
 |---|---|

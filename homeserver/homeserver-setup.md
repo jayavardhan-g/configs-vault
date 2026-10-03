@@ -217,6 +217,20 @@ Verified 2026-10-04: ipleak.net torrent test showed only Cloudflare IPs; after
 After a reboot: `systemctl --failed` empty, `systemctl is-active net-watchdog.timer` →
 `active`, `warp-cli status` → Connected.
 
+**Internet-outage test** — scripts in `~/nas-setup/` on the server (copies:
+[`files/nas-setup/`](files/nas-setup/)):
+```bash
+sudo bash ~/nas-setup/phase8-simulate-outage.sh     # block everything outside the LAN
+journalctl -t net-watchdog -f                       # expect "reachable but internet is NOT", no reset
+sudo bash ~/nas-setup/phase8-restore-internet.sh    # undo + network up + health check
+```
+The simulate script adds three `TEST:` ufw rules (deny out; allow out to the LAN; allow out
+on lo), checks the router is still reachable and the internet isn't, and arms
+`phase8-auto-restore` (`systemd-run --on-active=10min`) so it undoes itself even if you
+lose access. The restore script cancels that timer, deletes every `TEST:` rule, brings
+`Wired connection 1` up, restarts tailscaled and prints Router / Internet / Tailscale /
+WARP / leftover-rules status. Safe to rerun.
+
 ### Quick reference
 | What | LAN | Tailscale (anywhere) |
 |---|---|---|
@@ -237,6 +251,14 @@ After a reboot: `systemctl --failed` empty, `systemctl is-active net-watchdog.ti
   the server won't reliably come back on its own. After replacing it, redo the BIOS
   settings in Phase 3.
 - **Single disk, no redundancy** — never the only copy of anything important.
+- **First outage test cut the server off its own router (2026-10-04).** Two bugs in the
+  original scripts: `ufw insert 1` puts each rule at the top, so adding allow-lo, allow-LAN,
+  then deny left the **deny first**, blocking the router too (the watchdog then reset
+  `enp2s0` every minute — correctly, since the router really was unreachable). And the
+  restore script's `grep -oP '^\[\K[0-9]+'` never matched, because `ufw status numbered`
+  pads numbers (`[ 1]`), so it deleted nothing. Fixed versions add the deny first and parse
+  `^\[ *([0-9]+)\]`; quickest manual cleanup is deleting by rule text
+  (`sudo ufw delete deny out to any`, etc.), which also removes the IPv6 copies.
 - **Why WARP proxy mode here, but interface binding on the laptop**
   ([[qbittorrent-bound-to-warp]]): on the server WARP must not become the default route,
   or it can break Tailscale's control connection. Pausing WARP (`warp-cli disconnect`)

@@ -39,9 +39,12 @@ the libraries you allow.
 1. (Optional) make a separate library for shared stuff, e.g. folder `/srv/nas/media/shared`
    → Dashboard → Libraries → Add Media Library. Copy the movie in there.
 2. Create a user for them: Dashboard → Users → **+** → name + password. On their profile:
-   - **Library access** → untick "Enable access to all libraries", tick only the shared one.
-   - Leave "Allow this user to manage the server" **off**.
-   - Optional: Playback → turn off "Allow media downloading".
+   - **Access** tab → **Library access**: tick the library the movie is actually in (or
+     "Enable access to all libraries"). A new user sees **nothing** until this is set.
+   - **Parental control** tab → untick "Block items with no rating information" if it's
+     ticked: downloaded movies have no age rating and would stay hidden.
+   - **Profile** tab → leave "Allow this user to manage the server" **off**.
+   - **Profile** tab → "Allow media downloading" (on by default) — see Downloads below.
 3. Turn on Funnel (public HTTPS on port 443 → Jellyfin):
    ```bash
    tailscale funnel --bg 8096
@@ -58,6 +61,18 @@ tailscale funnel status               # should say no serve config
 Then Dashboard → Users → their user → tick **Disable this user** (or delete it). Disabling
 matters if you also share via Tailscale (below), since Funnel being off doesn't log them out
 there.
+
+**Movie shows in my account but not the friend's** (hit 2026-10-04): it's always that
+user's settings, not the library. Dashboard → Users → their user → Access tab → tick the
+movie's library → Save, then the Parental control check above. They refresh or log in again.
+New files in `/srv/nas/media` appear by themselves (Jellyfin watches the folder); if one
+doesn't, Dashboard → Libraries → **Scan All Libraries**.
+
+**Downloads:** allowed by default. Browser: open the movie → **⋯** → **Download** (the
+original file, e.g. a 1.8 GB `.mkv`). Android: the Jellyfin app or Findroid can download for
+offline viewing. To allow streaming only, untick "Allow media downloading" on their Profile
+tab. Downloads go through Funnel's relay and the home connection's upload speed, so big
+files are slow. Turning Funnel off doesn't take back a file they already downloaded.
 
 **Private alternative (no public URL):** share just this machine to their Tailscale
 account — Tailscale admin console → Machines → the server → **Share…**. They install

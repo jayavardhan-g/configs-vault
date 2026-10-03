@@ -214,22 +214,23 @@ Verified 2026-10-04: ipleak.net torrent test showed only Cloudflare IPs; after
 `warp-cli disconnect` no new IP appeared at all (connections just fail), so it fails closed.
 
 ### Phase 8 — handover check
-After a reboot: `systemctl --failed` empty, `systemctl is-active net-watchdog.timer` →
-`active`, `warp-cli status` → Connected.
+**Reboot test (passed 2026-10-04):** after `sudo reboot`, with no manual steps: headless
+`multi-user.target`, `systemctl --failed` empty, and `net-watchdog.timer`, `sshd`,
+`tailscaled`, `smb`, `jellyfin`, `qbittorrent-nox@<user>`, `warp-svc` all active. Funnel and
+WARP resumed on their own.
 
-**Internet-outage test** — scripts in `~/nas-setup/` on the server (copies:
-[`files/nas-setup/`](files/nas-setup/)):
+**Internet-outage test (passed 2026-10-04)** — scripts in `~/nas-setup/` on the server
+(copies: [`files/nas-setup/`](files/nas-setup/)):
 ```bash
 sudo bash ~/nas-setup/phase8-simulate-outage.sh     # block everything outside the LAN
 journalctl -t net-watchdog -f                       # expect "reachable but internet is NOT", no reset
-sudo bash ~/nas-setup/phase8-restore-internet.sh    # undo + network up + health check
+sudo bash ~/nas-setup/phase8-restore-internet.sh    # delete the TEST rules
 ```
-The simulate script adds three `TEST:` ufw rules (deny out; allow out to the LAN; allow out
-on lo), checks the router is still reachable and the internet isn't, and arms
-`phase8-auto-restore` (`systemd-run --on-active=10min`) so it undoes itself even if you
-lose access. The restore script cancels that timer, deletes every `TEST:` rule, brings
-`Wired connection 1` up, restarts tailscaled and prints Router / Internet / Tailscale /
-WARP / leftover-rules status. Safe to rerun.
+Simulate adds three `TEST:` ufw rules — deny out first, then allow out to `<lan-subnet>` and
+allow out on `lo` above it. Restore lists and deletes every `TEST:` rule (highest number
+first) and reloads ufw. While blocked, SSH/Samba/Jellyfin kept working from the LAN; after
+restoring, Tailscale and WARP reconnected within seconds by themselves. Not meant to stay
+applied — rerun only when testing.
 
 ### Quick reference
 | What | LAN | Tailscale (anywhere) |
@@ -243,9 +244,12 @@ WARP / leftover-rules status. Safe to rerun.
 - **LTS pin not saved (found 2026-10-04):** the server's `/etc/default/limine` still reads
   `BOOT_ORDER="*, *lts, *fallback, Snapshots"`, which lists the normal `linux-cachyos`
   kernel first. It was running `6.18.x-cachyos-lts` at the time, so either it was picked
-  by hand at the boot menu or `limine.conf` was edited some other way. Make the edit in
-  Phase 3, run `sudo limine-entry-tool`, and check `uname -r` after a reboot. The stored
-  copy is the file as found, not the intended version.
+  by hand at the boot menu or `limine.conf` was edited some other way. The server's own
+  `~/nas-setup/phase3c-pin-kernel.sh` does exactly the Phase 3 edit (with a backup) but was
+  **never run** — no `.bak` exists and the file is unchanged since 2026-09-09, even though
+  the server-side README says the reboot came up on "the correct pinned kernel". Run
+  `sudo bash ~/nas-setup/phase3c-pin-kernel.sh`, then check `uname -r` after a reboot. The
+  stored copy is the file as found, not the intended version.
 - **CMOS battery is dying:** after a power cut the BIOS stops at "load optimized defaults"
   and waits for a keypress, and it can also reset AC BACK. Until the CR2032 is replaced,
   the server won't reliably come back on its own. After replacing it, redo the BIOS
@@ -256,9 +260,13 @@ WARP / leftover-rules status. Safe to rerun.
   then deny left the **deny first**, blocking the router too (the watchdog then reset
   `enp2s0` every minute — correctly, since the router really was unreachable). And the
   restore script's `grep -oP '^\[\K[0-9]+'` never matched, because `ufw status numbered`
-  pads numbers (`[ 1]`), so it deleted nothing. Fixed versions add the deny first and parse
-  `^\[ *([0-9]+)\]`; quickest manual cleanup is deleting by rule text
+  pads numbers (`[ 1]`), so it deleted nothing. The stored versions add the deny first and
+  parse `^\[\s*\K[0-9]+`; quickest manual cleanup is deleting by rule text
   (`sudo ufw delete deny out to any`, etc.), which also removes the IPv6 copies.
+  Known quirk left in: with `set -euo pipefail`, restore exits silently (no "already clean"
+  message) when there are no TEST rules, because the failing `grep` aborts the script.
+  Harmless. A longer variant with a 10-minute auto-restore and a health check was written
+  from the laptop session and replaced by these; it lives in git history.
 - **Why WARP proxy mode here, but interface binding on the laptop**
   ([[qbittorrent-bound-to-warp]]): on the server WARP must not become the default route,
   or it can break Tailscale's control connection. Pausing WARP (`warp-cli disconnect`)

@@ -38,6 +38,9 @@ package, used only by its GUI tray app — see Notes): `geoclue`, `gst-libav`,
   system update replaced it with the signed `cachyos` repo build of the same package
   (`pacman -Qi` now shows `Installed From: cachyos`), so the manual build is no longer
   needed.
+- The home server runs WARP differently — `warp-cli mode proxy` (local SOCKS5 on port
+  40000) so only qBittorrent uses it and Tailscale's routing isn't touched. See
+  [[homeserver-setup]] (`../homeserver/homeserver-setup.md`).
 - The package also ships a tray GUI, `warp-taskbar` (Flutter-based, not a plain script —
   that's why the package pulls in `libayatana-appindicator`/`webkit2gtk-4.1`). It's a
   separate **user** systemd service, not enabled by default install:

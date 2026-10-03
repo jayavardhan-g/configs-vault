@@ -16,8 +16,9 @@ Personal runbook of system/config decisions, split by scope:
 | [`neovim/`](neovim/lazyvim-migration.md) | `~/.config/nvim/` — migrated to LazyVim 2026-09-15. Start at `lazyvim-migration.md`: it has the migration, fresh-machine steps, and an index of the topic files (keybindings, appearance, languages/LSP, plugin review, cheatsheet, GhostText, LeetCode). Older entries cover the pre-migration setup and Vim-side parity decisions still current |
 | [`ssh/`](ssh/ssh-term-mismatch-fix.md) | `~/.ssh/config` fixes |
 | [`vpn/`](vpn/fortinet-vpn-client.md) | Fortinet SSL-VPN client (`openfortivpn` + a fish function) |
-| [`cloudflare-warp/`](cloudflare-warp/cloudflare-warp-client.md) | Cloudflare WARP (1.1.1.1) client — AUR build via `makepkg` (no repo/Flatpak package), `warp-svc` + `warp-cli` |
+| [`cloudflare-warp/`](cloudflare-warp/cloudflare-warp-client.md) | Cloudflare WARP (1.1.1.1) client — `cloudflare-warp-bin` from the cachyos repo (was a manual AUR build until 2026-10-02), `warp-svc` + `warp-cli` |
 | [`qbittorrent/`](qbittorrent/qbittorrent-bound-to-warp.md) | qBittorrent bound to the `CloudflareWARP` interface (rentry torrentvpn guide), LPD off, leak-tested on ipleak.net |
+| [`homeserver/`](homeserver/homeserver-setup.md) | **Separate machine, not the laptop**: the spare CSE-department desktop as a headless NAS — ethernet watchdog, key-only SSH, Tailscale + Funnel, Samba, Jellyfin, qBittorrent-nox via WARP proxy with a kernel-level leak lockdown. [`homeserver-toggles.md`](homeserver/homeserver-toggles.md) has every off/on switch and how to share/stop sharing a movie |
 | [`spotify/`](spotify/spotify-and-spotx.md) | Spotify (Flatpak) + SpotX ad-block patch |
 | [`limine/`](limine/windows-dual-boot-order-and-bitlocker.md) | Limine bootloader — Windows dual-boot NVRAM order + BitLocker chainload fix |
 | [`xpad/`](xpad/xpad-sticky-notes.md) | Xpad desktop sticky notes — install, `--no-new`/`--quit` flags, why `sticky` (x-apps) doesn't work here |

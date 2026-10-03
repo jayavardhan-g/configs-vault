@@ -2,7 +2,9 @@
 
 **Date:** 2026-10-04
 **Category:** homeserver
-**Files touched:** none (operating guide for [[homeserver-setup]], `homeserver-setup.md`)
+**Files touched:** on the **laptop**, `~/.config/fish/functions/moviesshare.fish` (copy:
+[`files/.config/fish/functions/moviesshare.fish`](files/.config/fish/functions/moviesshare.fish)).
+Otherwise an operating guide for [[homeserver-setup]] (`homeserver-setup.md`).
 
 ## What
 How to turn each part of the home server off and back on, how to share a movie with
@@ -17,6 +19,18 @@ off-switch next to the on-switch so nothing is left running by accident.
 Run these on the server: `ssh <user>@<nas>.<tailnet>.ts.net` first.
 `disable --now` = stop now **and** don't start at boot. `stop` alone comes back after the
 next reboot.
+
+### `moviesshare` — start/stop sharing from the laptop
+A fish function on the laptop, same style as `labvpn` ([[fortinet-vpn-client]]): type
+`moviesshare`, then `start`, `stop`, `status`, `link` or `exit` at its prompt. It runs the
+Funnel commands below on the server over Tailscale SSH (key login, no sudo needed since
+`tailscale set --operator=<user>`). `start` refuses if Jellyfin isn't running.
+
+Set the server once (fish universal variable, so the function file holds no hostname):
+```fish
+set -U moviesshare_host <user>@<nas>.<tailnet>.ts.net
+```
+Creating Jellyfin users (steps 1–2 below) is still done by hand in the web UI.
 
 ### Share a movie with a friend (Jellyfin + Tailscale Funnel)
 Jellyfin has no "public link to one movie". The friend gets their own login and sees only

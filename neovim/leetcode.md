@@ -3,7 +3,7 @@
 **Category:** neovim
 **Files touched:** `lua/plugins/leetcode.lua`, `lua/plugins/languages.lua` (all under `~/.config/nvim/`; copies in [`files/`](files/))
 
-Solving LeetCode inside Neovim: setup, health check, run/submit keys, two-box sign-in, the swap-file fix, and the console docked at the bottom. Part of the LazyVim setup - see [[lazyvim-migration]] for the migration itself and the index of all topic files.
+Solving LeetCode inside Neovim: setup, health check, run/submit keys, two-box sign-in, the swap-file fix, the console docked at the bottom, and the solution-file keys. Part of the LazyVim setup - see [[lazyvim-migration]] for the migration itself and the index of all topic files.
 
 Entries are in the order they happened. They were split out of `lazyvim-migration.md` on 2026-09-23 without rewording, so "above" and "previous follow-up" refer to entries in this file unless a link says otherwise.
 
@@ -289,3 +289,40 @@ already-solved problem (`100.same-tree.cpp`, md5 identical before and after):
 LeetCode category (before "Console and test case keys"); `:Leet console` line now
 says show / hide the docked console. Same edit in `cheatsheet.md` and
 `cheatsheet.user.md`.
+
+## Follow-up: more LeetCode keys in solution files (2026-10-07)
+
+**What**: keys for the `:Leet` commands used often, next to `\r` run / `\s` submit -
+chosen by the user from three proposed sets (full mnemonic set picked). All are
+buffer-local to solution buffers via `hooks.question_enter`, so nothing outside a
+LeetCode solution file changes. Checked first: no `<localleader>` maps existed in a C++
+buffer at all.
+
+**Change** - `lua/plugins/leetcode.lua`, `question_enter` hook (final state):
+
+| Key | Command | |
+|---|---|---|
+| `\r` | `:Leet run` | existing |
+| `\s` | `:Leet submit` | existing |
+| `\e` | `:Leet desc` | description show/hide |
+| `\c` | `:Leet console` | docked console show/hide |
+| `\h` | `:Leet hints` | |
+| `\i` | `:Leet info` | stats, topics |
+| `\t` | `:Leet tabs` | jump to another open question |
+| `\o` | `:Leet open` | problem in the browser |
+| `\y` | `:Leet yank` | solution code only |
+| `\R` | `:Leet reset` | starting template - capital, replaces code (`u` undoes) |
+| `\L` | `:Leet last_submit` | last submission - capital, replaces code |
+
+**Why `\e` for the description**: proposed as `\d`; the user wanted it to match the
+explorer's `<leader>e`, since the description is a side panel too. `<leader>e`
+itself (buffer-local, shadowing the explorer in solution files) was briefly
+implemented, then the user chose `<localleader>e` instead - same mnemonic, explorer
+left alone everywhere.
+
+**Verified** in a headless `nvim leetcode.nvim` session on an existing problem
+(file md5 unchanged): all 11 keys present on the solution buffer; `\e` toggled the
+description visible → hidden → visible; `\c` hid the console.
+
+**Cheatsheet**: new "More keys in a solution file" entry in the LeetCode category
+(before the layout entry), in both `cheatsheet.md` and `cheatsheet.user.md`.

@@ -225,6 +225,18 @@ return {
             end
             map("<localleader>r", "run", "LeetCode: Run")
             map("<localleader>s", "submit", "LeetCode: Submit")
+            map("<localleader>c", "console", "LeetCode: Console show/hide")
+            map("<localleader>h", "hints", "LeetCode: Hints")
+            map("<localleader>i", "info", "LeetCode: Info (stats, topics)")
+            map("<localleader>t", "tabs", "LeetCode: Jump to another open question")
+            map("<localleader>o", "open", "LeetCode: Open in browser")
+            map("<localleader>y", "yank", "LeetCode: Yank solution code")
+            -- capitals: these replace the code (u undoes)
+            map("<localleader>R", "reset", "LeetCode: Reset to starting template")
+            map("<localleader>L", "last_submit", "LeetCode: Restore last submission")
+            -- the description is a side panel, so `e` like the explorer's
+            -- <leader>e - on the local leader, leaving the explorer alone
+            map("<localleader>e", "desc", "LeetCode: Description show/hide")
 
             -- open with the console already docked (see dock_console), focus
             -- staying in the code; `q` in the console still hides it and

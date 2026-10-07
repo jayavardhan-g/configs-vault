@@ -3243,6 +3243,21 @@ The same actions as commands:
 - `:Leet open` - open the problem in the browser
 - `:Leet yank` - copy just the solution code
 
+### More keys in a solution file
+All **[custom]**, only inside LeetCode solution files (`\` = local leader):
+
+- `\e` - show / hide the description (side panel - `e` like the explorer)
+- `\c` - show / hide the docked console
+- `\h` - hints
+- `\i` - info (stats, topics)
+- `\t` - jump to another open question
+- `\o` - open the problem in the browser
+- `\y` - yank just the solution code
+- `\R` - reset the code to the starting template (`u` undoes)
+- `\L` - restore your last submission (`u` undoes)
+
+Capitals are the two that replace your code.
+
 ### Layout: test cases and results docked at the bottom
 Every question opens as **[custom]**:
 

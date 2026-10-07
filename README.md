@@ -21,7 +21,7 @@ Personal runbook of system/config decisions, split by scope:
 | [`limine/`](limine/windows-dual-boot-order-and-bitlocker.md) | Limine bootloader — Windows dual-boot NVRAM order + BitLocker chainload fix |
 | [`xpad/`](xpad/xpad-sticky-notes.md) | Xpad desktop sticky notes — install, `--no-new`/`--quit` flags, why `sticky` (x-apps) doesn't work here |
 | [`mpv/`](mpv/mpv-video-player.md) | mpv video player — plain repo install, no player was present by default |
-| [`noctalia/`](noctalia/palette-source-not-persisting.md) | Noctalia shell — wallpaper-based palette source not persisting to settings.toml |
+| [`noctalia/`](noctalia/palette-source-not-persisting.md) | Noctalia shell — wallpaper-based palette source not persisting to settings.toml; [stripes transitions](noctalia/wallpaper-transition.md) for wallpaper changes and lock/unlock (and why every login animates) |
 | [`zen-browser/`](zen-browser/windows-profile-migration.md) | Zen Browser (Flatpak) — migrating profiles from a Windows install: `profiles.ini`, the in-app profile-switcher DB, and per-profile app launchers |
 
 **Every folder above also has a `files/` subtree** holding actual copies of the real

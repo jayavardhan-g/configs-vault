@@ -5,6 +5,8 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("dbus-update-activation-environment --systemd --all")
     hl.exec_cmd("gnome-keyring-daemon --start --components=pkcs11,secrets")
     hl.exec_cmd("noctalia")
+    -- Quickshell, alongside Noctalia: hosts the pomodoro widget (SUPER+C).
+    hl.exec_cmd("qs -d")
     -- Removed: hl.exec_cmd("xhost +SI:localuser:root") — CachyOS boilerplate
     -- that grants the local root account access to the X (XWayland) display, so
     -- that root GUI apps like `sudo gparted` don't fail with "cannot open

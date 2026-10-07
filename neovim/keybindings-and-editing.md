@@ -1,9 +1,9 @@
 # Keybindings and editing behaviour
 
 **Category:** neovim
-**Files touched:** `lua/config/keymaps.lua`, `lua/config/options.lua`, `lua/plugins/completion.lua` (all under `~/.config/nvim/`; copies in [`files/`](files/))
+**Files touched:** `lua/config/keymaps.lua`, `lua/config/options.lua`, `lua/plugins/completion.lua`, `lua/plugins/noice.lua`, `lua/plugins/scope.lua`, `lua/plugins/snacks.lua`, `lazyvim.json` (all under `~/.config/nvim/`; copies in [`files/`](files/))
 
-Key remaps and editing defaults layered on top of LazyVim: the old-vs-LazyVim key comparison, OSC 52 clipboard yank, VSCode-style comment toggle, 4-space indent, and the autocomplete toggle. Part of the LazyVim setup - see [[lazyvim-migration]] for the migration itself and the index of all topic files.
+Key remaps and editing defaults layered on top of LazyVim: the old-vs-LazyVim key comparison, OSC 52 clipboard yank, VSCode-style comment toggle, 4-space indent, the autocomplete toggle, the mini.surround extra, per-tab buffers (scope.nvim), and the explorer's `t` new-tab key. Part of the LazyVim setup - see [[lazyvim-migration]] for the migration itself and the index of all topic files.
 
 Entries are in the order they happened. They were split out of `lazyvim-migration.md` on 2026-09-23 without rewording, so "above" and "previous follow-up" refer to entries in this file unless a link says otherwise.
 
@@ -269,3 +269,234 @@ than have one picked unilaterally - fair, a keybinding is a pure preference call
 something to decide alone. Proposed `<leader>ac` ("autocomplete"); confirmed live that
 nothing at all is bound under `<leader>a`, so no collision risk. Re-verified the same way
 as the original binding - registers correctly, toggle behavior unchanged.
+
+## Follow-up: mini.surround extra on, five accidental extras removed (2026-09-28)
+
+**What**: enabled LazyVim's `coding.mini-surround` extra (wrap/unwrap/replace text in `"`, `'`, `(`, `[`, `{`). While browsing `:LazyExtras`, five more extras got switched on unintentionally - `ai.supermaven`, `ai.tabnine`, `coding.luasnip`, `coding.mini-comment`, `coding.mini-snippets` - and were removed again. The extra list lives in `~/.config/nvim/lazyvim.json` (now stored in [`files/`](files/.config/nvim/lazyvim.json)).
+
+**Why**: surround editing isn't built into Vim/Neovim. The removed ones were never wanted: two AI completion services, two competing snippet engines (LazyVim's blink.cmp already uses Neovim's built-in snippets + `friendly-snippets`), and mini.comment, which duplicates Neovim's native `gc` (and the `Ctrl+/` toggle above).
+
+**Change** - `~/.config/nvim/lazyvim.json` extras block, final state:
+```json
+"extras": [
+  "lazyvim.plugins.extras.coding.mini-surround"
+],
+```
+Cleanup after editing the file by hand (removes plugin dirs and lockfile entries nothing references any more):
+```bash
+nvim --headless "+Lazy! clean" +qa
+rm -r ~/.supermaven   # supermaven-nvim leaves a device-id/link-id config here; the plugin dir alone isn't everything
+```
+Plugins it removed: `supermaven-nvim`, `cmp-tabnine`, `blink.compat` (tabnine's nvim-cmp bridge), `mini.snippets`, `mini.comment`, `nvim-ts-context-commentstring`. `luasnip` hadn't been downloaded yet.
+
+**Keys**: LazyVim's defaults, kept deliberately - `gsa` add, `gsd` delete, `gsr` replace, `gsf`/`gsF` find, `gsh` highlight. `)`/`]`/`}` wrap tight, `(`/`[`/`{` add inner spaces.
+
+**Notes**:
+- vim-surround-style keys (`ys`/`ds`/`cs`/`yss`) were considered and declined: kept LazyVim's `gs` defaults so nothing else loses a key. LazyVim puts surround on `gs` because Flash owns `s`/`S` (see [`flash.lua`](files/.config/nvim/lua/plugins/flash.lua)); remapping would have cost "operate up to a Flash jump target" (`ys`/`ds`/`cs`) and either visual-mode surround or visual-mode Flash Treesitter (`S`).
+- Moving Flash jump to `f` was asked about and advised against: Flash already enhances `f`/`F`/`t`/`T` (char mode), and taking `f` would lose single-char line motions like `df,`.
+- Plain Vim has no surround plugin; `auto-pairs` there has Fast Wrap (type `(` then `Alt-e` wraps the next word).
+
+## Follow-up: per-tab buffer lists with scope.nvim (2026-10-04)
+
+**What**: added `tiagovla/scope.nvim` so each tab page lists only the buffers opened in it - bufferline, `H`/`L` (`:bnext`/`:bprev`) and the `<leader>,` buffer picker all follow the current tab. New file `~/.config/nvim/lua/plugins/scope.lua` (copy in [`files/`](files/.config/nvim/lua/plugins/scope.lua)).
+
+**Why**: asked after `:tabnew`'s `[No Name]` buffer showed up in every tab. Vim buffers are global and bufferline (stock LazyVim, `mode = "buffers"`) lists all of them in every tab; there's no built-in per-tab scoping and no LazyVim extra for it.
+
+**Change** - `~/.config/nvim/lua/plugins/scope.lua`:
+```lua
+return {
+  {
+    "tiagovla/scope.nvim",
+    event = "VeryLazy",
+    opts = {},
+    init = function()
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "PersistenceSavePre",
+        callback = function()
+          pcall(vim.cmd.ScopeSaveState)
+        end,
+      })
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "PersistenceLoadPost",
+        callback = function()
+          pcall(vim.cmd.ScopeLoadState)
+        end,
+      })
+    end,
+  },
+}
+```
+First launch installs it (lazy.nvim); it is pinned in `lazy-lock.json`.
+
+**Notes**:
+- Session hooks are needed because persistence.nvim (LazyVim's sessions) would otherwise restore every buffer into every tab. scope stores its state in a global, which LazyVim's `sessionoptions` already includes (`globals`).
+- Verified headless (with `VeryLazy` forced - it never fires without a UI): tab 1 lists `a, c`, tab 2 only `b`; `:bnext` stays inside the tab; a file opened in two tabs is listed in both; save + restore keeps the split. Snacks' buffer picker filters on `buflisted`, so it follows the tab too.
+- `:ScopeMoveBuf {n}` moves the current buffer to tab `n`.
+- Undo: delete `scope.lua` and run `:Lazy clean`.
+- `<leader>fB` (Snacks "Buffers (all)", `hidden = true`) still lists every tab's buffers, but picking one opens it in the **current** tab (it then joins this tab's list) - Snacks' `drop` action only finds buffers *visible* in another tab's window. **Shelved (future work)**: a custom confirm on `<leader>fB` that looks the buffer up in `require("scope.core").cache` (refreshed only on TabLeave, so use live `buflisted` for the current tab), switches to that tab page and `:buffer`s it, else opens here. A separate tab-page picker was offered and declined ("searching through all buffers is enough").
+- Recommendation given when asked "global or per-tab?": keep per-tab - with one tab nothing changes, and it gives extra tabs a purpose; switch back only if tabs are used as alternate layouts of the *same* files.
+
+
+## Follow-up: kitty tab keys moved off Ctrl+T / Ctrl+W (2026-10-04)
+
+**What**: kitty's new-tab / close-tab shortcuts moved from bare `ctrl+t` / `ctrl+w` to `ctrl+shift+t` / `ctrl+shift+w` (kitty's own default modifier). Also dropped a dead duplicate `map ctrl+shift+tab next_tab` (the `previous_tab` line after it always won). File: `~/.config/kitty/kitty.conf` (copy in [`files/`](files/.config/kitty/kitty.conf)).
+
+**Why**: kitty resolves its maps before the program inside sees the key, so with bare Ctrl+T/Ctrl+W mapped, Neovim never received `<C-t>` (picker open-in-new-tab, tag/help jump back, previous match while searching, explorer terminal, insert-mode indent) or `<C-w>` (every window command - pressing it in Neovim closed the kitty tab). Found while documenting tab pages / scope.nvim above. Options offered: Ctrl+Shift (chosen), kitty `--when-focus-on` maps that pass the keys to Neovim, or leave as-is.
+
+**Change** - `~/.config/kitty/kitty.conf`, tab block:
+```conf
+# Ctrl+Backspace deletes the previous word in every program (sends Ctrl+W)
+map ctrl+backspace send_text all \x17
+map ctrl+tab next_tab
+map ctrl+shift+tab previous_tab
+# New/close tab on Ctrl+Shift, not bare Ctrl+T / Ctrl+W: kitty catches its
+# maps before the program inside, and Neovim needs <C-t> (picker: open in
+# new tab, tag/help jump back) and <C-w> (every window command).
+map ctrl+shift+t new_tab
+map ctrl+shift+w close_tab
+```
+Applied to running kitty with `pkill -USR1 -x kitty` (config reload).
+
+**Notes**:
+- Verified with kitty's own config parser: ctrl+shift+t → `new_tab`, ctrl+shift+w → `close_tab` (overrides kitty's default `close_window` there - same thing with one window per tab), no bare ctrl+t / ctrl+w maps left.
+- The Ctrl+Backspace line is unaffected: `send_text` types `\x17` straight to the program, it never went through the old `ctrl+w` map.
+- The stored `kitty.conf` copy had been missing this whole tab/backspace block (added after the last copy); it's current now.
+
+## Follow-up: `t` in the explorer opens the file in a new tab page (2026-10-04)
+
+**What**: in the Snacks file explorer, `t` opens the file under the cursor in a new tab page; on a folder it expands/collapses it (same as `l`/`<CR>`). New file `~/.config/nvim/lua/plugins/snacks.lua` (copy in [`files/`](files/.config/nvim/lua/plugins/snacks.lua)) - the first Snacks override in this setup, so it is also where the cheatsheet's "Default:" notes for Snacks options now point.
+
+**Why**: the explorer had no new-tab key. Pickers use `<C-t>` ("tab"), but Snacks' own explorer source rebinds `<C-t>` to "terminal" (`snacks/picker/config/sources.lua`) - stock behaviour, never changed by LazyVim or this config (checked when asked). Offered `t`, `T`, or taking over `<C-t>`; `t` chosen. `t`/`T` were unbound in both the explorer and the picker list defaults.
+
+**Change** - `~/.config/nvim/lua/plugins/snacks.lua`:
+```lua
+return {
+  {
+    "folke/snacks.nvim",
+    opts = {
+      picker = {
+        sources = {
+          explorer = {
+            win = {
+              list = {
+                keys = {
+                  ["t"] = "tab",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+}
+```
+
+**Notes**:
+- No custom action needed: Snacks' `tab` action is `{ action = "confirm", cmd = "tab" }`, and the explorer's `confirm` toggles folders and only calls `jump` (here `tab sbuffer`) for files.
+- Verified headless (explorer opened, `VeryLazy` forced, key fed into the list window): `t` on a folder expanded it with no new tab; `t` on a file opened tab 2 with just that file and moved there; the explorer stayed in tab 1. With scope.nvim the new tab's buffer list starts with only that file.
+
+## Catch-up: changes made in earlier sessions but never recorded (found 2026-10-04)
+
+Found while auditing stored copies against the live files on 2026-10-04. Dates unknown (between 2026-09-23 and 2026-10-02); the reasons below come from the comments in the live files. Copies in [`files/`](files/) are now current.
+
+**`dm{mark}` deletes a mark** - `lua/config/keymaps.lua`, appended:
+```lua
+vim.keymap.set("n", "dm", function()
+  local char = vim.fn.getcharstr()
+  if char == "-" then
+    vim.cmd("delmarks!")
+  elseif char:match("^[%a%d]$") then
+    pcall(vim.cmd.delmarks, char)
+  end
+end, { desc = "Delete mark (dm{mark}, dm- = all in buffer)" })
+```
+The mirror of `m{mark}` (a mark-plugin convention; Vim only has `:delmarks`). `dm` was free: `m` isn't a motion, and no other mapping starts with `d`, so `dd`/`dw` stay instant.
+
+**Autocomplete starts off** - `lua/config/keymaps.lua`: `vim.g.blink_cmp_enabled = false` (was `true` when the `<leader>ac` toggle was added - see the 2026-09-22 follow-up above). It stays out of the way until `<leader>ac` turns it on for the session.
+
+**Diagnostics hidden at startup** - `lua/config/options.lua`, appended: `vim.diagnostic.enable(false)`. LSP errors/warnings were distracting while typing; `<leader>ud` (stock LazyVim toggle) shows them. The LSP still computes them, so they appear instantly when toggled on.
+
+**Signature help no longer pops up by itself** - new `lua/plugins/noice.lua`:
+```lua
+return {
+  {
+    "folke/noice.nvim",
+    opts = {
+      lsp = {
+        signature = {
+          auto_open = { enabled = false },
+        },
+      },
+    },
+  },
+}
+```
+noice opened the function signature on every `(` / `,`. `<C-k>` (insert) / `gK` (normal) still show it on demand.
+
+The cheatsheet already covered all four ("Customizations: default vs current"); only this log and the stored copies were behind.
+
+## Follow-up: fixed files leaking into the old tab's buffer list (2026-10-04)
+
+**What**: replaced Snacks' `tab` action (pickers' `<C-t>`, the explorer's `t`) with a custom one in `lua/plugins/snacks.lua` that runs `:tabedit` (copy in [`files/`](files/.config/nvim/lua/plugins/snacks.lua)). Supersedes the plain `["t"] = "tab"` setup above: the key binding is unchanged, but `tab` now resolves to the custom function.
+
+**Why**: reported as "all buffers appear in the first tab". Reproduced: after explorer `t` on `b.txt`, tab 1 listed `afile.txt, b.txt`, and tab 2 listed `afile.txt` (wrong file). Snacks' `jump` does `bufadd()` + `buflisted = true` in the **current** tab, then `:tab sbuffer`. scope.nvim snapshots the old tab's listed buffers on `TabLeave`, so every file opened "in a new tab" from a picker joined the old tab too. `:tabe` was always fine because it creates the tab first.
+
+**Change** - `~/.config/nvim/lua/plugins/snacks.lua`, final state:
+```lua
+local function open_in_new_tab(picker, item)
+  if not item then
+    return
+  end
+  if item.dir then
+    return picker:action("confirm")
+  end
+  local items = picker:selected({ fallback = true })
+  if picker.opts.jump and picker.opts.jump.close == false then
+    vim.api.nvim_set_current_win(picker.main)
+  else
+    picker:close()
+  end
+  for _, it in ipairs(items) do
+    local path = Snacks.picker.util.path(it)
+    if path and not it.dir then
+      vim.cmd.tabedit(vim.fn.fnameescape(path))
+      if it.pos and it.pos[1] > 0 then
+        pcall(vim.api.nvim_win_set_cursor, 0, { it.pos[1], it.pos[2] })
+        vim.cmd("normal! zz")
+      end
+    end
+  end
+end
+
+return {
+  {
+    "folke/snacks.nvim",
+    opts = {
+      picker = {
+        actions = {
+          tab = open_in_new_tab,
+        },
+        sources = {
+          explorer = {
+            win = {
+              list = {
+                keys = {
+                  ["t"] = "tab",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+}
+```
+
+**Notes**:
+- Overriding works by name: Snacks resolves an action through `picker.opts.actions` before its built-ins, so one override covers every `<C-t>` and the explorer `t`.
+- Verified headless: explorer `t` keeps tab 1 = `afile.txt`, tab 2 = `b.txt`; files-picker `<C-t>` opens a tab listing only that file; grep `<C-t>` lands on the match line (3); folders still expand/collapse with `t`; the explorer stays open in its tab.
+- Tabs already polluted before the fix: switch to the stray file, `:setlocal nobuflisted`, switch away. It drops out of that tab only (verified; `<leader>bd` would close it everywhere). Sessions saved before the fix keep the polluted lists until cleaned this way.
+- Multi-select (`<Tab>` in a picker, then `<C-t>`) should open one tab per file - the action loops over the selection, but this case was not tested.
+

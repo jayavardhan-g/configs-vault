@@ -29,3 +29,9 @@ if vim.env.SSH_CONNECTION then
     },
   }
 end
+
+-- Diagnostics (LSP errors/warnings: signs, underlines, inline text) start
+-- hidden everywhere - they're distracting while still typing. <leader>ud
+-- (LazyVim's Snacks toggle) turns them back on for the session. The LSP
+-- still computes them while hidden, so toggling on shows them instantly.
+vim.diagnostic.enable(false)

@@ -9,6 +9,8 @@ Entries are in the order they happened. They were split out of `lazyvim-migratio
 
 ## Follow-up: freed s/S from flash.nvim, moved it to gs/gS (2026-09-22)
 
+**Superseded**: Flash is back on LazyVim's default `s`/`S` - moved back on request, since `cl`/`cc` already do what native `s`/`S` did (live `flash.lua` is now just `{ "folke/flash.nvim" }` plus a comment; stored copy in [`files/`](files/.config/nvim/lua/plugins/flash.lua); the date of that move wasn't recorded, found on 2026-09-28). `gs` is now the surround prefix (`gsa`/`gsd`/`gsr`, see [[keybindings-and-editing]]), so the rebind below must **not** be reapplied as-is. Kept for the reasoning trail.
+
 **What**: began going through LazyVim's optional plugins one at a time (test live, then
 decide keep/remove) as a review process - `flash.nvim` (jump-to-visible-location) was
 first. It works well, but its default LazyVim binding is `s`/`S` in normal/visual/
@@ -121,7 +123,7 @@ i.e. git-tracked files).
 alongside it - the `on_attach` wrap didn't drop anything.
 
 **`flash.nvim` decision**: kept, no changes beyond the `gs`/`gS` rebind from the
-previous follow-up.
+previous follow-up. (Later reverted to `s`/`S` - see the Superseded note on that follow-up.)
 
 ## Follow-up: `<leader>ghP` now auto-focuses in one keypress (2026-09-22)
 
@@ -276,7 +278,7 @@ changes. This closes out the one-by-one review started earlier this session.
 
 | Plugin | Verdict |
 |---|---|
-| `flash.nvim` | kept - rebound off `s`/`S` to `gs`/`gS` |
+| `flash.nvim` | kept - briefly rebound to `gs`/`gS`, since back on default `s`/`S` (`gs` is now surround) |
 | `gitsigns.nvim` | kept - added `<leader>ghP` popup preview |
 | `persistence.nvim` | kept, unchanged |
 | `nvim-treesitter-textobjects` | **disabled** |

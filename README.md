@@ -23,6 +23,7 @@ Personal runbook of system/config decisions, split by scope:
 | [`mpv/`](mpv/mpv-video-player.md) | mpv video player — plain repo install, no player was present by default |
 | [`noctalia/`](noctalia/palette-source-not-persisting.md) | Noctalia shell — wallpaper-based palette source not persisting to settings.toml |
 | [`zen-browser/`](zen-browser/windows-profile-migration.md) | Zen Browser (Flatpak) — migrating profiles from a Windows install: `profiles.ini`, the in-app profile-switcher DB, and per-profile app launchers |
+| [`antigravity-cli/`](antigravity-cli/antigravity-cli.md) | Google Antigravity CLI (`agy`) for quick terminal Q&A — official installer; replaces the retired Gemini CLI |
 
 **Every folder above also has a `files/` subtree** holding actual copies of the real
 config files each entry touches, mirroring their real path under `$HOME` (e.g.

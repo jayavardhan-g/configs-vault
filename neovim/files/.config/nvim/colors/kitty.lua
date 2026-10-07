@@ -1,7 +1,14 @@
 -- Reads kitty's actual theme file at load time (not a hardcoded snapshot),
--- so this colorscheme always matches whatever kitty is currently using -
--- including if Noctalia regenerates ~/.config/kitty/themes/noctalia.conf
--- later (e.g. on a wallpaper change).
+-- so this colorscheme matches whatever kitty is using when Neovim starts.
+-- If Noctalia regenerates ~/.config/kitty/themes/noctalia.conf later (e.g. on a
+-- wallpaper change), an open Neovim deliberately keeps its current colours; the
+-- new theme applies the next time Neovim is opened.
+--
+-- Transparency: every "editor background" below is NONE, i.e. kitty's own default
+-- background, which kitty always draws at background_opacity - whatever colour
+-- kitty's theme currently uses. (Painting kitty's background hex explicitly also
+-- looked see-through, but only until the theme changed: kitty then treated the old
+-- hex as an ordinary colour and drew it solid, a black box in an open Neovim.)
 
 vim.cmd("hi clear")
 if vim.fn.exists("syntax_on") == 1 then
@@ -55,16 +62,14 @@ local hl = function(group, opts)
 end
 
 -- Base editor UI
-hl("Normal", { fg = c.foreground, bg = c.background })
--- Floats and sidebars share the editor background on purpose: kitty renders
--- cells in exactly its own background colour at background_opacity, so this
--- makes them see-through like the editor. With color0 they were solid grey
--- boxes. Covers every NormalFloat user (Snacks explorer box via SnacksNormal,
--- the leetcode.nvim description panel, hover docs, which-key, Lazy, ...);
--- rounded borders still set them apart. Pmenu (completion menu) is left
+hl("Normal", { fg = c.foreground, bg = "NONE" })
+-- Floats and sidebars share the editor's see-through background on purpose. With
+-- color0 they were solid grey boxes. Covers every NormalFloat user (Snacks explorer
+-- box via SnacksNormal, the leetcode.nvim description panel, hover docs, which-key,
+-- Lazy, ...); rounded borders still set them apart. Pmenu (completion menu) is left
 -- solid below so the selected item stays easy to pick out.
-hl("NormalFloat", { fg = c.foreground, bg = c.background })
-hl("FloatBorder", { fg = c.color8, bg = c.background })
+hl("NormalFloat", { fg = c.foreground, bg = "NONE" })
+hl("FloatBorder", { fg = c.color8, bg = "NONE" })
 hl("Cursor", { fg = c.background, bg = c.cursor })
 hl("CursorLine", { bg = c.color0 })
 hl("CursorLineNr", { fg = c.cursor, bold = true })
@@ -74,7 +79,7 @@ hl("Search", { bg = c.color3, fg = c.background })
 hl("IncSearch", { bg = c.cursor, fg = c.background })
 hl("MatchParen", { fg = c.cursor, bold = true })
 hl("WinSeparator", { fg = c.color8 })
-hl("SignColumn", { bg = c.background })
+hl("SignColumn", { bg = "NONE" })
 hl("Pmenu", { fg = c.foreground, bg = c.color0 })
 hl("PmenuSel", { fg = c.background, bg = c.cursor })
 hl("StatusLine", { fg = c.foreground, bg = c.color0 })
@@ -103,10 +108,10 @@ hl("Special", { fg = c.color1 })
 hl("Underlined", { fg = c.color4, underline = true })
 hl("Error", { fg = c.color1, bold = true })
 hl("Todo", { fg = c.background, bg = c.color3, bold = true })
-hl("DiffAdd", { fg = c.color2, bg = c.background })
-hl("DiffDelete", { fg = c.color1, bg = c.background })
-hl("DiffChange", { fg = c.color3, bg = c.background })
-hl("DiffText", { fg = c.color4, bg = c.background, bold = true })
+hl("DiffAdd", { fg = c.color2, bg = "NONE" })
+hl("DiffDelete", { fg = c.color1, bg = "NONE" })
+hl("DiffChange", { fg = c.color3, bg = "NONE" })
+hl("DiffText", { fg = c.color4, bg = "NONE", bold = true })
 
 -- Diagnostics
 hl("DiagnosticError", { fg = c.color1 })

@@ -33,7 +33,9 @@ vim.keymap.set("v", "<C-_>", "gc", comment_opts)
 -- keymaps.lua, since that one is registered outside this file. Settled on
 -- <leader>ac ("autocomplete") instead - nothing else is bound under
 -- <leader>a at all, confirmed the same way.
-vim.g.blink_cmp_enabled = true
+-- Starts OFF: autocomplete stays out of the way until <leader>ac turns it on
+-- for the session.
+vim.g.blink_cmp_enabled = false
 Snacks.toggle({
   name = "Autocomplete",
   get = function() return vim.g.blink_cmp_enabled ~= false end,
@@ -83,3 +85,17 @@ vim.keymap.set("n", "<leader>cL", function()
     end
   end)
 end, { desc = "Set Buffer Language" })
+
+-- dm{mark} deletes a mark - the mirror of m{mark} setting one (a convention
+-- from mark plugins; Vim itself only has :delmarks). dm- clears every
+-- lowercase mark in this buffer. `dm` was free: `m` isn't a motion, so the
+-- `d` operator never used it, and dd/dw/d$ etc. still run instantly since
+-- no other mapping starts with "d".
+vim.keymap.set("n", "dm", function()
+  local char = vim.fn.getcharstr()
+  if char == "-" then
+    vim.cmd("delmarks!")
+  elseif char:match("^[%a%d]$") then
+    pcall(vim.cmd.delmarks, char)
+  end
+end, { desc = "Delete mark (dm{mark}, dm- = all in buffer)" })

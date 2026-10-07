@@ -87,3 +87,10 @@ verifiable headlessly.
 background (the editor colour, see-through) differed from the grey panel. With the
 panel now the same colour, inline code is distinguished only by its colour. Flagged to
 the user rather than changed.
+
+## Catch-up: backgrounds are now `NONE`, not kitty's hex (found 2026-10-04)
+
+**Superseded** the "exactly kitty's background colour" approach above. Found when re-syncing [`files/.config/nvim/colors/kitty.lua`](files/.config/nvim/colors/kitty.lua); the date of the change is unknown and the reasons come from the file's comments. `Normal`, `NormalFloat` and `FloatBorder` (and every other "editor background") now use `bg = "NONE"`, i.e. kitty's own default background, which kitty always draws at `background_opacity`.
+
+**Why**: painting kitty's background hex explicitly looked see-through only until the theme changed. After Noctalia regenerated kitty's theme, kitty treated the old hex as an ordinary colour and drew it solid, leaving a black box in an already-open Neovim. Related: an open Neovim now deliberately keeps its colours when the kitty theme changes; the new theme applies the next time Neovim starts.
+

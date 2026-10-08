@@ -3,17 +3,59 @@ config_version = 14
 [accessibility]
 ui_scale = 1.0000000074505806
 
-[bar.default]
-background_opacity = 0.89999997988343239
-center = [ "clock" ]
-end = [ "workspaces", "media", "spacer_1", "tray", "notifications", "bluetooth", "network", "volume", "battery", "session" ]
-reserve_space = false
-shadow = false
-smart_auto_hide = true
-start = [ "group:g1", "active_window" ]
+[bar]
+order = [ "default" ]
+
+    [bar.default]
+    background_opacity = 0.89999997988343239
+    center = [ "clock", "bar", "todo" ]
+    end = [
+        "workspaces",
+        "media",
+        "spacer_1",
+        "tray",
+        "notifications",
+        "bluetooth",
+        "network",
+        "volume",
+        "battery",
+        "session"
+    ]
+    layer = "overlay"
+    reserve_space = false
+    shadow = false
+    smart_auto_hide = true
+    start = [ "group:g1", "active_window" ]
+
+[desktop_widgets]
+schema_version = 2
+widget_order = []
+
+    [desktop_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
+
+    [desktop_widgets.widget]
 
 [dock]
 magnification_scale = 1.2000000029802322
+
+[hot_corners.bottom_left]
+action = "window_switcher"
+
+[idle]
+behavior_order = [ "lock", "screen-off" ]
+
+    [idle.behavior.lock]
+    action = "lock"
+    enabled = true
+    timeout = 600.0
+
+    [idle.behavior.screen-off]
+    action = "screen_off"
+    enabled = true
+    timeout = 300.0
 
 [lockscreen_widgets]
 enabled = false
@@ -56,7 +98,7 @@ widget_order = [ "lockscreen-login-box@HDMI-A-1", "lockscreen-login-box@eDP-1" ]
     box_height = 196.0
     box_width = 810.0
     cx = 800.00018310546875
-    cy = 672.4998779296875
+    cy = 672.49957275390625
     output = "eDP-1"
     placement_height = 900.0
     placement_width = 1600.0
@@ -79,56 +121,58 @@ widget_order = [ "lockscreen-login-box@HDMI-A-1", "lockscreen-login-box@eDP-1" ]
         show_unlock_hint = true
         show_weather = true
 
+[plugin_settings."nightwatch75/todo"]
+sound_on_complete = true
+
+[plugins]
+enabled = [ "nightwatch75/todo", "noctalia/timer" ]
+
 [shell]
+popup_shadows = false
 settings_show_advanced = false
+
+    [shell.animation]
+    enabled = false
 
     [shell.panel]
     shadow = false
 
 [theme]
 builtin = "Ayu"
-community_palette = "Ayu Blue"
+community_palette = "Catppuccin Mocha Blue"
 mode = "dark"
 shell_mode = "dark"
-source = "wallpaper"
 wallpaper_scheme = "m3-fruit-salad"
 
+    [theme.templates]
+    builtin_ids = [ "alacritty", "btop", "gtk3", "gtk4", "kcolorscheme", "kitty", "qt" ]
+
 [wallpaper]
-directory = "/home/jayavardhan/Downloads/wallpapers"
-transition = []
+directory = "/home/<user>/Downloads/wallpapers"
+fill_mode = "stretch"
+transition = [ "stripes" ]
 
     [wallpaper.automation]
     enabled = true
 
     [wallpaper.default]
-    path = "/home/jayavardhan/Downloads/wallpapers/Sunlight_room_anime.jpg"
+    path = "/home/<user>/Downloads/wallpapers/miles-morales-spiderman-suit-big-logo-vibrant-city-desktop-wallpaper.jpg"
 
     [wallpaper.last]
-    path = "/home/jayavardhan/Downloads/wallpapers/Sunlight_room_anime.jpg"
+    path = "/home/<user>/Downloads/wallpapers/miles-morales-spiderman-suit-big-logo-vibrant-city-desktop-wallpaper.jpg"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/jayavardhan/Downloads/wallpapers/Sunlight_room_anime.jpg"
+    path = "/home/<user>/Downloads/wallpapers/miles-morales-spiderman-suit-big-logo-vibrant-city-desktop-wallpaper.jpg"
 
     [wallpaper.monitors.eDP-1]
-    path = "/home/jayavardhan/Downloads/wallpapers/Sunlight_room_anime.jpg"
+    path = "/home/<user>/Downloads/wallpapers/miles-morales-spiderman-suit-big-logo-vibrant-city-desktop-wallpaper.jpg"
 
-    [[wallpaper.favorite]]
-    palette_source = "wallpaper"
-    path = "/home/jayavardhan/Downloads/wallpapers/wallhaven-k8d7j7.jpg"
-    theme_mode = "dark"
-    wallpaper_scheme = "m3-fruit-salad"
+[widget.bar]
+enabled = false
+type = "noctalia/timer:bar"
 
-    [[wallpaper.favorite]]
-    builtin_palette = "Ayu"
-    palette_source = "builtin"
-    path = "/home/jayavardhan/Downloads/wallpapers/wallhaven-k8d851.jpg"
-    theme_mode = "dark"
-
-    [[wallpaper.favorite]]
-    builtin_palette = "Ayu"
-    palette_source = "builtin"
-    path = "/home/jayavardhan/Downloads/wallpapers/Sunset_sky_anime.webp"
-    theme_mode = "dark"
+[widget.bar_2]
+type = "noctalia/timer:bar"
 
 [widget.clock]
 format = "{:%H:%M %A %d/%m/%y}"
@@ -147,3 +191,9 @@ enabled = false
 
 [widget.temp]
 enabled = false
+
+[widget.todo]
+type = "nightwatch75/todo:todo"
+
+[widget.todo_2]
+type = "nightwatch75/todo:todo"

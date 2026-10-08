@@ -2,9 +2,31 @@
 -- if you dont use UWSM add your auto start programs here, otherwise use XDG autostart https://wiki.archlinux.org/title/XDG_Autostart
 
 hl.on("hyprland.start", function ()
+    -- Clear any Claude Code daemon left over from a PREVIOUS Hyprland session.
+    --
+    -- That daemon is long-lived and caches WAYLAND_DISPLAY from whatever session
+    -- started it. When Hyprland restarts it comes up on a NEW socket, but a
+    -- surviving daemon keeps pointing at the old one, so every clipboard read it
+    -- makes fails and image paste silently stops working, with no error anywhere.
+    --
+    -- Measured 2026-09-21: the daemon started 12:03 holding
+    -- WAYLAND_DISPLAY=wayland-0, Hyprland came up 12:07 on wayland-1, and
+    -- /run/user/1000/wayland-0 no longer existed. Proof it was the cause:
+    --   WAYLAND_DISPLAY=wayland-0 wl-paste --list-types
+    --     -> Failed to connect to a Wayland server: No such file or directory
+    --   WAYLAND_DISPLAY=wayland-1 wl-paste --list-types  -> image/png
+    --
+    -- Done at START rather than in the shutdown hook below, deliberately: a crash
+    -- or a hard kill never runs a shutdown hook, and that is exactly the case that
+    -- strands a daemon. At this point in a fresh session there is nothing worth
+    -- keeping — any daemon still alive here already holds the wrong socket.
+    hl.exec_cmd("pkill -f 'claude daemon' || true")
+
     hl.exec_cmd("dbus-update-activation-environment --systemd --all")
     hl.exec_cmd("gnome-keyring-daemon --start --components=pkcs11,secrets")
     hl.exec_cmd("noctalia")
+    -- Quickshell, alongside Noctalia: hosts the pomodoro widget (SUPER+C).
+    hl.exec_cmd("qs -d")
     -- Removed: hl.exec_cmd("xhost +SI:localuser:root") — CachyOS boilerplate
     -- that grants the local root account access to the X (XWayland) display, so
     -- that root GUI apps like `sudo gparted` don't fail with "cannot open
@@ -38,18 +60,12 @@ hl.on("hyprland.start", function ()
     -- Xpad isn't running).
     -- hl.exec_cmd("~/.config/hypr/scripts/xpad-launch.sh")
 
-    -- Xpad notes are floating and keep an absolute global-space position
-    -- that doesn't get re-projected when their workspace moves monitors (see
-    -- windowrules.lua's monitor.added hook, which repairs that after a real
-    -- runtime hotplug). But monitor.added also fires for monitors that are
-    -- already connected at this initial boot, and running the same repair
-    -- then races Xpad's own startup — it can catch each note's window before
-    -- Xpad has applied its saved x/y, "fixing" a note that was never
-    -- actually broken by force-centering it. XPAD_HOTPLUG_ARMED gates the
-    -- repair out until boot has had time to settle, so it only ever runs for
-    -- genuine post-boot reconnects.
-    XPAD_HOTPLUG_ARMED = false
-    hl.timer(function() XPAD_HOTPLUG_ARMED = true end, { timeout = 8000, type = "oneshot" })
+    -- XPAD_HOTPLUG_ARMED was removed here. It existed only to gate the
+    -- xpad-note-translating monitor.added hook in windowrules.lua, which raced
+    -- Xpad's startup at boot. That hook is gone — workspaces.lua now moves the
+    -- whole workspace back to its monitor instead, which re-projects floating
+    -- windows by itself and touches no window directly, so there is nothing
+    -- left to race and nothing to arm.
 
     -- Auto-hidden apps: routed straight into the special workspace by matching
     -- window_rules in windowrules.lua (titles below must match those rules

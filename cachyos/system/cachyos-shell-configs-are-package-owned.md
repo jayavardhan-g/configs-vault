@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-21
 **Category:** system
-**Files touched:** none persisted here — this entry records what *not* to edit. The actual alias that triggered it lives in [[btop-force-utf-alias]].
+**Files touched:** none persisted here — this entry records what *not* to edit. The alias that triggered it (since removed in favour of [[utf8-locale-name]]) is recorded in [[btop-force-utf-alias]].
 
 ## What
 CachyOS ships its shell defaults as root-owned files inside pacman packages:

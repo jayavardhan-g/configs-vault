@@ -1,4 +1,4 @@
-// Full pomodoro panel (SUPER+C): Timer / Stats / History / Settings.
+// Full pomodoro panel (SUPER+C): Timer / Stats / History / Phone / Settings.
 // Esc or SUPER+C closes it.
 import Quickshell
 import Quickshell.Wayland
@@ -17,10 +17,21 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
     WlrLayershell.namespace: "pomodoro"
     implicitWidth: 460
-    implicitHeight: 660
+    implicitHeight: 740
     color: "transparent"
 
-    onVisibleChanged: if (visible) { tab = "timer"; card.forceActiveFocus(); }
+    onVisibleChanged: {
+        if (visible) {
+            tab = "timer";
+            card.forceActiveFocus();
+        } else {
+            Pomo.cancelPairing();       // a pairing code only lives while the panel is open
+        }
+    }
+
+    // Redraws "heard from 2 min ago" while the Phone tab is showing.
+    property real clock: Date.now()
+    Timer { interval: 30000; repeat: true; running: panel.visible && panel.tab === "phone"; onTriggered: panel.clock = Date.now() }
 
     Rectangle {
         id: card
@@ -38,12 +49,13 @@ PanelWindow {
             anchors.margins: 20
             spacing: 16
 
-            // ── header / tabs ──
+            // ── header / tabs ── (only the open tab shows its name, so five tabs and close fit)
             RowLayout {
                 spacing: 6
-                Btn { icon: 0xF051B; label: "Timer"; size: 34; selected: panel.tab === "timer"; onClicked: panel.tab = "timer" }
-                Btn { icon: 0xF0128; label: "Stats"; size: 34; selected: panel.tab === "stats"; onClicked: panel.tab = "stats" }
-                Btn { icon: 0xF02DA; label: "History"; size: 34; selected: panel.tab === "history"; onClicked: panel.tab = "history" }
+                Btn { icon: 0xF051B; label: panel.tab === "timer" ? "Timer" : ""; size: 34; selected: panel.tab === "timer"; onClicked: panel.tab = "timer" }
+                Btn { icon: 0xF0128; label: panel.tab === "stats" ? "Stats" : ""; size: 34; selected: panel.tab === "stats"; onClicked: panel.tab = "stats" }
+                Btn { icon: 0xF02DA; label: panel.tab === "history" ? "History" : ""; size: 34; selected: panel.tab === "history"; onClicked: panel.tab = "history" }
+                Btn { icon: 0xF011C; label: panel.tab === "phone" ? "Phone" : ""; size: 34; selected: panel.tab === "phone"; onClicked: panel.tab = "phone" }
                 Btn { icon: 0xF0493; size: 34; selected: panel.tab === "settings"; onClicked: panel.tab = "settings" }
                 Item { Layout.fillWidth: true }
                 Btn { icon: 0xF0156; size: 34; onClicked: Pomo.panelOpen = false }
@@ -144,6 +156,45 @@ PanelWindow {
                         enabled: Pomo.active && !Pomo.locked
                         onClicked: Pomo.skip()
                     }
+                }
+
+                // On the go: this run's lengths and rounds (back to the defaults when it ends)
+                RowLayout {
+                    visible: !Pomo.stopwatch
+                    Layout.alignment: Qt.AlignHCenter
+                    spacing: 20
+                    RunStepper {
+                        label: "Focus"
+                        value: Pomo.runFocus + "m"
+                        canDown: Pomo.runFocus > 1 && !Pomo.locked
+                        canUp: Pomo.runFocus < 180
+                        onDown: Pomo.setRunMinutes("focus", Pomo.runFocus - 5)
+                        onUp: Pomo.setRunMinutes("focus", Pomo.runFocus + 5)
+                    }
+                    RunStepper {
+                        label: "Break"
+                        value: Pomo.runShort + "m"
+                        canDown: Pomo.runShort > 1
+                        canUp: Pomo.runShort < 30
+                        onDown: Pomo.setRunMinutes("short", Pomo.runShort - 1)
+                        onUp: Pomo.setRunMinutes("short", Pomo.runShort + 1)
+                    }
+                    RunStepper {
+                        label: "Rounds"
+                        value: Pomo.runRounds > 0 ? Pomo.runRounds : "∞"
+                        canDown: Pomo.runRounds > 0
+                        canUp: Pomo.runRounds < 12
+                        onDown: Pomo.stepRounds(-1)
+                        onUp: Pomo.stepRounds(1)
+                    }
+                }
+                Text {
+                    visible: !Pomo.stopwatch && Pomo.runRounds > 0
+                    Layout.alignment: Qt.AlignHCenter
+                    text: Pomo.active ? "Round " + Math.max(1, Pomo.roundNow) + " of " + Pomo.runRounds
+                                      : Pomo.runRounds + " rounds, then stop"
+                    color: Theme.dim
+                    font.pixelSize: 12
                 }
 
                 Item { Layout.fillHeight: true }
@@ -464,6 +515,95 @@ PanelWindow {
                 }
             }
 
+            // ════════════════ PHONE ════════════════
+            ColumnLayout {
+                visible: panel.tab === "phone"
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                spacing: 12
+
+                Text {
+                    text: Pomo.syncPaired ? "PHONE" : "PAIR A PHONE"
+                    color: Theme.accent; font.pixelSize: 11; font.bold: true; font.letterSpacing: 1
+                }
+
+                // Not paired: explain, offer to pair.
+                ColumnLayout {
+                    visible: !Pomo.syncPaired && Pomo.pairingQr === ""
+                    Layout.fillWidth: true
+                    spacing: 12
+                    Text {
+                        Layout.fillWidth: true
+                        text: "Keep the focus timer, sessions, categories and timer settings in step with the Focus timer in the Sync app on your phone. Messages are encrypted; ntfy.sh only carries them."
+                        color: Theme.dim; font.pixelSize: 13; wrapMode: Text.Wrap
+                    }
+                    Btn { icon: 0xF0432; label: "Pair a phone"; primary: true; size: 36; onClicked: Pomo.startPairing() }
+                }
+
+                // Pairing: the QR code, until the phone says hello.
+                RowLayout {
+                    visible: !Pomo.syncPaired && Pomo.pairingQr !== ""
+                    Layout.fillWidth: true
+                    spacing: 16
+                    Rectangle {
+                        implicitWidth: 168; implicitHeight: 168; radius: 14; color: "white"
+                        Image {
+                            anchors.fill: parent; anchors.margins: 8
+                            source: Pomo.pairingQr ? "file://" + Pomo.pairingQr : ""
+                            cache: false; smooth: false; fillMode: Image.PreserveAspectFit
+                        }
+                    }
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 6
+                        Text { Layout.fillWidth: true; text: "Scan with your phone's camera."; color: Theme.fg; font.pixelSize: 13; wrapMode: Text.Wrap }
+                        Text {
+                            Layout.fillWidth: true
+                            text: "The code holds this laptop's name, a private channel and the encryption key. Close the panel and it's gone; a new code is made each time."
+                            color: Theme.dim; font.pixelSize: 12; wrapMode: Text.Wrap
+                        }
+                        Text { text: "Waiting for the phone…"; color: Theme.faint; font.pixelSize: 12 }
+                    }
+                }
+
+                // Paired.
+                ColumnLayout {
+                    visible: Pomo.syncPaired
+                    Layout.fillWidth: true
+                    spacing: 0
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.bottomMargin: 8
+                        spacing: 10
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 2
+                            Text { text: Pomo.syncPhone || "Phone"; color: Theme.fg; font.pixelSize: 14 }
+                            Row {
+                                spacing: 4
+                                Text { text: "●"; color: "#a6e3a1"; font.pixelSize: 12 }
+                                Text { text: "In sync · heard from " + (panel.clock, Pomo.agoText(Pomo.syncLastHeard)); color: Theme.dim; font.pixelSize: 12 }
+                            }
+                        }
+                        Btn { label: "Unpair"; size: 30; onClicked: Pomo.unpairPhone() }
+                    }
+                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Theme.line }
+                    ColumnLayout {
+                        Layout.fillWidth: true; Layout.topMargin: 8; Layout.bottomMargin: 8; spacing: 2
+                        Text { text: "Keeps in step"; color: Theme.fg; font.pixelSize: 13 }
+                        Text { text: "Timer, sessions, categories and timer settings"; color: Theme.dim; font.pixelSize: 12 }
+                    }
+                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Theme.line }
+                    ColumnLayout {
+                        Layout.fillWidth: true; Layout.topMargin: 8; spacing: 2
+                        Text { text: "Phone goes quiet during focus"; color: Theme.fg; font.pixelSize: 13 }
+                        Text { text: "Coming next: the phone's Do Not Disturb follows focus"; color: Theme.dim; font.pixelSize: 12 }
+                    }
+                }
+
+                Item { Layout.fillHeight: true }
+            }
+
             // ════════════════ SETTINGS ════════════════
             Flickable {
                 visible: panel.tab === "settings"
@@ -490,6 +630,7 @@ PanelWindow {
                     SetStepper { label: "Short break"; key: "shortMin"; min: 1; max: 30; step: 1; format: v => v + " min"; enabled: !Pomo.stopwatch }
                     SetStepper { label: "Long break"; key: "longMin"; min: 1; max: 60; step: 5; format: v => v + " min"; enabled: !Pomo.stopwatch }
                     SetStepper { label: "Long break every"; key: "longEvery"; min: 2; max: 8; step: 1; format: v => v + "×"; enabled: !Pomo.stopwatch }
+                    SetStepper { label: "Rounds"; hint: "Focus sessions per run before the timer stops; ∞ keeps going. Adjustable per run on the Timer tab."; key: "rounds"; min: 0; max: 12; step: 1; format: v => v > 0 ? v + "×" : "∞"; enabled: !Pomo.stopwatch }
                     SetToggle { label: "Start breaks automatically"; key: "autoBreak" }
                     SetToggle { label: "Start focus after a break automatically"; key: "autoFocus" }
                     SetToggle { label: "Strict mode"; hint: "No pause or skip during focus. You can still give up (saved as incomplete)."; key: "strict" }

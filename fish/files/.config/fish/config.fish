@@ -7,4 +7,4 @@ source /usr/share/cachyos-fish-config/cachyos-config.fish
 #end
 
 # Custom aliases
-alias btop="btop --force-utf"
+alias leetcode="nvim leetcode.nvim"

@@ -1,17 +1,21 @@
-# btop --force-utf alias (and: the login shell here is fish, not bash/zsh)
+# btop --force-utf alias — removed 2026-10-02 (and: the login shell here is fish, not bash/zsh)
 
 **Date:** 2026-09-21
 **Category:** fish
 **Files touched:** `~/.config/fish/config.fish` (stored at [`files/.config/fish/config.fish`](files/.config/fish/config.fish)), plus one-line appends to `~/.zshrc` and `~/.bashrc`
 
 ## What
-Aliased `btop` to `btop --force-utf` in `~/.config/fish/config.fish`, the config of the
+**Superseded 2026-10-02:** the alias has been removed from all three rc files. The real
+cause was the locale name, fixed in [[utf8-locale-name]]. The fish-vs-bash/zsh lessons
+below still apply.
+
+Originally: aliased `btop` to `btop --force-utf` in `~/.config/fish/config.fish`, the config of the
 shell this machine actually logs into. The same one-liner was appended to `~/.zshrc` and
 `~/.bashrc` so the alias holds in whichever shell a terminal ends up in.
 
 ## Why
-`btop` auto-detects the UTF locale and falls back to ASCII box-drawing when detection
-fails, which makes the graphs look broken; `--force-utf` overrides that detection.
+`btop` decides on UTF-8 from the locale *name*. With the old `LANG=en_IN` (no `.UTF-8`)
+it refused to start (`No UTF-8 locale detected!`), and `--force-utf` overrides that check.
 
 The alias appeared not to work for a while, for two separate reasons worth recording:
 
@@ -26,7 +30,8 @@ The alias appeared not to work for a while, for two separate reasons worth recor
    errors meant "wrong interpreter", not "the file is broken".
 
 ## Change
-`~/.config/fish/config.fish` — final state:
+`~/.config/fish/config.fish` — final state (btop alias removed; the `leetcode` alias was
+added separately and isn't covered by this entry):
 ```fish
 source /usr/share/cachyos-fish-config/cachyos-config.fish
 
@@ -37,28 +42,19 @@ source /usr/share/cachyos-fish-config/cachyos-config.fish
 #end
 
 # Custom aliases
-alias btop="btop --force-utf"
+alias leetcode="nvim leetcode.nvim"
 ```
 
-Secondary, appended after the existing `source` line in each (no separate folder — these
-are one-line additions, the real artifact is `config.fish` above):
-```zsh
-# ~/.zshrc
-alias btop="btop --force-utf"
-```
-```bash
-# ~/.bashrc
-alias btop='btop --force-utf'
-```
-
-Verify without opening a new terminal:
-```bash
-fish -l -c 'type btop'
-zsh  -i -c 'alias btop'
-bash -i -c 'alias btop'
-```
+`~/.zshrc` and `~/.bashrc`: the appended `alias btop=...` lines were removed too.
 
 ## Notes
+- **What it used to be (2026-09-21 to 2026-10-02):** `alias btop="btop --force-utf"` was
+  appended after the `source` line in `config.fish`, with the same line in `~/.zshrc` and
+  `~/.bashrc`. It only covered shells, so btop still closed right away when started from
+  the app launcher (`kitty -e sh -lc btop` reads no aliases). The locale fix
+  [[utf8-locale-name]] replaced it. If the alias is ever needed again (e.g. on a
+  machine whose locale can't be renamed), the notes below on where and how to put it
+  still hold.
 - **The alias must go in `~/.config/fish/config.fish`, not in
   `/usr/share/cachyos-fish-config/cachyos-config.fish`** — that one is root-owned and
   pacman-managed, so edits are silently reverted on the next package update. Same trap on

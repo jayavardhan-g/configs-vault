@@ -1,16 +1,17 @@
 # Pomodoro widget on SUPER+C (Quickshell, click-through corner timer + stats)
 
-**Date:** 2026-10-02
+**Date:** 2026-10-02 (on-the-go focus/break/rounds added 2026-10-04)
 **Category:** system
-**Files touched:** `~/.config/quickshell/` (`shell.qml`, `Pomo.qml`, `PomoPill.qml`, `PomoPanel.qml`, `Theme.qml`, `Btn.qml`, `Icon.qml`, `Ring.qml`, `Switch.qml`, `SetStepper.qml`, `SetToggle.qml`, `SetChoice.qml`, `SetText.qml`), `~/.config/hypr/config/binds.lua`, `~/.config/hypr/config/autostart.lua`. Copies: [`../files/.config/quickshell/`](../files/.config/quickshell/), [`../files/.config/hypr/config/`](../files/.config/hypr/config/). Data: `~/.local/share/pomodoro/data.json` (not stored; personal history).
+**Files touched:** `~/.config/quickshell/` (`shell.qml`, `Pomo.qml`, `PomoPill.qml`, `PomoPanel.qml`, `RunStepper.qml`, `Theme.qml`, `Btn.qml`, `Icon.qml`, `Ring.qml`, `Switch.qml`, `SetStepper.qml`, `SetToggle.qml`, `SetChoice.qml`, `SetText.qml`), `~/.config/hypr/config/binds.lua`, `~/.config/hypr/config/autostart.lua`. Copies: [`../files/.config/quickshell/`](../files/.config/quickshell/), [`../files/.config/hypr/config/`](../files/.config/hypr/config/). Data: `~/.local/share/pomodoro/data.json` (not stored; personal history).
 
 ## What
 A pomodoro timer with categories and statistics, modelled on Android focus apps (Forest,
 Focus To-Do, Flora). Built in Quickshell, running next to Noctalia.
 - **SUPER+C** toggles a centred panel on the focused monitor, with four tabs:
   - **Timer:** category chips, a big progress ring, stop / play-pause / skip, cycle dots
-    and daily-goal progress. Strict mode turns stop into "Give up" and disables
-    pause/skip; stopwatch mode shows "Finish".
+    on-the-go **Focus / Break / Rounds** steppers, a "Round X of N" line and daily-goal
+    progress. Strict mode turns stop into "Give up" and disables pause/skip (and
+    shortening focus); stopwatch mode shows "Finish" and hides the steppers.
   - **Stats:** Today (with goal) / This week / Streak / Sessions tiles, a 7-day bar chart
     stacked by category with a goal line, and a per-category breakdown for Today / Week /
     Month / All.
@@ -20,7 +21,8 @@ Focus To-Do, Flora). Built in Quickshell, running next to Noctalia.
     completed). **Reset stats** needs a second click within 4 s.
   - **Settings (gear)**, scrollable, in sections:
     - *Timer:* mode (pomodoro / stopwatch, switchable only between sessions), focus,
-      short and long break, long-break interval, auto-start breaks, auto-start focus,
+      short and long break, long-break interval, rounds per run (∞ = keep going),
+      auto-start breaks, auto-start focus,
       strict mode, daily goal (15-min steps, 0 = off).
     - *During focus:* Noctalia Do Not Disturb, keep the screen awake (Noctalia
       caffeine), and a sound at each phase end (off / complete / bell / alarm, from
@@ -32,6 +34,17 @@ Focus To-Do, Flora). Built in Quickshell, running next to Noctalia.
       and `{minutes}` placeholders.
     - *Categories:* per-category focus and short-break length overriding the defaults
       ("def"), remove, and add.
+- **On-the-go adjustments (Timer tab):** Focus (±5 min), Break (±1 min, the short
+  break) and Rounds (focus sessions before the timer stops by itself; ∞ = loop).
+  - They apply to the current run only, and reset to the defaults (Settings + the
+    category's own lengths) when the run ends via stop or the last round.
+  - Changing the length of the phase that's running moves its countdown by the same
+    amount; shortening it past the time already spent ends that phase.
+  - Rounds can't go below the round in progress; stepping below it means ∞.
+  - The run ends right after the last focus session (no trailing break), with an
+    "All N rounds done" notification.
+  - Long break stays Settings-only (it's skipped entirely when rounds < long-break
+    interval).
 - In the panel, Space starts or pauses and Esc closes.
 - **Stopwatch mode** counts up (shown as h:mm:ss past an hour; the ring loops each hour).
   There are no breaks, and Finish saves a completed session.
@@ -52,7 +65,7 @@ Focus To-Do, Flora). Built in Quickshell, running next to Noctalia.
     motion, hover, clicks and scroll all reach whatever is underneath.
   - The background is 40% opaque by default (Settings → Corner timer); the ring and
     digits are solid, and the digits have a faint outline for legibility.
-- Defaults: 25 / 5 / 15 min, a long break every 4 sessions, breaks auto-start and focus
+- Defaults: 25 / 5 / 15 min, a long break every 4 sessions, rounds ∞, breaks auto-start and focus
   after a break doesn't. Each phase end sends a `notify-send` (shown by Noctalia) and
   plays the chosen sound.
 - Colours follow Noctalia's wallpaper palette, read live from its generated
@@ -154,3 +167,21 @@ IPC (for scripting): `qs ipc call pomodoro toggle | startPause | stop`.
   [quickshell-trial-shelved.md](quickshell-trial-shelved.md): Quickshell is installed
   and autostarted again for this. The left-edge side island from that trial is still
   not deployed.
+- **On-the-go controls added 2026-10-04.** Before that, lengths could only be changed in
+  Settings, and a change applied from the next phase. Layout picked from three options
+  (4 steppers incl. long break / 3 steppers / collapsed chip): 3 steppers, long break
+  stays in Settings. The panel grew from 660 to 740 px tall to fit the extra row (eDP-1
+  is 900 logical px at 1.2 scale). The run values persist in `data.json`'s `timer`
+  block (`runFocus`, `runShort`, `runRounds`), so a mid-run tweak survives a `qs`
+  restart.
+- **Phone sync (found 2026-10-09, not documented when it was built ~2026-10-08).**
+  `~/.config/quickshell/pomo-sync.py` (copy in
+  [`files/`](../files/.config/quickshell/pomo-sync.py)) syncs Focus with the phone app
+  over ntfy.sh. `Pomo.qml` runs it; the script only carries messages and never touches
+  the timer. Phone → laptop goes through this laptop's private ntfy channel. Laptop →
+  phone goes to the phone's UnifiedPush address, learnt from its hello. Every message
+  is encrypted with a pairing key (AES-256-CBC + HMAC-SHA256, matching the phone's
+  `SyncCrypto.kt`), so ntfy only sees ciphertext. Subcommands: `pair [--new]`, `send`,
+  `listen`, `status`, `unpair`. The key and channel are generated at pairing time and
+  live outside this repo. The `Pomo.qml` / `PomoPanel.qml` copies were re-synced to the
+  live files at the same time; the UI changes that came with sync aren't described here.

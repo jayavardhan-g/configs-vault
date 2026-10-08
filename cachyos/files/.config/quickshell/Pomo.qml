@@ -2,6 +2,11 @@ pragma Singleton
 // Pomodoro state + logic. Everything (settings, categories, session history and the
 // running timer) persists to ~/.local/share/pomodoro/data.json, so a qs restart or a
 // reboot resumes where it left off.
+//
+// Phone sync: kept in step with the Focus timer in the Sync app through
+// pomo-sync.py (encrypted, over ntfy.sh). Only changes made here are sent; changes
+// from the phone are applied quietly. The timer is newest-wins (timerUpdatedAt),
+// sessions newest-wins per id (upd), and deletes are kept as tombstones (deleted).
 import Quickshell
 import Quickshell.Io
 import QtQuick
@@ -14,6 +19,7 @@ Singleton {
     property int shortMin: 5
     property int longMin: 15
     property int longEvery: 4
+    property int rounds: 0               // focus sessions per run, then stop; 0 = keep going
     property bool autoBreak: true
     property bool autoFocus: false
     property string mode: "timer"        // timer | stopwatch (counts up, no breaks)
@@ -54,9 +60,28 @@ Singleton {
     property int remaining: focusMin * 60
     property int phaseTotal: focusMin * 60
     property int cycleCount: 0           // focus sessions completed in this cycle
+    // This run's lengths/rounds: start from the defaults, adjustable on the Timer tab
+    // mid-run, and reset to the defaults when the run ends.
+    property int runFocus: 25
+    property int runShort: 5
+    property int runRounds: 0            // 0 = keep going
     property real runStart: 0            // stopwatch: ms epoch of the current run
     property int elapsedBase: 0          // stopwatch: seconds banked before the current run
     property int elapsed: 0              // stopwatch: seconds so far
+
+    // ── phone sync ──
+    property string runId: ""            // set when a run starts; a full focus phase saves as runId.round on both devices
+    property string origin: "laptop"     // which device last acted on the timer
+    property real timerUpdatedAt: 0      // when the timer was last changed by hand, here or on the phone
+    property real settingsUpd: 0         // when the shared timer settings were last changed by hand
+    property var deleted: ({})           // session id -> when it was deleted, so a delete reaches the phone
+    property bool syncPaired: false
+    property string syncPhone: ""
+    property real syncLastHeard: 0
+    property string pairingQr: ""        // QR code image while pairing, "" otherwise
+    readonly property string syncHelper: Quickshell.env("HOME") + "/.config/quickshell/pomo-sync.py"
+    readonly property var syncedSettingKeys: ["focusMin", "shortMin", "longMin", "longEvery", "rounds",
+        "autoBreak", "autoFocus", "mode", "strict", "dailyGoalMin"]
 
     // Side effects this widget switched on (so it only switches off what it owns)
     property bool dndOwned: false
@@ -133,12 +158,59 @@ Singleton {
         return categories.find(c => c.name === category) ?? {};
     }
 
-    function minutesFor(p) {
+    function defaultMinutes(p) {
         const c = currentCat();
         return p === "focus" ? (c.focusMin || focusMin)
              : p === "short" ? (c.shortMin || shortMin)
              : longMin;
     }
+
+    function minutesFor(p) {
+        return p === "focus" ? runFocus : p === "short" ? runShort : longMin;
+    }
+
+    // Between runs, the run values follow the defaults (settings + category)
+    function resetRun() {
+        if (phase !== "idle")
+            return;
+        runFocus = defaultMinutes("focus");
+        runShort = defaultMinutes("short");
+        runRounds = rounds;
+        resetIdle();
+    }
+
+    // On the go: change this run's focus/break length. If that phase is the one
+    // running, its countdown moves by the same amount.
+    function _setRunMinutes(p, value) {
+        const key = p === "focus" ? "runFocus" : "runShort";
+        value = Math.max(1, Math.min(p === "focus" ? 180 : 30, value));
+        const delta = (value - pomo[key]) * 60;
+        if (delta === 0 || (delta < 0 && p === "focus" && locked))
+            return;                      // strict: focus can be lengthened, not shortened
+        pomo[key] = value;
+        if (phase === p) {
+            phaseTotal = phaseTotal + delta;
+            remaining = Math.max(0, remaining + delta);
+            if (running)
+                endsAt = endsAt + delta * 1000;
+        }
+        resetIdle();
+        save();
+        if (phase === p && remaining === 0)
+            finishPhase();               // shortened past the time already spent
+    }
+
+    // Rounds can't go below the one in progress; stepping below that means "keep going"
+    function _stepRounds(dir) {
+        const lo = active ? cycleCount + 1 : 1;
+        if (dir > 0)
+            runRounds = runRounds === 0 ? lo : Math.min(12, runRounds + 1);
+        else if (runRounds !== 0)
+            runRounds = runRounds - 1 < lo ? 0 : runRounds - 1;
+        save();
+    }
+
+    readonly property int roundNow: phase === "focus" ? cycleCount + 1 : cycleCount
 
     // Idle display follows the current settings/category
     function resetIdle() {
@@ -159,7 +231,7 @@ Singleton {
         save();
     }
 
-    function start() {
+    function _start() {
         if (stopwatch) {
             if (phase === "idle") {
                 phase = "focus";
@@ -180,7 +252,7 @@ Singleton {
         save();
     }
 
-    function pause() {
+    function _pause() {
         if (locked)
             return;
         if (stopwatch && running) {
@@ -198,10 +270,35 @@ Singleton {
         return stopwatch ? Math.floor(elapsed / 60) : Math.floor((phaseTotal - remaining) / 60);
     }
 
-    function record(min, done) {
+    // ── what you do here: act, then tell the phone ──
+    function start() {
+        if (phase === "idle")
+            runId = Date.now().toString(36);
+        _start();
+        changed();
+    }
+    function pause() { const was = running; _pause(); if (running !== was) changed(); }
+    function skip() { _skip(); changed(); }
+    function stop() { _stop(); changed(); }
+    function setRunMinutes(p, value) { _setRunMinutes(p, value); changed(); }
+    function stepRounds(dir) { _stepRounds(dir); changed(); }
+    function setCategory(name) { _setCategory(name); changed(); }
+
+    function changed() {
+        timerUpdatedAt = Date.now();
+        origin = "laptop";
+        save();
+        syncSend([timerMsg()]);
+    }
+
+    // id: set for a focus phase that ran its course (runId.round), so the phone's copy
+    // of the same phase is the same session. end: that phase's own end time.
+    function record(min, done, id, end) {
         if (min < 1)
             return;
-        sessions = sessions.concat([{ id: newId(), cat: category, end: Date.now(), min: min, done: done }]);
+        const s = { id: id || newId(), cat: category, end: end || Date.now(), min: min, done: done, upd: Date.now() };
+        sessions = sessions.filter(x => x.id !== s.id).concat([s]);
+        syncSend([{ type: "sessions", sessions: [s] }]);
     }
 
     function newId() {
@@ -217,8 +314,13 @@ Singleton {
         playSound();
         if (phase === "focus") {
             const min = Math.round(phaseTotal / 60);
-            record(min, true);
+            record(min, true, runId ? runId + "." + (cycleCount + 1) : "", endsAt || Date.now());
             cycleCount++;
+            if (runRounds > 0 && cycleCount >= runRounds) {
+                notify(fill(focusDoneText, min), "All " + runRounds + " rounds done");
+                endRun();
+                return;
+            }
             const long = cycleCount % longEvery === 0;
             const next = long ? "long" : "short";
             notify(fill(focusDoneText, min), (long ? "Long" : "Short") + " break: " + minutesFor(next) + " min");
@@ -229,7 +331,7 @@ Singleton {
         }
     }
 
-    function skip() {
+    function _skip() {
         if (phase === "idle" || stopwatch || locked)
             return;
         if (phase === "focus") {
@@ -243,7 +345,7 @@ Singleton {
 
     // Timer mode: ends the cycle (focus time so far is kept as a partial session).
     // Stopwatch mode: finishes the session and records it as completed.
-    function stop() {
+    function _stop() {
         if (stopwatch) {
             if (running)
                 elapsed = elapsedBase + Math.floor((Date.now() - runStart) / 1000);
@@ -257,10 +359,14 @@ Singleton {
         } else {
             record(elapsedFocusMin(), false);
         }
+        endRun();
+    }
+
+    function endRun() {
         running = false;
         phase = "idle";
         cycleCount = 0;
-        resetIdle();
+        resetRun();
         save();
     }
 
@@ -315,7 +421,14 @@ Singleton {
         if (key === "mode" && phase !== "idle")
             return;                      // switch modes only between sessions
         pomo[key] = value;
-        resetIdle();
+        if (syncedSettingKeys.includes(key)) {
+            settingsUpd = Date.now();
+            syncSend([settingsMsg(true)]);
+        }
+        if (["focusMin", "shortMin", "rounds", "mode"].includes(key))
+            resetRun();
+        else
+            resetIdle();
         save();
     }
 
@@ -334,6 +447,7 @@ Singleton {
                    ?? Theme.categoryColors[categories.length % Theme.categoryColors.length];
         categories = categories.concat([{ name: name, color: color }]);
         save();
+        syncSend([settingsMsg(false)]);
     }
 
     // History keeps the name, so stats for a removed category still show (greyed).
@@ -343,8 +457,9 @@ Singleton {
         categories = categories.filter(c => c.name !== name);
         if (category === name)
             category = categories[0].name;
-        resetIdle();
+        resetRun();
         save();
+        // The phone keeps its copy (and its history): removals don't sync.
     }
 
     // field: "focusMin" | "shortMin"; 0 = use the default
@@ -356,30 +471,47 @@ Singleton {
             copy[field] = Math.max(0, value);
             return copy;
         });
-        resetIdle();
+        resetRun();
         save();
+        syncSend([settingsMsg(false)]);
     }
 
-    function setCategory(name) {
+    function _setCategory(name) {
         category = name;
-        resetIdle();
+        resetRun();
         save();
     }
 
     // ── session history ──
     function updateSession(id, changes) {
-        sessions = sessions.map(s => s.id === id ? Object.assign({}, s, changes) : s);
+        const upd = Object.assign({}, changes, { upd: Date.now() });
+        sessions = sessions.map(s => s.id === id ? Object.assign({}, s, upd) : s);
         save();
+        syncSend([{ type: "sessions", sessions: sessions.filter(s => s.id === id) }]);
     }
 
+    // Deleting leaves a tombstone, so the phone deletes it too instead of sending it back.
     function deleteSession(id) {
-        sessions = sessions.filter(s => s.id !== id);
-        save();
+        tombstone(sessions.filter(s => s.id === id));
     }
 
     function resetStats() {
-        sessions = [];
+        tombstone(sessions);
+    }
+
+    function tombstone(list) {
+        if (!list.length)
+            return;
+        const now = Date.now();
+        const ids = list.map(s => s.id);
+        const d = Object.assign({}, deleted);
+        for (const id of ids)
+            d[id] = now;
+        deleted = d;
+        sessions = sessions.filter(s => !ids.includes(s.id));
         save();
+        syncSend(chunk(list.map(s => Object.assign({}, s, { del: true, upd: now })), 15)
+                 .map(part => ({ type: "sessions", sessions: part })));
     }
 
     FileView {
@@ -469,6 +601,189 @@ Singleton {
         return h > 0 ? h + "h" + (m > 0 ? " " + m + "m" : "") : m + "m";
     }
 
+    // ── phone sync (pomo-sync.py carries the messages; the rules live here) ──
+    Process {
+        id: syncListen
+        running: pomo.loaded
+        command: ["python3", pomo.syncHelper, "listen"]
+        stdout: SplitParser { onRead: line => pomo.onSyncLine(line) }
+        onExited: syncRestart.start()
+    }
+    Timer { id: syncRestart; interval: 5000; onTriggered: syncListen.running = true }
+
+    Process {
+        id: pairProc
+        command: ["python3", pomo.syncHelper, "pair", "--new"]
+        stdout: StdioCollector { onStreamFinished: pomo.onSyncLine(this.text.trim()) }
+    }
+
+    // Each message is one argument; the helper encrypts and posts them in order.
+    function syncSend(msgs) {
+        if (!syncPaired || !msgs.length)
+            return;
+        Quickshell.execDetached(["python3", syncHelper, "send"].concat(msgs.map(m => JSON.stringify(m))));
+    }
+
+    function chunk(list, n) {
+        const out = [];
+        for (let i = 0; i < list.length; i += n)
+            out.push(list.slice(i, i + n));
+        return out;
+    }
+
+    function timerMsg() {
+        return { type: "timer", timer: { phase, running, endsAt, remaining, phaseTotal, cycleCount, runFocus, runShort,
+            runRounds, runStart, elapsedBase, mode, category, updatedAt: timerUpdatedAt, runId, origin } };
+    }
+
+    // includeSettings: send the shared timer settings too (categories always go)
+    function settingsMsg(includeSettings) {
+        const m = { type: "settings", settingsUpd: settingsUpd, categories: categories };
+        if (includeSettings) {
+            const st = {};
+            for (const k of syncedSettingKeys)
+                st[k] = pomo[k];
+            m.settings = st;
+        }
+        return m;
+    }
+
+    function sendFullState() {
+        const all = sessions.concat(Object.keys(deleted).map(id => ({ id: id, del: true, upd: deleted[id] })));
+        const msgs = [settingsMsg(true)];
+        if (timerUpdatedAt > 0)
+            msgs.unshift(timerMsg());
+        syncSend(msgs.concat(chunk(all, 15).map(part => ({ type: "sessions", sessions: part }))));
+    }
+
+    function onSyncLine(line) {
+        let m;
+        try { m = JSON.parse(line); } catch (e) { return; }
+        switch (m.type) {
+        case "status":
+            syncPaired = !!m.paired;
+            syncPhone = m.phone || "";
+            syncLastHeard = m.lastHeard || 0;
+            if (syncPaired)
+                cancelPairing();
+            break;
+        case "pairing":
+            pairingQr = m.qr || "";
+            break;
+        case "hello":
+            // A phone just paired (or reconnected): the laptop's settings win, histories merge.
+            syncPaired = true;
+            cancelPairing();
+            sendFullState();
+            break;
+        case "timer": applyRemoteTimer(m.timer); break;
+        case "sessions": mergeSessions(m.sessions || []); break;
+        case "settings": applyRemoteSettings(m); break;
+        case "sync": sendFullState(); break;
+        }
+    }
+
+    function applyRemoteTimer(t) {
+        if (!t || (t.updatedAt || 0) <= timerUpdatedAt)
+            return;
+        if (t.mode && t.mode !== mode)
+            mode = t.mode;
+        phase = t.phase || "idle";
+        phaseTotal = t.phaseTotal ?? phaseTotal;
+        cycleCount = t.cycleCount ?? 0;
+        runFocus = t.runFocus ?? runFocus;
+        runShort = t.runShort ?? runShort;
+        runRounds = t.runRounds ?? 0;
+        runStart = t.runStart ?? 0;
+        elapsedBase = t.elapsedBase ?? 0;
+        endsAt = t.endsAt ?? 0;
+        remaining = t.running && !stopwatch ? Math.max(0, Math.ceil((endsAt - Date.now()) / 1000)) : (t.remaining ?? remaining);
+        elapsed = t.running && stopwatch ? elapsedBase + Math.floor((Date.now() - runStart) / 1000) : elapsedBase;
+        if (t.category)
+            category = t.category;
+        runId = t.runId || "";
+        origin = t.origin || "phone";
+        timerUpdatedAt = t.updatedAt;
+        running = !!t.running;       // a countdown already at zero finishes on the next tick
+        if (phase === "idle")
+            resetRun();
+        save();
+    }
+
+    function mergeSessions(list) {
+        let ss = sessions.slice();
+        const d = Object.assign({}, deleted);
+        let dirty = false;
+        for (const theirs of list) {
+            if (!theirs.id)
+                continue;
+            const theirUpd = theirs.upd ?? theirs.end ?? 0;
+            const i = ss.findIndex(x => x.id === theirs.id);
+            const ourUpd = i >= 0 ? (ss[i].upd ?? ss[i].end ?? 0) : (d[theirs.id] ?? -1);
+            if (theirUpd <= ourUpd)
+                continue;
+            dirty = true;
+            if (theirs.del) {
+                if (i >= 0)
+                    ss.splice(i, 1);
+                d[theirs.id] = theirUpd;
+            } else {
+                const s = { id: theirs.id, cat: theirs.cat, end: theirs.end, min: theirs.min, done: theirs.done, upd: theirUpd };
+                if (i >= 0) ss[i] = s; else ss.push(s);
+                delete d[theirs.id];
+            }
+        }
+        if (dirty) {
+            sessions = ss;
+            deleted = d;
+            save();
+        }
+    }
+
+    function applyRemoteSettings(m) {
+        if (m.settings && (m.settingsUpd || 0) >= settingsUpd) {
+            for (const k of syncedSettingKeys)
+                if (m.settings[k] !== undefined && !(k === "mode" && phase !== "idle"))
+                    pomo[k] = m.settings[k];
+            settingsUpd = m.settingsUpd || 0;
+        }
+        // Categories merge by name: new ones are added, known ones take the phone's colour and lengths.
+        let cats = categories.slice();
+        for (const c of (m.categories || [])) {
+            if (!c.name)
+                continue;
+            const i = cats.findIndex(x => x.name === c.name);
+            const merged = Object.assign({}, i >= 0 ? cats[i] : {}, c);
+            if (i >= 0) cats[i] = merged; else cats.push(merged);
+        }
+        categories = cats;
+        resetRun();
+        save();
+    }
+
+    // ── pairing (the Phone tab) ──
+    function startPairing() { pairProc.running = true; }
+
+    function cancelPairing() {
+        if (!pairingQr)
+            return;
+        Quickshell.execDetached(["rm", "-f", pairingQr]);
+        pairingQr = "";
+    }
+
+    function unpairPhone() {
+        Quickshell.execDetached(["python3", syncHelper, "unpair"]);
+        syncPaired = false;
+        syncPhone = "";
+    }
+
+    function agoText(ms) {
+        if (!ms)
+            return "not yet";
+        const min = Math.floor((Date.now() - ms) / 60000);
+        return min < 1 ? "just now" : min < 60 ? min + " min ago" : min < 1440 ? Math.floor(min / 60) + " h ago" : Math.floor(min / 1440) + " d ago";
+    }
+
     // ── persistence ──
     Process {
         running: true
@@ -480,10 +795,10 @@ Singleton {
         id: store
         printErrors: false
         onLoaded: pomo.restore(text())
-        onLoadFailed: { pomo.loaded = true; pomo.save(); }
+        onLoadFailed: { pomo.resetRun(); pomo.loaded = true; pomo.save(); }
     }
 
-    readonly property var settingKeys: ["focusMin", "shortMin", "longMin", "longEvery", "autoBreak", "autoFocus",
+    readonly property var settingKeys: ["focusMin", "shortMin", "longMin", "longEvery", "rounds", "autoBreak", "autoFocus",
         "mode", "strict", "dailyGoalMin", "dnd", "caffeine", "sound", "timerOpacity", "monitorMode",
         "monitorName", "hideOnBreak", "focusDoneText", "breakDoneText"]
 
@@ -499,7 +814,12 @@ Singleton {
             category = d.category ?? categories[0].name;
             // Older entries have no id; give them one so they can be edited
             sessions = (d.sessions ?? []).map((x, i) => x.id ? x : Object.assign({ id: "s" + i + "-" + x.end }, x));
+            deleted = d.deleted ?? {};
+            settingsUpd = d.settingsUpd ?? 0;
             const t = d.timer ?? {};
+            runId = t.runId ?? "";
+            origin = t.origin ?? "laptop";
+            timerUpdatedAt = t.updatedAt ?? 0;
             phase = t.phase ?? "idle";
             phaseTotal = t.phaseTotal ?? focusMin * 60;
             cycleCount = t.cycleCount ?? 0;
@@ -508,6 +828,13 @@ Singleton {
             elapsed = elapsedBase;
             dndOwned = t.dndOwned ?? false;
             caffeineOwned = t.caffeineOwned ?? false;
+            if (phase === "idle")
+                resetRun();
+            else {
+                runFocus = t.runFocus ?? defaultMinutes("focus");
+                runShort = t.runShort ?? defaultMinutes("short");
+                runRounds = t.runRounds ?? rounds;
+            }
             if (t.running) {
                 if (stopwatch) {
                     runStart = t.runStart ?? Date.now();
@@ -532,8 +859,9 @@ Singleton {
         for (const k of settingKeys)
             settings[k] = pomo[k];
         store.setText(JSON.stringify({
-            settings, categories, category, sessions,
-            timer: { phase, running, endsAt, remaining, phaseTotal, cycleCount, runStart, elapsedBase, dndOwned, caffeineOwned }
+            settings, categories, category, sessions, deleted, settingsUpd,
+            timer: { phase, running, endsAt, remaining, phaseTotal, cycleCount, runStart, elapsedBase, dndOwned, caffeineOwned,
+                     runFocus, runShort, runRounds, runId, origin, updatedAt: timerUpdatedAt }
         }, null, 1));
     }
 }

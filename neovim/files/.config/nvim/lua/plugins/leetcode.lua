@@ -74,6 +74,109 @@ local function two_box_cookie_prompt(cb)
   end)
 end
 
+--- The console (testcases + result) is a floating popup pair by default:
+--- centred over the code, closed the moment focus leaves it, and immune to
+--- window commands. This turns its two windows into real splits along the
+--- bottom, full width under the description and code:
+---
+---   ┌─ description ─┬───── code ─────┐
+---   │               │                │
+---   ├── testcases ──┴──── result ────┤
+---   └────────────────────────────────┘
+---
+--- Neovim (0.10+) can turn a float into a split with nvim_win_set_config,
+--- so the plugin keeps creating and owning the windows; they're just moved.
+--- The floats nui adds around them (an invisible layout container and a
+--- border window per popup) are closed - nui tolerates that. The border
+--- titles move to winbars drawn in FloatBorder, which the plugin re-links
+--- per window to colour the verdict (green accepted, red wrong), so the
+--- result's winbar still changes colour.
+---@param console lc.ui.Console?
+local function dock_console(console)
+  local function valid(win)
+    return win and vim.api.nvim_win_is_valid(win)
+  end
+  if not console or not console.visible then
+    return
+  end
+  local tc, res = console.testcase, console.result
+  if not (valid(tc.winid) and valid(res.winid)) then
+    return
+  end
+
+  -- keep the height the user resized to; 30% when first converted
+  local floating = vim.api.nvim_win_get_config(tc.winid).relative ~= ""
+  local height = floating and math.floor(vim.o.lines * 0.3) or vim.api.nvim_win_get_height(tc.winid)
+  vim.api.nvim_win_set_config(tc.winid, { split = "below", win = -1, height = height })
+  vim.api.nvim_win_set_config(res.winid, { split = "right", win = tc.winid })
+
+  for _, popup in ipairs({ tc, res }) do
+    if valid(popup.border.winid) then
+      vim.api.nvim_win_close(popup.border.winid, true)
+    end
+    popup.border.winid = nil
+  end
+  if valid(console.winid) then
+    vim.api.nvim_win_close(console.winid, true)
+  end
+  console.winid = nil
+
+  local keys = require("leetcode.config").user.keys
+  vim.wo[tc.winid].winbar = ("%%#FloatBorder#%%= Testcases (%s)  ·  Reset (%s) %%="):format(
+    keys.focus_testcases,
+    keys.reset_testcases
+  )
+  vim.wo[res.winid].winbar = ("%%#FloatBorder#%%= Result (%s)  ·  Use testcase (%s) %%="):format(
+    keys.focus_result,
+    keys.use_testcase
+  )
+end
+
+--- Class patches that put the console in dock_console's layout. Applied from
+--- the `enter` hook, not config(): these modules pull in the plugin's cookie
+--- cache, which only exists after the plugin's own setup at VimEnter -
+--- requiring them any earlier errors and the session never starts.
+local console_patched = false
+local function patch_console()
+  if console_patched then
+    return
+  end
+  console_patched = true
+
+  -- The plugin re-creates the console windows as floats on every show, so
+  -- dock after each one. Patched on the classes, which every question's
+  -- console looks its methods up on.
+  local Console = require("leetcode-ui.layout.console")
+  local show = Console.show
+  Console.show = function(self, ...)
+    show(self, ...)
+    dock_console(self)
+  end
+  -- It also hides itself as soon as focus leaves it (BufLeave/WinLeave),
+  -- which is what made comparing output with code impossible. Docked, it
+  -- just stays; `q` inside it or :Leet console still hides it.
+  require("leetcode-ui.popup.console").handle_leave = function() end
+  -- Run/submit moved focus into the result; stay where you were (usually
+  -- the code) - the result is visible right below now. L focuses it.
+  local run = Console.run
+  Console.run = function(self, ...)
+    local win = vim.api.nvim_get_current_win()
+    run(self, ...)
+    if vim.api.nvim_win_is_valid(win) then
+      vim.api.nvim_set_current_win(win)
+    end
+  end
+  -- :Leet desc re-opens the description as a full-height left split,
+  -- which would squeeze the console to the right of it; re-dock after.
+  local Description = require("leetcode-ui.split.description")
+  local desc_show = Description.show
+  Description.show = function(self, ...)
+    local ret = desc_show(self, ...)
+    dock_console(self.question and self.question.console)
+    return ret
+  end
+end
+
 return {
   {
     "kawre/leetcode.nvim",
@@ -113,6 +216,7 @@ return {
           function()
             vim.o.swapfile = false
           end,
+          patch_console,
         },
         question_enter = {
           function(question)
@@ -121,6 +225,26 @@ return {
             end
             map("<localleader>r", "run", "LeetCode: Run")
             map("<localleader>s", "submit", "LeetCode: Submit")
+            map("<localleader>c", "console", "LeetCode: Console show/hide")
+            map("<localleader>h", "hints", "LeetCode: Hints")
+            map("<localleader>i", "info", "LeetCode: Info (stats, topics)")
+            map("<localleader>t", "tabs", "LeetCode: Jump to another open question")
+            map("<localleader>o", "open", "LeetCode: Open in browser")
+            map("<localleader>y", "yank", "LeetCode: Yank solution code")
+            -- capitals: these replace the code (u undoes)
+            map("<localleader>R", "reset", "LeetCode: Reset to starting template")
+            map("<localleader>L", "last_submit", "LeetCode: Restore last submission")
+            -- the description is a side panel, so `e` like the explorer's
+            -- <leader>e - on the local leader, leaving the explorer alone
+            map("<localleader>e", "desc", "LeetCode: Description show/hide")
+
+            -- open with the console already docked (see dock_console), focus
+            -- staying in the code; `q` in the console still hides it and
+            -- :Leet console brings it back
+            question.console:show()
+            if vim.api.nvim_win_is_valid(question.winid) then
+              vim.api.nvim_set_current_win(question.winid)
+            end
           end,
         },
       },
@@ -134,6 +258,7 @@ return {
       local cmd = require("leetcode.command")
       cmd.cookie_prompt = two_box_cookie_prompt
       cmd.commands.cookie.update[1] = two_box_cookie_prompt
+
 
       -- Plain description text is drawn in the theme's Conceal colour, which
       -- is meant to be faint: 1.2:1 contrast on the old grey panel, 2.4:1

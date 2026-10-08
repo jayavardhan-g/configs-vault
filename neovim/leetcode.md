@@ -3,7 +3,7 @@
 **Category:** neovim
 **Files touched:** `lua/plugins/leetcode.lua`, `lua/plugins/languages.lua` (all under `~/.config/nvim/`; copies in [`files/`](files/))
 
-Solving LeetCode inside Neovim: setup, health check, run/submit keys, two-box sign-in, and the swap-file fix. Part of the LazyVim setup - see [[lazyvim-migration]] for the migration itself and the index of all topic files.
+Solving LeetCode inside Neovim: setup, health check, run/submit keys, two-box sign-in, the swap-file fix, the console docked at the bottom, and the solution-file keys. Part of the LazyVim setup - see [[lazyvim-migration]] for the migration itself and the index of all topic files.
 
 Entries are in the order they happened. They were split out of `lazyvim-migration.md` on 2026-09-23 without rewording, so "above" and "previous follow-up" refer to entries in this file unless a link says otherwise.
 
@@ -215,3 +215,114 @@ solution buffer inherits it; normal Neovim sessions are untouched.
 start, and loading a file that another Neovim holds with a swap succeeds (`ok=true`,
 no E325, no own swap). A normal session still has `swapfile=true`. The other instance's
 swap and the user's live problem-33 swap were left untouched.
+
+## Follow-up: console docked at the bottom as real splits (2026-10-07)
+
+**What**: asked for the default layout `[[question, code], [testcases at the bottom]]`.
+Before, checking output meant `:Leet console`, reading, then going back to the code -
+and the console vanished the moment focus left it, so output and code were never
+visible together. It was also immune to window commands (no `<C-w>` resizing).
+
+**Why it behaved that way** (read from the source, not assumed): the console is a
+floating nui layout - an invisible container float plus two popups (Testcases,
+Result), each with its own border float - centred over the editor
+(`leetcode-ui/layout/console.lua`). `ConsolePopup.handle_leave`
+(`leetcode-ui/popup/console/init.lua`) hides the whole console on any
+`BufLeave`/`WinLeave` that doesn't land in the other console popup. The plugin has no
+split mode for it: `console.size`/`console.dir` only shape the float.
+
+**Approach**: let the plugin keep creating and owning its windows, then convert them.
+Since Neovim 0.10, `nvim_win_set_config` turns a float into a split
+(`{ split = "below", win = -1 }` = full-width bottom split). nui's border code checks
+window validity before touching its border windows, so closing those and the
+container float is safe. Re-implementing the console with `NuiSplit` was the
+alternative - far more code duplicating the plugin, for the same result.
+
+```text
+  ┌─ description ─┬───── code ─────┐
+  │               │                │
+  ├── testcases ──┴──── result ────┤
+  └────────────────────────────────┘
+```
+
+**Change** - `lua/plugins/leetcode.lua`:
+- `dock_console(console)`: moves testcases to a full-width bottom split (30% of the
+  screen height on first open, keeps a resized height on later re-docks), result to
+  its right; closes the border floats and the container float; puts the old border
+  titles in winbars drawn in `FloatBorder`.
+- `patch_console()`, run from `hooks.enter` (guarded to run once):
+  - `Console.show` wrapped to dock after every show - the plugin re-creates the
+    windows as floats on each show.
+  - `ConsolePopup.handle_leave` replaced with a no-op, so the console stays open.
+    `q` inside it and `:Leet console` still hide it.
+  - `Console.run` wrapped to return focus to the window you ran from (it used to jump
+    into the result) - the result is visible below anyway; `L` focuses it.
+  - `Description.show` wrapped to re-dock, since `:Leet desc` re-opens the
+    description as a full-height editor-relative left split.
+- `hooks.question_enter`: shows the console on open, focus back in the code.
+
+**Gotcha - why `enter`, not `config()`**: the first version did the patches in the
+lazy.nvim `config` function. Requiring `leetcode-ui.layout.console` there pulls in
+`leetcode/cache/cookie.lua`, which indexes `config.storage.cache` - only set by the
+plugin's own `config.setup()` at `VimEnter`. The require failed, and every later
+require of the module failed with "loop or previous error loading module", so no
+question could open. `hooks.enter` runs in `leetcode.start()` right after
+`config.setup()`. Caught by the headless test below, before use.
+
+**Verdict colour kept**: the plugin colours the verdict with
+`border:set_highlight(hl)`, which re-links `FloatBorder` in the result window's
+`winhighlight`. A winbar drawn with `%#FloatBorder#` follows that re-link - checked on
+a drawn screen (UI attached via `--embed`): the winbar cell's attribute changed when
+the window's `FloatBorder` was re-linked.
+
+**Verified** - headless `nvim leetcode.nvim` with the real cookie, opening an
+already-solved problem (`100.same-tree.cpp`, md5 identical before and after):
+- opens as description 80 cols + code 119 cols on top, testcases + result as splits
+  across the bottom (15 rows of 50), winbar titles set, no floats left, focus in code;
+- focusing the testcases and back to code: console still visible;
+- `:Leet desc` off / on: bottom row stays full width under both;
+- `:Leet console` hides it, again re-shows it docked;
+- `:Leet run` with the runner stubbed (no code sent): console shown docked, focus
+  still in the code window.
+
+**Cheatsheet**: new "Layout: test cases and results docked at the bottom" entry in the
+LeetCode category (before "Console and test case keys"); `:Leet console` line now
+says show / hide the docked console. Same edit in `cheatsheet.md` and
+`cheatsheet.user.md`.
+
+## Follow-up: more LeetCode keys in solution files (2026-10-07)
+
+**What**: keys for the `:Leet` commands used often, next to `\r` run / `\s` submit -
+chosen by the user from three proposed sets (full mnemonic set picked). All are
+buffer-local to solution buffers via `hooks.question_enter`, so nothing outside a
+LeetCode solution file changes. Checked first: no `<localleader>` maps existed in a C++
+buffer at all.
+
+**Change** - `lua/plugins/leetcode.lua`, `question_enter` hook (final state):
+
+| Key | Command | |
+|---|---|---|
+| `\r` | `:Leet run` | existing |
+| `\s` | `:Leet submit` | existing |
+| `\e` | `:Leet desc` | description show/hide |
+| `\c` | `:Leet console` | docked console show/hide |
+| `\h` | `:Leet hints` | |
+| `\i` | `:Leet info` | stats, topics |
+| `\t` | `:Leet tabs` | jump to another open question |
+| `\o` | `:Leet open` | problem in the browser |
+| `\y` | `:Leet yank` | solution code only |
+| `\R` | `:Leet reset` | starting template - capital, replaces code (`u` undoes) |
+| `\L` | `:Leet last_submit` | last submission - capital, replaces code |
+
+**Why `\e` for the description**: proposed as `\d`; the user wanted it to match the
+explorer's `<leader>e`, since the description is a side panel too. `<leader>e`
+itself (buffer-local, shadowing the explorer in solution files) was briefly
+implemented, then the user chose `<localleader>e` instead - same mnemonic, explorer
+left alone everywhere.
+
+**Verified** in a headless `nvim leetcode.nvim` session on an existing problem
+(file md5 unchanged): all 11 keys present on the solution buffer; `\e` toggled the
+description visible → hidden → visible; `\c` hid the console.
+
+**Cheatsheet**: new "More keys in a solution file" entry in the LeetCode category
+(before the layout entry), in both `cheatsheet.md` and `cheatsheet.user.md`.

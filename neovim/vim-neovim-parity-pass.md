@@ -1,5 +1,9 @@
 # Vim/Neovim parity pass + leader timeout fix
 
+<!-- graph:begin -->
+**Graph:** [[Neovim]] · [[Vim]] · [[SSH]]
+<!-- graph:end -->
+
 > **Superseded 2026-09-15 (Neovim side)**: Neovim was migrated to LazyVim - see
 > [[lazyvim-migration]]. Every Neovim-specific change below (the `confirm`/quit-flow
 > follow-ups, the buffer-tabline, bufferline.nvim/mini.bufremove) no longer describes the
@@ -177,7 +181,6 @@ replacing the confirm dialog.
 hours later in the same session, once the actual requirement turned out to be "don't
 prompt when just closing one file, only when quitting nvim/vim entirely." Kept here for
 the reasoning trail; skip to the next section for the current behavior.
-
 
 **What**: after the fix above, `<C-q>` on a modified file with the sidebar still open went
 back to Neovim's normal behavior — closes the window silently (buffer just goes hidden,

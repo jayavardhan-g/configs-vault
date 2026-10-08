@@ -1,0 +1,27 @@
+{
+  "collapse-filter": false,
+  "search": "-path:files",
+  "showTags": false,
+  "showAttachments": false,
+  "hideUnresolved": true,
+  "showOrphans": true,
+  "collapse-color-groups": false,
+  "colorGroups": [
+    { "query": "path:hubs", "color": { "a": 1, "rgb": 16027996 } },
+    { "query": "path:entities", "color": { "a": 1, "rgb": 5025616 } },
+    { "query": "path:claude-memory", "color": { "a": 1, "rgb": 10181046 } },
+    { "query": "file:Home", "color": { "a": 1, "rgb": 16766720 } }
+  ],
+  "collapse-display": false,
+  "showArrow": true,
+  "textFadeMultiplier": 0,
+  "nodeSizeMultiplier": 1,
+  "lineSizeMultiplier": 1,
+  "collapse-forces": true,
+  "centerStrength": 0.5,
+  "repelStrength": 10,
+  "linkStrength": 1,
+  "linkDistance": 250,
+  "scale": 1,
+  "close": false
+}

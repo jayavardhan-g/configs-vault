@@ -1,0 +1,27 @@
+{
+  "vimMode": true,
+  "alwaysUpdateLinks": true,
+  "newLinkFormat": "shortest",
+  "showLineNumber": true,
+  "readableLineLength": false,
+  "userIgnoreFilters": [
+    "/(^|\\/)files\\//",
+    "scripts/",
+    "antigravity-cli/files/",
+    "bitlocker/files/",
+    "cachyos/files/",
+    "fish/files/",
+    "homeserver/files/",
+    "kitty/files/",
+    "limine/files/",
+    "locale/files/",
+    "neovim/files/",
+    "noctalia/files/",
+    "obsidian/files/",
+    "qbittorrent/files/",
+    "ssh/files/",
+    "vim/files/",
+    "vpn/files/",
+    "zen-browser/files/"
+  ]
+}

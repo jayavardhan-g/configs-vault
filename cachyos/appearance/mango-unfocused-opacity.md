@@ -4,6 +4,10 @@
 **Category:** appearance
 **Files touched:** `~/.config/mango/cfg/appearance.conf`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Mango]]
+<!-- graph:end -->
+
 ## What
 Investigated why Mango's windows looked more "see-through" than Hyprland's, and why
 several attempted fixes appeared to do nothing. Ended up reading Mango's actual C source

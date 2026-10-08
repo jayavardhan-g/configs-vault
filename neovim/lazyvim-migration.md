@@ -3,6 +3,11 @@
 **Date:** 2026-09-15
 **Category:** system
 **Files touched:** `~/.config/nvim` (replaced), `~/.local/share/nvim`, `~/.local/state/nvim`,
+
+<!-- graph:begin -->
+**Graph:** [[Neovim]] · [[Vim]] · [[SSH]]
+<!-- graph:end -->
+
 `~/.cache/nvim`
 
 ## What

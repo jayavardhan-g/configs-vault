@@ -4,6 +4,10 @@
 **Category:** keybindings
 **Files touched:** `~/.config/mango/cfg/layout.conf`
 
+<!-- graph:begin -->
+**Graph:** [[Mango]]
+<!-- graph:end -->
+
 ## What
 Enabled `tag_carousel = 1` in `layout.conf`. `SUPER+CTRL+h`/`SUPER+CTRL+l`
 (`viewtoleft`/`viewtoright`, see [[workspace-switching]]) now wrap: from tag 5,

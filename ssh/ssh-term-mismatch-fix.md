@@ -4,6 +4,10 @@
 **Category:** system
 **Files touched:** `~/.ssh/config`
 
+<!-- graph:begin -->
+**Graph:** [[kitty]] · [[SSH]]
+<!-- graph:end -->
+
 ## What
 Added a `Host` entry in `~/.ssh/config` for the lab GPU server that forces
 `TERM=xterm-256color` for that connection via `SetEnv`.

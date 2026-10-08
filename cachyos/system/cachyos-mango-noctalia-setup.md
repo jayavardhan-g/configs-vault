@@ -4,6 +4,10 @@
 **Category:** system
 **Files touched:** none directly (package install/removal + a manual `cp`)
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Mango]] · [[Noctalia]] · [[CachyOS]]
+<!-- graph:end -->
+
 ## What
 Installed `mangowm` + `cachyos-mango-noctalia` to try Mango as a second
 compositor alongside the existing Hyprland setup, without uninstalling

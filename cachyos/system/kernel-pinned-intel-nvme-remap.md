@@ -4,6 +4,10 @@
 **Category:** system
 **Files touched:** `/etc/pacman.conf` (copy: [`files/etc/pacman.conf`](../files/etc/pacman.conf))
 
+<!-- graph:begin -->
+**Graph:** [[CachyOS]] · [[Kernel]] · [[NVIDIA]]
+<!-- graph:end -->
+
 ## What
 Holding the CachyOS LTS kernel packages, its NVIDIA module, and NVIDIA's user-space
 packages with `IgnorePkg`. The main `linux-cachyos` kernel updates normally again since

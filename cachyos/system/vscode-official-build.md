@@ -4,6 +4,10 @@
 **Category:** system
 **Files touched:** `~/.config/hypr/config/autostart.lua`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[CachyOS]] · [[GNOME Keyring]] · [[VSCode]]
+<!-- graph:end -->
+
 ## What
 Installed the official Microsoft VSCode build (`visual-studio-code-bin` from the AUR)
 instead of the Arch/CachyOS-repo OSS build (`code`), plus `gnome-keyring`/`gcr` so

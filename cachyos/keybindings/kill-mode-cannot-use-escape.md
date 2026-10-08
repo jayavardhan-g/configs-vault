@@ -4,6 +4,10 @@
 **Category:** keybindings
 **Files touched:** `~/.config/hypr/config/binds.lua`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]]
+<!-- graph:end -->
+
 ## What
 The force-kill picker (`hyprctl kill` — cursor becomes a crosshair, click a window to kill
 it) moved from `SUPER+Escape` to `SUPER+ALT+Q`. On `SUPER+Escape` it was broken in a way

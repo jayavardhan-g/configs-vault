@@ -1,5 +1,9 @@
 # Neovim: minimal, manually-managed, SSH-friendly setup
 
+<!-- graph:begin -->
+**Graph:** [[kitty]] · [[Neovim]] · [[Vim]] · [[SSH]]
+<!-- graph:end -->
+
 > **Superseded 2026-09-15**: Neovim was migrated to LazyVim - see
 > [[lazyvim-migration]]. This entry (and its follow-ups below) no longer describes the
 > live Neovim config; kept for the reasoning trail behind decisions made along the way.

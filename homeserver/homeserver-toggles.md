@@ -3,6 +3,11 @@
 **Date:** 2026-10-04
 **Category:** homeserver
 **Files touched:** on the **laptop**, `~/.config/fish/functions/moviesshare.fish` (copy:
+
+<!-- graph:begin -->
+**Graph:** [[fish]] · [[Tailscale]] · [[Home server]]
+<!-- graph:end -->
+
 [`files/.config/fish/functions/moviesshare.fish`](files/.config/fish/functions/moviesshare.fish)).
 Otherwise an operating guide for [[homeserver-setup]] (`homeserver-setup.md`).
 

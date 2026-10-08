@@ -4,6 +4,10 @@
 **Category:** mango (upstream bug, not a config issue)
 **Version confirmed on:** 0.17.0 (also present, unfixed, on the `main` branch as of this date)
 
+<!-- graph:begin -->
+**Graph:** [[Mango]] · [[Monitors]]
+<!-- graph:end -->
+
 ## What
 Moving a window from one monitor to another (`tagmon`, see [[keybinds]]) while
 the destination monitor has an active **fullscreen** client causes keyboard

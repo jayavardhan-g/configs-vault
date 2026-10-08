@@ -3,6 +3,11 @@
 **Date:** 2026-10-02
 **Category:** noctalia
 **Files touched:**
+
+<!-- graph:begin -->
+**Graph:** [[Noctalia]]
+<!-- graph:end -->
+
 - `~/.local/state/noctalia/settings.toml`. Copy: [`files/.local/state/noctalia/settings.toml`](files/.local/state/noctalia/settings.toml), with home paths redacted to `/home/<user>`.
 - `~/.config/noctalia/config.toml`. Copy: [`files/.config/noctalia/config.toml`](files/.config/noctalia/config.toml).
 

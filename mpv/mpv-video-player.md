@@ -4,6 +4,10 @@
 **Category:** mpv
 **Files touched:** none (default config used, no `~/.config/mpv/` customization yet)
 
+<!-- graph:begin -->
+**Graph:** [[mpv]]
+<!-- graph:end -->
+
 ## What
 Installed `mpv` as the local video player — no player was installed by default.
 

@@ -4,6 +4,10 @@
 **Category:** appearance
 **Files touched:** `~/.config/mango/cfg/appearance.conf`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Mango]]
+<!-- graph:end -->
+
 ## What
 Set `cursor_theme = Bibata-Modern-Ice` in Mango's config (was `capitaine-cursors`).
 `cursor_size = 24` was already correct.

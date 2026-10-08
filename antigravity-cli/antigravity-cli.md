@@ -3,6 +3,11 @@
 **Date:** 2026-09-30
 **Category:** antigravity-cli
 **Files touched:** `~/.local/bin/agy` (binary); installer appended a PATH line to `~/.bashrc`, `~/.zshrc`, `~/.bash_profile`, `~/.config/fish/config.fish` (fish one removed, see Notes). Login/settings live in `~/.gemini/antigravity-cli/` — never copy it here.
+
+<!-- graph:begin -->
+**Graph:** [[fish]] · [[Antigravity CLI]]
+<!-- graph:end -->
+
 Stored copies of the three changed shell profiles: `antigravity-cli/files/.bashrc`, `files/.zshrc`, `files/.bash_profile` (`config.fish` ended up unchanged).
 
 ## What

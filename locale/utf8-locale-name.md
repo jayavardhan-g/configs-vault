@@ -4,6 +4,10 @@
 **Category:** locale
 **Files touched:** `/etc/locale.conf` (stored at [`files/etc/locale.conf`](files/etc/locale.conf))
 
+<!-- graph:begin -->
+**Graph:** [[Locale]]
+<!-- graph:end -->
+
 ## What
 Changed every `en_IN` in `/etc/locale.conf` to `en_IN.UTF-8`. Same locale data (Indian
 date/currency/number formats), just the name now says UTF-8.

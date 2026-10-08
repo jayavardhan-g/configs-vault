@@ -4,6 +4,10 @@
 **Category:** bitlocker (portable — works on any Linux distro/WM, `cryptsetup` + `bw` CLI only)
 **Files touched:** `~/.local/bin/bit-unlock`, `~/.local/bin/bit-lock`, `/etc/fstab` — stored copies in `bitlocker/files/.local/bin/` and `bitlocker/files/etc/fstab`
 
+<!-- graph:begin -->
+**Graph:** [[BitLocker]] · [[Windows]] · [[Bitwarden]]
+<!-- graph:end -->
+
 ## What
 Two scripts to unlock and mount **actually BitLocker-encrypted** NTFS partitions from
 Linux using a passphrase pulled live from Bitwarden, instead of retyping the BitLocker

@@ -4,6 +4,10 @@
 **Category:** keybindings
 **Files touched:** `~/.config/hypr/config/binds.lua`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]]
+<!-- graph:end -->
+
 ## What
 `SUPER+B` now launches `$BROWSER` too, in addition to the existing `SUPER+W`. Both keys
 do the same thing.

@@ -4,6 +4,10 @@
 **Category:** keybindings
 **Files touched:** `~/.config/hypr/config/binds.lua`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]]
+<!-- graph:end -->
+
 ## What
 `SUPER+N` cycles Hyprland's live `general:layout` between `master` (the current default,
 see [[master-layout]]), `dwindle`, and `scrolling`.

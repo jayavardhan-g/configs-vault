@@ -4,6 +4,10 @@
 **Category:** noctalia
 **Files touched:** `~/.local/state/noctalia/settings.toml`
 
+<!-- graph:begin -->
+**Graph:** [[Noctalia]]
+<!-- graph:end -->
+
 ## What
 Setting the color-palette source to "wallpaper" (Material You-style generation from the current wallpaper) kept silently reverting to the "builtin" palette. Root cause: the live state (`noctalia msg color-scheme-get`) correctly showed `wallpaper`, but the on-disk `~/.local/state/noctalia/settings.toml` never actually had a `source` key under `[theme]` — only `builtin`, `community_palette`, `mode`, `shell_mode`, and `wallpaper_scheme` were being persisted. Since `source` only ever lived in memory, it fell back to the persisted default (`builtin`) whenever the Noctalia shell process restarted (login, logout, compositor restart).
 

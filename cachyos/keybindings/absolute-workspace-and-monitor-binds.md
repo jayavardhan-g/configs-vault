@@ -4,6 +4,10 @@
 **Category:** keybindings
 **Files touched:** `~/.config/hypr/config/binds.lua`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Monitors]] · [[Xpad]]
+<!-- graph:end -->
+
 ## What
 - `SUPER+1..6` — focus that workspace by absolute number (workspaces 1-3 live on the
   laptop screen, 4-6 on the external monitor; `SUPER+7` still focuses the Xpad workspace).

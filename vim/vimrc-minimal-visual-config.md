@@ -4,6 +4,10 @@
 **Category:** system
 **Files touched:** `~/.vimrc`
 
+<!-- graph:begin -->
+**Graph:** [[Vim]]
+<!-- graph:end -->
+
 ## What
 Created `~/.vimrc` (didn't exist before) starting from a common community base config,
 then stripped it down visually: no top tabline, no explicit colorscheme (inherit the

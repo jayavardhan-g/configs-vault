@@ -3,6 +3,11 @@
 **Date:** 2026-09-20 to 2026-09-21
 **Category:** obsidian
 **Files touched:** `.obsidian/.obsidian.vimrc` in the `~/notes` vault repo (see
+
+<!-- graph:begin -->
+**Graph:** [[Neovim]] · [[Vim]] · [[Obsidian]]
+<!-- graph:end -->
+
 [[vault-setup-and-migration]] for why the file itself isn't duplicated here)
 
 ## What

@@ -1,1 +1,8 @@
 .claude/
+# Obsidian: per-machine UI state (open tabs, pane sizes, caches); the vault settings
+# that matter (app.json, graph.json) are committed
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.trash/
+__pycache__/

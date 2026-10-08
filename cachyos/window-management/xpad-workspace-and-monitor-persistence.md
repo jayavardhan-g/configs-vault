@@ -4,6 +4,10 @@
 **Category:** window-management
 **Files touched:** `~/.config/hypr/config/workspaces.lua`, `~/.config/hypr/config/windowrules.lua`, `~/.config/hypr/config/binds.lua`, `~/.config/hypr/config/autostart.lua`, `~/.config/hypr/scripts/xpad-launch.sh`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Monitors]] · [[Xpad]]
+<!-- graph:end -->
+
 ## What
 [[xpad-sticky-notes]] (installed separately — see that entry for the app itself) is
 wired into Hyprland as workspace 7: a dedicated workspace for sticky notes that lives on

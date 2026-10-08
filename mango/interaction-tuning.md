@@ -4,6 +4,10 @@
 **Category:** mango
 **Files touched:** `~/.config/mango/cfg/misc.conf`, `~/.config/mango/cfg/layout.conf`
 
+<!-- graph:begin -->
+**Graph:** [[Mango]]
+<!-- graph:end -->
+
 ## What
 Enabled three interaction settings that exist in Mango's default config but
 were never sourced into this setup: hot-corner overview trigger, floating-

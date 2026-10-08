@@ -4,6 +4,10 @@
 **Category:** keybindings
 **Files touched:** `~/.config/hypr/config/binds.lua`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Noctalia]]
+<!-- graph:end -->
+
 ## What
 The Noctalia wallpaper picker moved from `SUPER+SHIFT+W` to plain `SUPER+W`. The browser,
 which previously answered to both `SUPER+W` and `SUPER+B`, is now on `SUPER+B` only.

@@ -4,6 +4,10 @@
 **Category:** mango
 **Files touched:** `~/.config/mango/cfg/keybinds.conf`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Mango]] · [[Noctalia]] · [[CachyOS]]
+<!-- graph:end -->
+
 ## What
 Started from the CachyOS `cachyos-mango-noctalia` skeleton's default binds
 (all `SUPER`-based already, but arrow-key-only, with a few keys mapped

@@ -4,6 +4,10 @@
 **Category:** window-management
 **Files touched:** `~/.config/hypr/scripts/refresh-rate.sh` (copy at [`files/.config/hypr/scripts/refresh-rate.sh`](../files/.config/hypr/scripts/refresh-rate.sh))
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Monitors]]
+<!-- graph:end -->
+
 ## What
 `refresh-rate.sh` (SUPER+ALT+R, and the battery guard's 144/60 Hz switch) now
 changes only eDP-1's refresh rate. It no longer sets position and scale.

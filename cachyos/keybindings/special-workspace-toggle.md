@@ -4,6 +4,10 @@
 **Category:** keybindings
 **Files touched:** `~/.config/hypr/config/binds.lua`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Monitors]]
+<!-- graph:end -->
+
 ## What
 `SUPER+SHIFT+S` is context-aware: on a normal window it sends it to the special workspace
 (hide/"minimize"); on a window already in the special workspace, it instead pulls it back

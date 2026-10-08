@@ -4,6 +4,10 @@
 **Category:** window-management
 **Files touched:** `~/.config/hypr/config/binds.lua` (copy at [`files/.config/hypr/config/binds.lua`](../files/.config/hypr/config/binds.lua))
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]]
+<!-- graph:end -->
+
 ## What
 SUPER+U (`colresize +conf`) and SUPER+SHIFT+E (`colresize 0.95`) now drop the
 focused window out of fullscreen/maximize before resizing its column.

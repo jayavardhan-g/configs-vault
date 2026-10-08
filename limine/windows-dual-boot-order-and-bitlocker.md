@@ -4,6 +4,10 @@
 **Category:** limine
 **Files touched:** `/boot/limine.conf` (ESP config), Windows BCD (via `bcdedit`, no local file)
 
+<!-- graph:begin -->
+**Graph:** [[Limine]] · [[BitLocker]] · [[Windows]]
+<!-- graph:end -->
+
 ## What
 Two related fixes for a Limine + Windows dual-boot setup:
 

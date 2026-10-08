@@ -4,6 +4,10 @@
 **Category:** mango
 **Files touched:** none directly — package swap only (`pacman`)
 
+<!-- graph:begin -->
+**Graph:** [[Mango]] · [[CachyOS]]
+<!-- graph:end -->
+
 ## What
 Replaced the CachyOS-repo `mangowm` package (`0.16.1-1`) with the AUR package
 `mangowm` (`0.17.0-1`), built manually via `makepkg` (installed by the user via

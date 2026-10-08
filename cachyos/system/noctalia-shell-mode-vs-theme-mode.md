@@ -4,6 +4,10 @@
 **Category:** system
 **Files touched:** `~/.config/noctalia/config.toml`
 
+<!-- graph:begin -->
+**Graph:** [[Noctalia]]
+<!-- graph:end -->
+
 ## What
 Noctalia's bar/panels/launcher (its own UI chrome) would sometimes turn light while
 everything else stayed dark, especially noticeable around wallpaper changes. Fixed by

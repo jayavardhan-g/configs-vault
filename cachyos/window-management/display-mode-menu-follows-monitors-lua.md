@@ -4,6 +4,10 @@
 **Category:** window-management
 **Files touched:** `~/.config/hypr/scripts/display-mode.sh` (copy at [`files/.config/hypr/scripts/display-mode.sh`](../files/.config/hypr/scripts/display-mode.sh))
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Monitors]]
+<!-- graph:end -->
+
 ## What
 The SUPER+P menu (Extend / Duplicate / PC screen only / Second screen only) no
 longer hard-codes monitor positions and scales. Each mode clears any leftover

@@ -4,6 +4,10 @@
 **Category:** noctalia
 **Files touched:** `~/.local/state/noctalia/settings.toml` (`[theme] mode`)
 
+<!-- graph:begin -->
+**Graph:** [[Noctalia]] · [[kitty]]
+<!-- graph:end -->
+
 ## What
 Noctalia's `theme.mode` was `"auto"`. Set it to `"dark"` so the shell (and GTK/Qt/kitty/etc
 apps via templates) always stay dark, regardless of time of day.

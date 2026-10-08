@@ -4,6 +4,10 @@
 **Category:** system
 **Files touched:** none live. The trial config lived in `~/.config/quickshell/` and was removed; saved copies are in [`quickshell-trial/`](quickshell-trial/) (`shell.qml`, `SideIsland.qml`). Deliberately kept out of `../files/`, which gets overlay-copied onto a fresh machine.
 
+<!-- graph:begin -->
+**Graph:** [[Noctalia]] · [[Quickshell]] · [[Xpad]]
+<!-- graph:end -->
+
 ## What
 Status (updated 2026-10-02): **Quickshell is installed and autostarted again**, for the
 pomodoro widget ([quickshell-pomodoro-widget.md](quickshell-pomodoro-widget.md)). That

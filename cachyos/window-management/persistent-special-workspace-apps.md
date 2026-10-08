@@ -4,6 +4,10 @@
 **Category:** window-management
 **Files touched:** `~/.config/hypr/config/autostart.lua`, `~/.config/hypr/config/windowrules.lua`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[kitty]] · [[fish]] · [[Fortinet VPN]] · [[Spotify]]
+<!-- graph:end -->
+
 ## What
 Spotify and three specific `kitty` terminals (one running `claude` in `~/claude`, one
 running the `labvpn` fish function, one plain shell in the home directory) now launch

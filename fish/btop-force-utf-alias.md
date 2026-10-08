@@ -4,6 +4,10 @@
 **Category:** fish
 **Files touched:** `~/.config/fish/config.fish` (stored at [`files/.config/fish/config.fish`](files/.config/fish/config.fish)), plus one-line appends to `~/.zshrc` and `~/.bashrc`
 
+<!-- graph:begin -->
+**Graph:** [[fish]] · [[Locale]]
+<!-- graph:end -->
+
 ## What
 **Superseded 2026-10-02:** the alias has been removed from all three rc files. The real
 cause was the locale name, fixed in [[utf8-locale-name]]. The fish-vs-bash/zsh lessons

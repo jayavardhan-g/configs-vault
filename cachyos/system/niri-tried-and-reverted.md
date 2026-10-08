@@ -4,6 +4,10 @@
 **Category:** system
 **Files touched:** none persisted (`~/.config/niri/` created for the trial, then deleted)
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Mango]] · [[niri]] · [[NVIDIA]]
+<!-- graph:end -->
+
 ## What
 Installed niri 26.04 + `xwayland-satellite`, logged into it with a config ported from
 Hyprland/Mango, then uninstalled both and deleted the config the same day. Hyprland stays

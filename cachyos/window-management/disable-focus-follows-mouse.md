@@ -4,6 +4,10 @@
 **Category:** window-management
 **Files touched:** `~/.config/mango/cfg/misc.conf`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Mango]]
+<!-- graph:end -->
+
 ## What
 Set `sloppyfocus = 0` in Mango's `misc.conf`. Mango (a dwm-family compositor) defaults to
 "sloppy focus" — moving the pointer over any window steals keyboard focus to it, with no

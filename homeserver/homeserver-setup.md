@@ -3,6 +3,11 @@
 **Date:** 2026-10-04
 **Category:** homeserver
 **Machine:** a separate desktop, not the laptop — Gigabyte H97M-D3H, i7-4790K (iGPU only),
+
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Limine]] · [[Cloudflare WARP]] · [[Tailscale]] · [[Home server]] · [[SSH]] · [[qBittorrent]]
+<!-- graph:end -->
+
 8 GB DDR3, one ~460 GB btrfs disk, wired ethernet `enp2s0`, CachyOS (Hyprland installed but
 boots headless)
 **Files touched** (all on the server; copies under [`files/`](files/)):

@@ -4,6 +4,10 @@
 **Category:** neovim
 **Files touched:** `~/.config/nvim/lua/plugins/ghosttext.lua` (new)
 
+<!-- graph:begin -->
+**Graph:** [[Neovim]]
+<!-- graph:end -->
+
 ## What
 Installed the `subnut/nvim-ghost.nvim` plugin (via LazyVim's `lua/plugins/` spec
 convention) so the [GhostText](https://github.com/GhostText/GhostText) browser

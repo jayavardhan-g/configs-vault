@@ -1,6 +1,11 @@
 # Window resizing: submap and reset
 
 **Date:** 2026-08-28 (updated 2026-09-21 — submap made sticky, direct-resize chord
+
+<!-- graph:begin -->
+**Graph:** [[Hyprland]]
+<!-- graph:end -->
+
 removed; see Notes)
 **Category:** keybindings
 **Files touched:** `~/.config/hypr/config/binds.lua`

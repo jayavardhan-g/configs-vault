@@ -4,6 +4,10 @@
 **Category:** keybindings
 **Files touched:** `~/.config/hypr/config/binds.lua`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]]
+<!-- graph:end -->
+
 ## What
 The "toggle window floating" bind moved from `SUPER+ALT+Space` to `SUPER+SHIFT+F`.
 

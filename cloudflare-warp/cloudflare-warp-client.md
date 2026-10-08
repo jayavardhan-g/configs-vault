@@ -4,6 +4,10 @@
 **Category:** cloudflare-warp
 **Files touched:** none (no local dotfile — state lives in the package + systemd + WARP's own registration)
 
+<!-- graph:begin -->
+**Graph:** [[Cloudflare WARP]]
+<!-- graph:end -->
+
 ## What
 Installed the Cloudflare WARP client (`warp-cli`/`warp-svc`, the Linux equivalent of the
 "1.1.1.1" app) and connected it.

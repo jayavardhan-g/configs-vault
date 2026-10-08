@@ -3,6 +3,11 @@
 **Date:** 2026-09-14
 **Category:** system
 **Files touched:** none directly (package reinstall only) — relevant existing files:
+
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Noctalia]] · [[CachyOS]] · [[greetd]] · [[uwsm]]
+<!-- graph:end -->
+
 `/etc/greetd/config.toml`, `/usr/share/wayland-sessions/hyprland-uwsm.desktop`
 
 ## What

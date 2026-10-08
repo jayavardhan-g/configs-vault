@@ -4,6 +4,10 @@
 **Category:** system
 **Files touched:** `~/.config/quickshell/` (`shell.qml`, `Pomo.qml`, `PomoPill.qml`, `PomoPanel.qml`, `RunStepper.qml`, `Theme.qml`, `Btn.qml`, `Icon.qml`, `Ring.qml`, `Switch.qml`, `SetStepper.qml`, `SetToggle.qml`, `SetChoice.qml`, `SetText.qml`), `~/.config/hypr/config/binds.lua`, `~/.config/hypr/config/autostart.lua`. Copies: [`../files/.config/quickshell/`](../files/.config/quickshell/), [`../files/.config/hypr/config/`](../files/.config/hypr/config/). Data: `~/.local/share/pomodoro/data.json` (not stored; personal history).
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Noctalia]] · [[Quickshell]] · [[Monitors]]
+<!-- graph:end -->
+
 ## What
 A pomodoro timer with categories and statistics, modelled on Android focus apps (Forest,
 Focus To-Do, Flora). Built in Quickshell, running next to Noctalia.

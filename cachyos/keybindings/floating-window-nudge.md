@@ -4,6 +4,10 @@
 **Category:** keybindings
 **Files touched:** `~/.config/hypr/config/binds.lua`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]]
+<!-- graph:end -->
+
 ## What
 `SUPER+ALT+h/j/k/l` and `SUPER+ALT+arrows` nudge a **floating** window by 50px
 (hold to repeat). Session lock, which held `SUPER+ALT+L`, was moved out of the way to

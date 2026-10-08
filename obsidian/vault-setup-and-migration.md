@@ -4,6 +4,10 @@
 **Category:** obsidian
 **Files touched:** none tracked here — the vault itself lives in a separate git repo, `~/notes` (see Notes)
 
+<!-- graph:begin -->
+**Graph:** [[Obsidian]] · [[BitLocker]] · [[Windows]]
+<!-- graph:end -->
+
 ## What
 Installed Obsidian on CachyOS via the official `extra` repo package (not the AppImage
 sitting in `~/Downloads`), and got the real, existing vault — previously only on a

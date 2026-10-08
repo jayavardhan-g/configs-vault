@@ -4,6 +4,10 @@
 **Category:** keybindings
 **Files touched:** `~/.config/mango/cfg/keybinds.conf`
 
+<!-- graph:begin -->
+**Graph:** [[Mango]]
+<!-- graph:end -->
+
 ## What
 Removed Mango's `mousebind = NONE, btn_middle, togglemaximizescreen, 0` — a
 global, unmodified middle-click bind that toggled fullscreen (the same action as

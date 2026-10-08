@@ -4,6 +4,10 @@
 **Category:** window-management
 **Files touched:** `~/.config/hypr/config/misc.lua` and `~/.config/hypr/config/binds.lua` (copies at [`files/.config/hypr/config/misc.lua`](../files/.config/hypr/config/misc.lua) and [`files/.config/hypr/config/binds.lua`](../files/.config/hypr/config/binds.lua)). On 2026-09-21 nothing was changed.
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Monitors]]
+<!-- graph:end -->
+
 ## Current state (2026-09-26)
 SUPER+H/L (and SUPER+Left/Right) **do** cross to the neighbouring monitor at the
 screen edge, landing on the nearest window actually on screen there. This reverses

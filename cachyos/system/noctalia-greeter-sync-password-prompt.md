@@ -4,6 +4,10 @@
 **Category:** system
 **Files touched:** `~/.config/hypr/scripts/rotation-pauses-greeter-sync.sh` (stored: [files/.config/hypr/scripts/rotation-pauses-greeter-sync.sh](../files/.config/hypr/scripts/rotation-pauses-greeter-sync.sh)), `~/.config/systemd/user/rotation-pauses-greeter-sync.{path,service}` (stored: [files/.config/systemd/user/](../files/.config/systemd/user/)), `~/.config/noctalia/config.toml` (stored: [files/.config/noctalia/config.toml](../files/.config/noctalia/config.toml)), `~/.config/noctalia/rotation-pauses-greeter-sync.toml` (generated, not stored)
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Noctalia]] · [[greetd]]
+<!-- graph:end -->
+
 ## What
 Greeter auto-sync (copying wallpaper/colors/theme/font to the login/lock-screen greeter,
 one admin-password prompt per sync) is **on**, except while Noctalia's automatic

@@ -4,6 +4,10 @@
 **Category:** appearance
 **Files touched:** `~/.config/mango/cfg/appearance.conf`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Mango]]
+<!-- graph:end -->
+
 ## What
 Set `borderpx = 2` (was `4`) to match Hyprland's `general:border_size = 2`. Set
 `focuscolor = 0x82dcccff` (was `0x47add6ff`, an unrelated blue) as a flat-color

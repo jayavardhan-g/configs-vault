@@ -4,6 +4,10 @@
 **Category:** zen-browser
 **Files touched:** `~/.var/app/app.zen_browser.zen/.zen/profiles.ini`, `~/.var/app/app.zen_browser.zen/.zen/Profile Groups/<StoreID>.sqlite`, `~/.local/share/applications/zen-*.desktop`, `~/.local/bin/zen-*`
 
+<!-- graph:begin -->
+**Graph:** [[BitLocker]] · [[Windows]] · [[Zen Browser]]
+<!-- graph:end -->
+
 ## What
 Copied all 4 Zen Browser profiles (Windows profile names: Nani, Nightmare, Study, Fake)
 from a BitLocker-encrypted Windows install into the CachyOS flatpak install of Zen

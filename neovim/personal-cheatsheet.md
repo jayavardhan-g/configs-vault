@@ -3,6 +3,10 @@
 **Category:** neovim
 **Files touched:** `cheatsheet.md`, `lua/cheatsheet.lua`, `lua/config/keymaps.lua` (all under `~/.config/nvim/`; copies in [`files/`](files/))
 
+<!-- graph:begin -->
+**Graph:** [[Neovim]]
+<!-- graph:end -->
+
 History of the searchable in-editor cheatsheet: why it's custom, the three UI rewrites, content audits, and the keybinding it ended up on. Part of the LazyVim setup - see [[lazyvim-migration]] for the migration itself and the index of all topic files.
 
 Entries are in the order they happened. They were split out of `lazyvim-migration.md` on 2026-09-23 without rewording, so "above" and "previous follow-up" refer to entries in this file unless a link says otherwise.
@@ -887,7 +891,6 @@ All tested live in a C++ buffer first: `:g/TODO/norm gcc`, `:v/TODO/norm gcc`, `
 - *Delete part of every line*: `:%s/\s*#.*//e`, `:%s/^\s\+//`, `:%norm dw`, `:%norm f#D`, `\v` field swap.
 
 Every recipe run live in headless Neovim first. All stock Vim - each entry says so (same in stock LazyVim and Vim). First title "Add text to ..." found nothing for "append", so it was renamed "Prefix or append text on many lines (start or end)".
-
 
 ## Follow-up: tab-page numbers explained (2026-10-04)
 

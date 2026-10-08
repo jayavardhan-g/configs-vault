@@ -4,6 +4,10 @@
 **Category:** window-management
 **Files touched:** `~/.config/hypr/config/decorations.lua`, `~/.config/hypr/config/binds.lua`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]]
+<!-- graph:end -->
+
 ## What
 Global tiling layout switched from Hyprland's default `dwindle` to `master`.
 `SUPER+M` swaps the focused window into the master slot.

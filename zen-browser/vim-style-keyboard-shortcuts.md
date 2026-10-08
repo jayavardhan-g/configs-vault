@@ -4,6 +4,10 @@
 **Category:** zen-browser
 **Files touched:** `~/.var/app/app.zen_browser.zen/.zen/nnwin01.Nani/zen-keyboard-shortcuts.json` (live), mirrored in `~/dotfiles/zen/zen-keyboard-shortcuts.json`
 
+<!-- graph:begin -->
+**Graph:** [[Neovim]] · [[Zen Browser]]
+<!-- graph:end -->
+
 ## What
 Remapped a handful of Zen's in-browser keyboard shortcuts to echo conventions from
 Jayavardhan's actual LazyVim setup ([[../neovim/lazyvim-migration]]), decided one item at a

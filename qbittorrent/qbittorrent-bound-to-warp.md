@@ -4,6 +4,10 @@
 **Category:** qbittorrent
 **Files touched:** `~/.config/qBittorrent/qBittorrent.conf` (copy: [`files/.config/qBittorrent/qBittorrent.conf`](files/.config/qBittorrent/qBittorrent.conf))
 
+<!-- graph:begin -->
+**Graph:** [[Cloudflare WARP]] · [[qBittorrent]]
+<!-- graph:end -->
+
 ## What
 qBittorrent (repo package `qbittorrent`) is bound to the `CloudflareWARP` network
 interface so all torrent traffic goes through WARP, and Local Peer Discovery is off.

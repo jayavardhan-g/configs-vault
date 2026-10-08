@@ -3,6 +3,11 @@
 **Date:** 2026-09-14
 **Category:** mango
 **Files touched:** none (package install only — `~/.config/noctalia/config.toml` and
+
+<!-- graph:begin -->
+**Graph:** [[Mango]] · [[Noctalia]] · [[Monitors]]
+<!-- graph:end -->
+
 `~/.config/satty/config.toml` were already correctly set up, just missing the binary)
 
 ## What

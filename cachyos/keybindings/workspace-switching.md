@@ -4,6 +4,10 @@
 **Category:** keybindings
 **Files touched:** `~/.config/hypr/config/binds.lua`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Monitors]]
+<!-- graph:end -->
+
 ## What
 `SUPER+CTRL+H` / `SUPER+CTRL+L` switch to the previous/next workspace on the current
 monitor (same behavior as the existing `SUPER+CTRL+Left/Right`, just with vim keys).

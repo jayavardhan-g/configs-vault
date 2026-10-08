@@ -3,6 +3,11 @@
 **Date:** 2026-09-14
 **Category:** mango
 **Files touched:** none (fully reverted — was `~/.config/mango/cfg/layout.conf`,
+
+<!-- graph:begin -->
+**Graph:** [[Mango]] · [[Monitors]] · [[Xpad]]
+<!-- graph:end -->
+
 `~/.config/mango/cfg/rules.conf`, `~/.config/mango/cfg/keybinds.conf`)
 
 ## What was tried

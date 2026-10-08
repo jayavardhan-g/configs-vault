@@ -4,6 +4,10 @@
 **Category:** input
 **Files touched:** `~/.config/hypr/config/inputs.lua`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]]
+<!-- graph:end -->
+
 ## What
 Mouse wheel scrolls "traditionally" (wheel down → content moves down), matching Windows'
 default for a mouse. Touchpad two-finger scroll is "natural" (content follows your

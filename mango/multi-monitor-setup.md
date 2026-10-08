@@ -4,6 +4,10 @@
 **Category:** mango
 **Files touched:** `~/.config/mango/cfg/monitors.conf`, `~/.config/mango/cfg/layout.conf`, `~/.config/mango/cfg/misc.conf`, `~/.config/mango/cfg/keybinds.conf`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Mango]] · [[Monitors]]
+<!-- graph:end -->
+
 ## What
 UI scale matched to the Hyprland setup, workspace count reduced from the
 default 9 to 4, and a set of keybinds for focusing/moving windows to a

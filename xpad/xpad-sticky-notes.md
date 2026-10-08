@@ -4,6 +4,10 @@
 **Category:** xpad
 **Files touched:** none (package install + CLI usage only — Hyprland wiring is separate, see [[xpad-workspace-and-monitor-persistence]])
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Monitors]] · [[Xpad]] · [[CachyOS]]
+<!-- graph:end -->
+
 ## What
 Installed `xpad` (`pacman -S xpad`) as a desktop sticky-notes app — notes are plain
 windows (no tray dependency), saved as one file pair per note under `~/.config/xpad/`

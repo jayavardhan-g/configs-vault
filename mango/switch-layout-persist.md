@@ -4,6 +4,10 @@
 **Category:** mango
 **Files touched:** `~/.config/mango/cfg/keybinds.conf`, `~/.config/mango/scripts/switch-layout-persist.sh` (new)
 
+<!-- graph:begin -->
+**Graph:** [[Mango]]
+<!-- graph:end -->
+
 ## What
 `SUPER+n` still cycles the current tag's layout through `circle_layout` exactly as
 before, but now also writes the result into `layout.conf`'s `tagrule` for that tag id —

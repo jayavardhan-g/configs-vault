@@ -4,6 +4,10 @@
 **Category:** kitty
 **Files touched:** `~/.config/kitty/kitty.conf` (copy in [`files/`](files/.config/kitty/kitty.conf)), `~/.config/nvim/lua/config/keymaps.lua` (mapping removed; it was never in the stored copy), `~/.config/nvim/cheatsheet.md` (copy in [`neovim/files/`](../neovim/files/.config/nvim/cheatsheet.md))
 
+<!-- graph:begin -->
+**Graph:** [[kitty]] · [[Neovim]] · [[Antigravity CLI]]
+<!-- graph:end -->
+
 ## What
 kitty now turns Ctrl+Backspace into Ctrl+W (`\x17`) for every program running in it,
 so it deletes the previous word everywhere — shell, Neovim insert/command-line mode,

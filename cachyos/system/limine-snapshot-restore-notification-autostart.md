@@ -4,6 +4,10 @@
 **Category:** system
 **Files touched:** `~/.config/hypr/config/autostart.lua`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Limine]]
+<!-- graph:end -->
+
 ## What
 Booting into a Limine "snapshot" boot entry (via `limine-snapper-sync`) never showed the
 expected "Restore this snapshot now!" desktop notification, even though the same setup

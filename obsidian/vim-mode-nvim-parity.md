@@ -3,6 +3,11 @@
 **Date:** 2026-10-02
 **Category:** obsidian
 **Files touched:** `~/notes/.obsidian/.obsidian.vimrc`, `~/notes/.obsidian/hotkeys.json`,
+
+<!-- graph:begin -->
+**Graph:** [[Neovim]] · [[Vim]] · [[Obsidian]]
+<!-- graph:end -->
+
 `~/notes/.obsidian/community-plugins.json`, `~/notes/.obsidian/plugins/mrj-jump-to-link/`
 (stored copies under `obsidian/files/notes/.obsidian/`)
 

@@ -4,6 +4,10 @@
 **Category:** system
 **Files touched:** `~/.config/openfortivpn/config`, `~/.config/fish/functions/labvpn.fish`
 
+<!-- graph:begin -->
+**Graph:** [[fish]] · [[SSH]] · [[Fortinet VPN]]
+<!-- graph:end -->
+
 ## What
 Set up `openfortivpn` (lightweight CLI Fortinet SSL-VPN client) plus a `labvpn` fish
 function that gives an interactive `start`/`stop`/`status`/`log` prompt, so the VPN needed

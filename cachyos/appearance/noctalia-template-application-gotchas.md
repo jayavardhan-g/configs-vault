@@ -3,6 +3,11 @@
 **Date:** 2026-09-20
 **Category:** appearance
 **Files touched:** none persisted (Wezterm was trialed as a Kitty replacement, then
+
+<!-- graph:begin -->
+**Graph:** [[Noctalia]] · [[kitty]]
+<!-- graph:end -->
+
 uninstalled — Kitty stays the default terminal; keeping this note only for the reusable
 Noctalia lesson).
 

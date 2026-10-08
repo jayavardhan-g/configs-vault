@@ -4,6 +4,10 @@
 **Category:** mango
 **Files touched:** `~/.config/mango/cfg/keybinds.conf`, `~/.config/mango/scripts/display-mode.sh` (new)
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Mango]] · [[Monitors]]
+<!-- graph:end -->
+
 ## What
 `SUPER+P` opens a `fuzzel --dmenu` popup with three choices — Extend, PC
 screen only, Second screen only — for the laptop panel (`eDP-1`) + external

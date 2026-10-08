@@ -4,6 +4,10 @@
 **Category:** input
 **Files touched:** `~/.config/hypr/config/inputs.lua`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]]
+<!-- graph:end -->
+
 ## What
 The physical Right Alt key sends the Super/Meta keysym instead of Alt.
 

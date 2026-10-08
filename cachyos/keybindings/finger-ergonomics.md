@@ -4,6 +4,10 @@
 **Category:** keybindings
 **Files touched:** none — this is a usage convention, not a config change
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]]
+<!-- graph:end -->
+
 ## What
 A consistent rule for which finger presses which key across all the vim-style binds in
 [[vim-navigation]], [[resize]], [[workspace-switching]], and [[special-workspace-toggle]],

@@ -4,6 +4,10 @@
 **Category:** keybindings
 **Files touched:** `~/.config/hypr/config/binds.lua`, `~/.config/hypr/scripts/display-mode.sh` (new)
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Monitors]]
+<!-- graph:end -->
+
 ## What
 `SUPER+P` opens a `fuzzel --dmenu` popup with four choices — Extend, Duplicate, PC
 screen only, Second screen only — mirroring Windows' Win+P panel for the laptop panel

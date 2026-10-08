@@ -4,6 +4,10 @@
 **Category:** mango
 **Files touched:** `~/.config/mango/cfg/appearance.conf`, `~/.config/mango/cfg/input.conf`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Mango]]
+<!-- graph:end -->
+
 ## What
 Tightened the default gaps (including a separate special-tag-only gap
 setting most guides don't mention), matched the special-tag border color to

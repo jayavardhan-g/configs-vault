@@ -3,6 +3,11 @@
 **Date:** 2026-09-21
 **Category:** system
 **Files touched:** None directly — session choice is remembered automatically by
+
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Mango]] · [[Noctalia]] · [[Monitors]] · [[greetd]] · [[NVIDIA]]
+<!-- graph:end -->
+
 noctalia-greeter (state under `/var/lib/noctalia-greeter`, root-owned, not hand-edited).
 Just pick "Hyprland" at the login screen once and it persists as the default for
 subsequent boots.

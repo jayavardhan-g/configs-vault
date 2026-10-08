@@ -3,6 +3,11 @@
 **Date:** 2026-08-29
 **Category:** system
 **Files touched:** none under `~/.config/hypr` — Flatpak app data at
+
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[CachyOS]] · [[Spotify]]
+<!-- graph:end -->
+
 `~/.local/share/flatpak/app/com.spotify.Client/` and `~/.var/app/com.spotify.Client/`
 
 ## What

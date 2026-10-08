@@ -4,6 +4,10 @@
 **Category:** mango
 **Files touched:** `~/.config/mango/cfg/env.conf`, `~/.config/qt6ct/qt6ct.conf`
 
+<!-- graph:begin -->
+**Graph:** [[Mango]] · [[Noctalia]]
+<!-- graph:end -->
+
 ## What
 Dolphin (and any other Qt6 app) now renders with the dark "noctalia" color scheme and
 breeze icons instead of the default light/unthemed Fusion look.

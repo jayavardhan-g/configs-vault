@@ -4,6 +4,10 @@
 **Category:** keybindings
 **Files touched:** `~/.config/mango/cfg/keybinds.conf`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Mango]]
+<!-- graph:end -->
+
 ## What
 Rebound the scroller-layout width-preset cycle (`switch_proportion_preset`) from
 `ALT+X` to `SUPER+U`.

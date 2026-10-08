@@ -3,6 +3,11 @@
 **Date:** 2026-09-21
 **Category:** keybindings
 **Files touched:** `~/.config/hypr/config/binds.lua`, `~/.config/hypr/config/variables.lua`,
+
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Xpad]] · [[Neovim]]
+<!-- graph:end -->
+
 `~/.config/hypr/config/autostart.lua`
 
 ## What

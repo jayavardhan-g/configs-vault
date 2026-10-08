@@ -4,6 +4,10 @@
 **Category:** keybindings
 **Files touched:** `~/.config/mango/cfg/keybinds.conf`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]] · [[Mango]] · [[Noctalia]]
+<!-- graph:end -->
+
 ## What
 Added `bind = SUPER, period, spawn, noctalia msg panel-toggle launcher /emo` to
 Mango's keybinds, opening Noctalia's launcher pre-seeded with the `/emo` command

@@ -3,6 +3,10 @@
 **Category:** neovim
 **Files touched:** `lua/plugins/disabled.lua`, `lua/plugins/flash.lua`, `lua/plugins/gitsigns.lua`, `lua/plugins/todo-comments.lua` (all under `~/.config/nvim/`; copies in [`files/`](files/))
 
+<!-- graph:begin -->
+**Graph:** [[Neovim]]
+<!-- graph:end -->
+
 The one-by-one pass over LazyVim's optional plugins: tested live, then kept, adjusted or disabled. Final verdict table is in the last entry. Part of the LazyVim setup - see [[lazyvim-migration]] for the migration itself and the index of all topic files.
 
 Entries are in the order they happened. They were split out of `lazyvim-migration.md` on 2026-09-23 without rewording, so "above" and "previous follow-up" refer to entries in this file unless a link says otherwise.

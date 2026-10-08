@@ -4,6 +4,10 @@
 **Category:** keybindings
 **Files touched:** `~/.config/hypr/config/binds.lua`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]]
+<!-- graph:end -->
+
 ## What
 `SUPER+h/j/k/l` moves focus between windows (left/down/up/right), `SUPER+SHIFT+h/j/k/l`
 moves the active window around, mirroring the existing arrow-key binds.

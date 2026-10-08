@@ -4,6 +4,10 @@
 **Category:** mango
 **Files touched:** `~/.config/mango/cfg/layout.conf`, `~/.config/mango/cfg/keybinds.conf`
 
+<!-- graph:begin -->
+**Graph:** [[Mango]] · [[Monitors]] · [[Xpad]]
+<!-- graph:end -->
+
 ## What
 Tags 1-4 default to the `scroller` layout (a horizontally-scrolling strip of windows);
 tag 5 defaults to `fair`. Applies on both `eDP-1` and `HDMI-A-1` — `tagrule` with no

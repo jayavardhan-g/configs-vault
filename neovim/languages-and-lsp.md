@@ -3,6 +3,10 @@
 **Category:** neovim
 **Files touched:** `lua/plugins/languages.lua`, `lua/plugins/formatting.lua`, `lua/plugins/clangd.lua`, `lua/config/options.lua`, `lua/plugins/noice.lua` (all under `~/.config/nvim/`), `~/.clang-format`; copies in [`files/`](files/)
 
+<!-- graph:begin -->
+**Graph:** [[Neovim]]
+<!-- graph:end -->
+
 Which languages this setup supports and how: the treesitter trim, formatters (clang-format, ruff) and the clangd language server. Part of the LazyVim setup - see [[lazyvim-migration]] for the migration itself and the index of all topic files.
 
 Entries are in the order they happened. They were split out of `lazyvim-migration.md` on 2026-09-23 without rewording, so "above" and "previous follow-up" refer to entries in this file unless a link says otherwise.

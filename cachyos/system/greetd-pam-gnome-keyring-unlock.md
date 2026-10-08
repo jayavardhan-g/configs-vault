@@ -4,6 +4,10 @@
 **Category:** system
 **Files touched:** `/etc/pam.d/greetd` (stored copy: [files/etc/pam.d/greetd](../files/etc/pam.d/greetd)), `~/.local/share/keyrings/` (keyring renamed, not stored — contains secrets)
 
+<!-- graph:begin -->
+**Graph:** [[greetd]] · [[GNOME Keyring]]
+<!-- graph:end -->
+
 ## What
 Added `pam_gnome_keyring.so` to greetd's PAM stack and renamed the gnome-keyring
 collection from `Default_keyring` to `login`, so the login password unlocks it

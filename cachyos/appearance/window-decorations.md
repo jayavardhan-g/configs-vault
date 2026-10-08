@@ -4,6 +4,10 @@
 **Category:** appearance
 **Files touched:** `~/.config/hypr/config/decorations.lua`
 
+<!-- graph:begin -->
+**Graph:** [[Hyprland]]
+<!-- graph:end -->
+
 ## What
 Reduced the spacing between and around tiled windows, and changed window borders so only
 the focused window shows a visible border (an orange-to-transparent diagonal gradient) —

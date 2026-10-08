@@ -4,6 +4,10 @@
 **Category:** keybindings
 **Files touched:** none — documented only, not fixed (deliberately left as-is)
 
+<!-- graph:begin -->
+**Graph:** [[Mango]] · [[Monitors]]
+<!-- graph:end -->
+
 ## What
 `SUPER+h/j/k/l` (`focusdir`, see [[vim-navigation]]) is supposed to move focus to
 the nearest window in that direction, crossing onto the other monitor only when

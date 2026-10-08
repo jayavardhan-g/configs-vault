@@ -3,6 +3,10 @@
 **Category:** neovim
 **Files touched:** `lua/config/keymaps.lua`, `cheatsheet.md`, `lua/config/options.lua`, `lua/plugins/completion.lua`, `lua/plugins/noice.lua`, `lua/plugins/scope.lua`, `lua/plugins/snacks.lua`, `lazyvim.json` (all under `~/.config/nvim/`; copies in [`files/`](files/))
 
+<!-- graph:begin -->
+**Graph:** [[Neovim]]
+<!-- graph:end -->
+
 Key remaps and editing defaults layered on top of LazyVim: the old-vs-LazyVim key comparison, OSC 52 clipboard yank, VSCode-style comment toggle, 4-space indent, the autocomplete toggle, the mini.surround extra, per-tab buffers (scope.nvim), and the explorer's `t` new-tab key. Part of the LazyVim setup - see [[lazyvim-migration]] for the migration itself and the index of all topic files.
 
 Entries are in the order they happened. They were split out of `lazyvim-migration.md` on 2026-09-23 without rewording, so "above" and "previous follow-up" refer to entries in this file unless a link says otherwise.
@@ -386,7 +390,6 @@ First launch installs it (lazy.nvim); it is pinned in `lazy-lock.json`.
 - Undo: delete `scope.lua` and run `:Lazy clean`.
 - `<leader>fB` (Snacks "Buffers (all)", `hidden = true`) still lists every tab's buffers, but picking one opens it in the **current** tab (it then joins this tab's list) - Snacks' `drop` action only finds buffers *visible* in another tab's window. **Shelved (future work)**: a custom confirm on `<leader>fB` that looks the buffer up in `require("scope.core").cache` (refreshed only on TabLeave, so use live `buflisted` for the current tab), switches to that tab page and `:buffer`s it, else opens here. A separate tab-page picker was offered and declined ("searching through all buffers is enough").
 - Recommendation given when asked "global or per-tab?": keep per-tab - with one tab nothing changes, and it gives extra tabs a purpose; switch back only if tabs are used as alternate layouts of the *same* files.
-
 
 ## Follow-up: kitty tab keys moved off Ctrl+T / Ctrl+W (2026-10-04)
 

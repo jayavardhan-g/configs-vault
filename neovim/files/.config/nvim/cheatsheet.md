@@ -99,7 +99,7 @@ Fuzzy: typing `cfglua` will match `config/keymaps.lua`.
 
 Default: show hidden and git-ignored files without `<M-h>` / `<M-i>` -
 `picker = { sources = { files = { hidden = true, ignored = true } } }` in
-the `opts` of `lua/plugins/snacks.lua` (see UI toggles for creating it) - true/false (now both `false`).
+the `opts` of `lua/plugins/snacks.lua` - true/false (now both `false`).
 
 ### Find recently used files
 - `<lead>fr` - recent files (project root)
@@ -186,6 +186,7 @@ Files, grep, buffers, help - every picker shares these. `?` shows them all.
 `<lead>sR` reopens the last picker with its search intact.
 
 - `<CR>` - open · `<C-s>` / `<C-v>` / `<C-t>` - in a split / vsplit / tab
+  (`<C-t>` is a custom version here - see "What a tab is here")
 - `<Tab>` / `<S-Tab>` - mark several items · `<C-a>` - mark all
 - `<C-q>` - send the marked (or all) results to the quickfix list
 - `<C-j>` / `<C-k>` (or `<C-n>` / `<C-p>`) - move · `<C-d>` / `<C-u>` - by pages
@@ -209,7 +210,10 @@ and `zt` / `zz` / `zb` work too; `i` goes back to typing.
 ### Replace inside the current file
 - `:%s/old/new/g` - every occurrence in the file
 - `:s/old/new/g` - only on the current line
+- `:68,78s/old/new/g` - only between lines 68 and 78
+- `:-5,+5s/old/new/g` - 5 lines above to 5 lines below cursor
 - `:%s/old/new/gc` - ask before each replacement
+- `:s#old/path#new/path#g` - use `#` (or `;`) as delimiter to avoid escaping `/`
 
 What you see:
 
@@ -223,7 +227,8 @@ What you see:
 ```
 
 `%` = whole file, `g` = every match per line (without it, only the first
-on each line), `c` = confirm.
+on each line), `c` = confirm. Any single-byte delimiter (like `#`, `;`, `@`) can
+replace `/` to make changing URLs or file paths clean without `\/` escaping.
 
 ### Replace with confirmation
 - `:%s/old/new/gc`
@@ -348,14 +353,20 @@ and closing a window doesn't close the buffer.
 - `<lead><lead>` - find a file by name and open it
 
 ### Switch between buffers
+With more than one tab page, everything here except `<lead>fB` covers
+only the **current tab page's** buffers (scope.nvim **[custom]** - see
+"What a tab is here").
+
 - `H` / `L` - previous / next buffer
 - `[b` / `]b` - same thing
 - `<lead>bb` - jump back to the buffer you were just in
 - `<lead>` then a backtick - same thing, one key shorter
 - in the buffer list, `<C-x>` (or `dd` after `<Esc>`) closes the
   highlighted buffer
-- `<lead>,` or `<lead>fb` - fuzzy-pick from open buffers ·
-  `<lead>fB` - including hidden ones
+- `<lead>,` or `<lead>fb` - fuzzy-pick from this tab page's buffers ·
+  `<lead>fB` - every buffer in every tab page, plus hidden ones. Picking
+  one opens it **here**, in the current tab page - it doesn't jump to
+  the tab page it came from
 - `<lead>bj` - pick a buffer by an on-screen letter label
 
 What you see (the bufferline across the top):
@@ -384,7 +395,8 @@ layout the way `:bdelete` does.
 - `[B` / `]B` - move this buffer left / right in the bufferline
 
 ### List buffers
-- `:ls` or `:buffers` - plain list with numbers
+- `:ls` or `:buffers` - plain list with numbers (this tab page's buffers)
+- `:ls!` - every buffer, including other tab pages' and hidden ones
 - `:b {number}` or `:b {name}` - switch directly
 
 ### More buffer commands
@@ -515,17 +527,77 @@ Zoom is handy for briefly reading a file in a cramped 3-way split.
 
 ## Tabs
 
-### What a tab is here
+### What a tab is here (the numbers at the top right)
 A saved layout of windows, not a single file. Day-to-day switching is
 buffers (`H`/`L`); tabs are for keeping separate workspaces.
 
+What you see:
+
+```text
+   main.cpp   util.h   notes.md                           1  2
+  └──── buffers: your open files ────┘          tab pages ┘  └ highlighted
+        H / L to switch                          = the one you're on
+```
+
+The left part is **buffers** drawn as tabs (bufferline). The numbers on
+the right are real Vim **tab pages** - they only appear once there are
+two or more, so seeing them means one got opened (`<lead><Tab><Tab>`,
+`:tabnew`, `<C-w>T`, ...).
+
+- `gt` / `gT` - next / previous tab page · `2gt` - go to tab 2
+- `<lead><Tab>d` - close the current tab page (its files stay open as
+  buffers) · `<lead><Tab>o` - keep only this one; the numbers disappear
+
+Each tab page has its **own buffers** here **[custom]** (scope.nvim):
+the bar, `H` / `L` and the buffer picker (`<lead>,`) show only the files
+opened in the current tab page. A file opened in two tab pages is listed
+in both.
+
+- `:ScopeMoveBuf {n}` - move the current buffer to tab page `n`
+- `:setlocal nobuflisted`, then switch away (`H` / `L`) - drop the current
+  file from **this** tab page's list only (`<lead>bd` closes it everywhere)
+- `<lead>bd` - close a buffer; it leaves this tab page's list
+- closing a tab page drops its list (the files stay loaded)
+- sessions keep the per-tab lists (`<lead>qs` restores them)
+
+`:tabe {file}` or `<C-t>` in a picker opens a file in a new tab page
+directly. `<lead><Tab><Tab>` starts it with an empty `[No Name]` buffer,
+which a newly opened file then replaces.
+
+Opening in a new tab page from a picker (`<C-t>`) or the explorer (`t`)
+uses a custom action **[custom]** that creates the tab page first
+(`:tabedit`). Snacks' own version loaded the file in the *old* tab page
+first, so with per-tab lists it showed up in both. Grep results still
+land on the matching line.
+
+Default: stock Vim / LazyVim - buffers are global, so every tab page's
+bar lists **every** buffer, and a new tab page's `[No Name]` shows up in
+all of them. Undo: delete `lua/plugins/scope.lua` (now: per-tab).
+
+Default: stock LazyVim, unchanged - bufferline in `buffers` mode, tab
+numbers shown when there are 2+ tab pages, the bar hidden while only one
+file is open. `<lead>uA` toggles the whole bar.
+
 ### Create, close, switch tabs
-- `<lead><Tab><Tab>` - new tab
+- `<lead><Tab><Tab>` - new, empty tab
+- `:tabe {file}` - open a file in a new tab
+- `<C-t>` in a file picker (`<lead><space>`, `<lead>/`, ...) - open the
+  selected result in a new tab (in the file explorer it's `t` instead -
+  `<C-t>` there opens a terminal)
+- `<C-w>T` - move the current window out into its own tab
+- `:tab {cmd}` - run a command in a new tab: `:tab help gt`, `:tab split`
+  (same file, new tab), `:tab term`
 - `<lead><Tab>]` / `<lead><Tab>[` - next / previous
 - `<lead><Tab>f` / `<lead><Tab>l` - first / last
 - `<lead><Tab>d` - close this tab
 - `<lead><Tab>o` - close all other tabs
 - Native: `:tabnew`, `gt` / `gT`, `:tabclose`
+
+Not to be confused with **kitty's** tabs (the terminal's own, one level
+up): Ctrl+Shift+T new · Ctrl+Shift+W close · Ctrl+Tab / Ctrl+Shift+Tab
+switch. They're kept off bare Ctrl+T / Ctrl+W on purpose - kitty would
+grab those before Neovim, killing `<C-t>` (picker: open in a new tab
+page) and every `<C-w>` window command.
 
 ### More tab commands
 - `{n}gt` - go to tab n · `g<Tab>` - the last tab you were in
@@ -584,6 +656,13 @@ What you see:
 This is LazyVim's default. It takes over Vim's own `s` / `S` - use `cl`
 (change one character) and `cc` (change the whole line) instead, which do
 exactly the same, counts included.
+
+Because Flash owns `s` / `S`, surround lives on `gs` (`gsa`, `gsd`, `gsr` -
+see Surround) instead of mini.surround's own `sa` / `sd` / `sr`.
+
+Flash could move onto `f` instead, but that loses find-a-character: Flash
+already upgrades `f` / `F` / `t` / `T` (see "Find text in the current
+line"), and edits like `df,` / `ct)` depend on them.
 
 ### Scroll the view
 - `<C-d>` / `<C-u>` - half page down / up
@@ -726,16 +805,57 @@ something else, and the old branch is still reachable through `<lead>su`.
 - `.` - repeat the last change
 - `J` - join this line with the one below
 - `~` - toggle the case of a character
-- `<C-a>` / `<C-x>` - increment / decrement the number under the cursor
-
-```text
-  port = 8080        cursor anywhere on the number
-  <C-a>  →  port = 8081
-  10<C-a> →  port = 8091
-```
+- `<C-a>` / `<C-x>` - increment / decrement a number - see "Increase or
+  decrease numbers"
 
 `.` is the highest-leverage key in Vim: `ciwnew<Esc>` then `n.` `n.` `n.`
 replaces word after word.
+
+### Increase or decrease numbers (increment / decrement)
+- `<C-a>` / `<C-x>` - add / subtract 1: the number under the cursor, or
+  the next one to its right on the line
+- `10<C-a>` / `5<C-x>` - a count adds / subtracts that much
+- `.` - repeat on the next number (`w.` or `n.`)
+- visual `<C-a>` / `<C-x>` - change every number in the selection
+- visual `g<C-a>` / `g<C-x>` - turn a column into a sequence counting up
+  / down; `2g<C-a>` steps by 2
+
+What you see:
+
+```text
+  port = 8080   <C-a>       →  port = 8081    cursor anywhere before it
+  port = 8080   10<C-x>     →  port = 8070
+  x = -3        5<C-a>      →  x = 2          the minus sign counts
+  0x0f          <C-a>       →  0x10           hex stays hex
+  0b101         <C-a>       →  0b110          binary too
+  007           <C-a>       →  008            (Vim here: 010 - see below)
+  1  1  1       V  <C-a>    →  2  2  2        (lines, selected with V)
+  0  0  0       V  g<C-a>   →  1  2  3
+  0  0  0       V  2g<C-a>  →  2  4  6
+  0  0  0       V  g<C-x>   →  -1 -2 -3
+```
+
+Gotcha: a `-` touching the number is read as a minus sign, so `item-5`
+with `<C-a>` gives `item-4`. Adding `blank` to `nrformats` fixes it:
+then `-` is a minus sign only after a space, so `item-5` → `item-6` while
+`x = -3` still works. (`unsigned` also fixes `item-5` but breaks real
+negatives: `-3` + 5 → `-8`.)
+
+Keys: nothing remapped - Vim's own, same in stock LazyVim. Plain Vim here
+(`~/.vimrc`) also has `<lead>+` / `<lead>-` as aliases; Neovim doesn't,
+since `<lead>-` is LazyVim's horizontal split.
+
+Default: what counts as a number - `vim.opt.nrformats` in
+`lua/config/options.lua` - any mix of `bin`, `hex`, `octal`, `alpha`
+(single letters: `a` → `b`), `unsigned`, `blank` (now `bin,hex`, not set -
+Neovim's default). Vim here has `bin,octal,hex`: a `~/.vimrc` stops Vim
+loading `defaults.vim`, which is what normally drops `octal` - so `007`
+counts in octal there (`007` → `010`).
+
+Smarter version: LazyVim's `editor.dial` extra (off here - `:LazyExtras`)
+takes over `<C-a>` / `<C-x>` / `g<C-a>` / `g<C-x>` to also cycle
+`true`↔`false`, `&&`↔`||`, `and`↔`or`, `let`↔`const`, weekdays, months,
+dates, hex colours, semver and markdown `[ ]`↔`[x]` / header levels.
 
 ### Indent and move lines
 - `>>` / `<<` - indent / unindent the line
@@ -811,6 +931,131 @@ mini.ai, which is **disabled** in this setup.
 
 Quote objects work from anywhere on the line: with the cursor before a
 string, `ci"` jumps into the next one.
+
+## Surround
+
+### Add quotes or brackets around text
+- `gsa{motion}{char}` - wrap what the motion covers: `gsaiw"` wraps a word
+- visual `gsa{char}` - wrap the selection
+- `gsa_{char}` - wrap the whole line (from its first non-blank)
+- `.` - repeat the last add somewhere else
+
+What you see:
+
+```text
+  hello world    gsaiw"   →  "hello" world
+  hello world    gsaiw)   →  (hello) world      closing half: tight
+  hello world    gsaiw(   →  ( hello ) world    opening half: adds spaces
+  x = 1 + 2      gsa$}    →  x = {1 + 2}        (cursor on the 1)
+  hello          gsaiw*   →  *hello*            any other character works
+  hello world    gsaiwf   →  asks "Function name", type print:
+                             print(hello) world
+  hello world    gsaiwt   →  asks "Tag name", type b:
+                             <b>hello</b> world
+```
+
+`?` instead of a character asks for the left and right halves separately
+(`<` then `>` gives `<hello>`). Same `)` vs `(` rule for `]`/`[` and
+`}`/`{`.
+
+These keys come from LazyVim's `coding.mini-surround` extra
+**[custom]** - stock LazyVim has no surround. Other key sets and how to
+change them: see "Surround keys: this setup vs defaults".
+
+### Delete or change surrounding quotes and brackets
+- `gsd{char}` - delete the pair around the cursor: `gsd"`
+- `gsr{old}{new}` - replace one pair with another: `gsr"'`
+- `b` = any bracket, `q` = any quote: `gsdb`, `gsrq"`
+- `t` = an HTML/XML tag, `f` = a function call: `gsdt`, `gsdf`
+
+What you see:
+
+```text
+  say "hi there" ok   gsd"   →  say hi there ok
+  say "hi" ok         gsr"'  →  say 'hi' ok
+  f(a)                gsr)]  →  f[a]
+  f(a)                gsr({  →  f{ a }      opening half: adds spaces
+  f( a )              gsd(   →  fa          opening half: drops them too
+  f( a )              gsd)   →  f a         closing half: keeps them
+  <b>hi</b>           gsdt   →  hi
+  print(x)            gsdf   →  x
+```
+
+Works across lines: with the cursor anywhere inside a multi-line `( ... )`,
+`gsd)` removes both halves.
+
+### Surround the next or previous pair, find, highlight
+The cursor normally has to be **inside** the pair. Add `n` (next) or `l`
+(last = previous) after the key to reach one elsewhere:
+
+- `gsdn"` / `gsdl"` - delete the next / previous `"..."` pair
+- `gsrn)]` - replace the next `( )` with `[ ]`; the suffix also works with
+  `gsf`, `gsF` and `gsh`
+- `gsf{char}` / `gsF{char}` - move the cursor to the pair's next edge to
+  the right / left
+- `gsh{char}` - briefly highlight the pair around the cursor
+
+```text
+  x "a" y     cursor on x:   gsd"   →  nothing, not inside quotes
+                             gsdn"  →  x a y
+```
+
+`gsn` shows up in which-key as "Update n_lines" but does nothing: LazyVim
+still maps it, current mini.surround dropped that action.
+
+Default: how many lines above/below to search - `opts = { n_lines = 20 }`
+on the `nvim-mini/mini.surround` spec in a `lua/plugins/` file - a number
+(now 20, not set). Highlight time for `gsh` is `highlight_duration`
+(now 500 ms).
+
+### Surround keys: this setup vs defaults
+- `gsa` / `gsd` / `gsr` / `gsf` / `gsF` / `gsh` - **here**: LazyVim's keys
+  for the `coding.mini-surround` extra **[custom]**
+- `sa` / `sd` / `sr` / `sf` / `sF` / `sh` - mini.surround's own defaults;
+  LazyVim moves them to `gs` because Flash owns `s`
+- `ys{motion}` / `yss` / `ds` / `cs` / visual `S` - vim-surround's keys
+  (the classic Vim plugin) - not used here
+- stock Vim / Neovim: no surround at all. `gs` alone is Vim's "sleep one
+  second" command, which this prefix takes over - nothing lost.
+
+```text
+  action        here           mini default   vim-surround
+  add           gsa{m}{c}      sa{m}{c}       ys{m}{c}
+  whole line    gsa_{c}        sa_{c}         yss{c}
+  visual        gsa{c}         sa{c}          S{c}
+  delete        gsd{c}         sd{c}          ds{c}
+  replace       gsr{o}{n}      sr{o}{n}       cs{o}{n}
+  find → / ←    gsf / gsF      sf / sF        -
+  highlight     gsh            sh             -
+```
+
+vim-surround's keys were considered and left alone: `ys`/`ds`/`cs` would
+lose "yank/delete/change up to a Flash jump" (`y`/`d`/`c` then `s`), and
+visual `S` would have to choose between surround and Flash Treesitter.
+
+Default: the keys - in a `lua/plugins/` file (now LazyVim's `gs` set,
+nothing overridden; `""` disables one):
+
+```lua
+return {
+  "nvim-mini/mini.surround",
+  opts = {
+    mappings = { add = "ys", delete = "ds", replace = "cs" },
+  },
+}
+-- plus, for vim-surround's whole-line add:
+-- vim.keymap.set("n", "yss", "ys_", { remap = true })
+```
+
+### Surround without the plugin
+- `ciw"<C-r>""<Esc>` - wrap a word by hand: cut it, type `"`, paste it
+  back (`<C-r>"`), type the closing `"`
+- visual, then `c(<C-r>")<Esc>` - the same for a selection
+- plain Vim (`~/.vimrc`) has no surround plugin, but its auto-pairs has
+  **Fast Wrap**: type `(` right before a word, then `<M-e>` - gives
+  `(word)`
+
+Neovim's autopairs (mini.pairs) has no Fast Wrap - use `gsa` here.
 
 ## Registers & Clipboard
 
@@ -927,6 +1172,42 @@ vim.api.nvim_create_autocmd("FileType", {
 - `gco` - add a comment on a new line below
 - `gcO` - add one above
 
+### Comment out many lines: matching a pattern, a range, a selection
+- `:g/TODO/norm gcc` - comment every line containing `TODO`
+- `:v/TODO/norm gcc` - comment every line **not** containing it
+- `:5,20norm gcc` - lines 5 to 20 · visual `gc` - the selection
+- `:g/TODO/norm I// ` - always **add** `// ` after the indentation
+- `:g/TODO/s#^#// #` - add `// ` at column 0, before the indentation
+- `:'<,'>s#^#// #` / `:'<,'>norm I// ` - same, on a visual selection
+- `:%s#^\(\s*\)// #\1#` - remove `// ` from every line that starts with it
+
+What you see:
+
+```text
+  int a = 1;                 :g/TODO/norm gcc       int a = 1;
+    x = TODO();         →                     →       // x = TODO();
+  int b = 2;                                        int b = 2;
+      TODO;                                             // TODO;
+
+  same lines,  :g/TODO/s#^#// #   →   //   x = TODO();   (column 0)
+```
+
+`gcc` picks the right comment style per language (`#` in Python), and
+`:norm` runs it on each matched line. Use `:norm`, **not** `:norm!` - in
+Neovim `gcc` is a built-in mapping, and `!` ignores mappings, so nothing
+happens.
+
+Gotcha: `gcc` **toggles**. A matching line that is already commented gets
+uncommented - `// TODO a` turns into `TODO a`. When some matches may
+already be comments, use `norm I// ` (always adds) instead.
+
+`s#^#// #` uses `#` as the separator so the slashes need no escaping -
+the same as `:g/TODO/s/^/\/\/ /`.
+
+Keys: `gc` / `gcc` are Neovim's own (since 0.10), same as stock LazyVim;
+the only custom one is `<C-/>`. Plain Vim (`~/.vimrc`) gets the same
+`gc` / `gcc` from vim-commentary, so `:g/TODO/norm gcc` works there too.
+
 ## Autocomplete
 
 ### Using the completion menu
@@ -991,6 +1272,9 @@ true/false (now `false`).
   type  )  when the next char is already )  →  just steps over it
   foo█bar, type (  →  (  no auto-close: next char is a word character
 ```
+
+Autopairs only acts as you type. To wrap text that already exists, use
+`gsa` (see Surround): `gsaiw"` turns `word` into `"word"`.
 
 ### Turn it off
 - `<lead>up` - toggle autopairs (a stock LazyVim toggle, not custom)
@@ -1365,6 +1649,10 @@ With the cursor on a file or folder in `<lead>e`:
 - `.` - make the folder under the cursor the explorer's root
 - `<C-c>` - make it this tab's working directory · `<C-t>` - open a
   terminal there
+- `t` - open the file in a new tab page (on a folder: expand / collapse)
+  **[custom]** - stock Snacks has no explorer key for this; `<C-t>`, the
+  pickers' new-tab key, is "terminal" in the explorer. Set in
+  `lua/plugins/snacks.lua` (`picker.sources.explorer.win.list.keys`)
 - `<lead>/` - grep inside that folder
 - `H` / `I` / `P` - hidden files / ignored files / preview on-off
 
@@ -1411,9 +1699,9 @@ Defaults for these (what each starts as):
   in `lua/plugins/clangd.lua`, next to `servers` - true/false (now `true`)
 - conceal: `vim.opt.conceallevel = 0` in `lua/config/options.lua` - a number 0-3; 0 shows
   markdown symbols as typed (now `2`)
-- indent guides / smooth scroll: create `lua/plugins/snacks.lua` with
-  `return { { "folke/snacks.nvim", opts = { indent = { enabled = false },`
-  `scroll = { enabled = false } } } }` - true/false (now both `true`)
+- indent guides / smooth scroll: add `indent = { enabled = false }` and
+  `scroll = { enabled = false }` to the `opts` in `lua/plugins/snacks.lua` -
+  true/false (now both `true`)
 - animations: `vim.g.snacks_animate = false` in `lua/config/options.lua` - true/false (now
   `true`)
 - background: `vim.opt.background = "light"` in `lua/config/options.lua` - `"dark"` or
@@ -1743,7 +2031,8 @@ Block selection plus `I` or `A` inserts the same text on every selected line.
 
 ### Number a column automatically
 - `g<C-a>` - in a visual selection, turn a column of numbers into an
-  incrementing sequence
+  incrementing sequence (`g<C-x>` counts down; more in "Increase or
+  decrease numbers")
 
 ```text
   select the zeros, press g<C-a>
@@ -2357,14 +2646,55 @@ where did that come from?".
 ### Manage the setup
 - `:Lazy` (`<lead>l`) - plugins: update, clean, see startup times
 - `:Mason` (`<lead>cm`) - language servers, formatters, linters
-- `:LazyExtras` - LazyVim's **language packs**: enable one and it wires up
-  the LSP, formatter, treesitter parser and debugger for that language
-  together
+- `:LazyExtras` - LazyVim's optional add-ons: **language packs** (one
+  wires up the LSP, formatter, treesitter parser and debugger for that
+  language together) and **plugin extras** like surround - see "Turn
+  LazyVim extras on and off"
 
 `:LazyExtras` is LazyVim's route to language packs. The C/C++ server here
 was set up directly instead (`lua/plugins/clangd.lua`) rather than through
 the extra, to avoid pulling in `clangd_extensions.nvim` - see the clangd
 entry under LSP.
+
+### Turn LazyVim extras on and off
+- `:LazyExtras` - opens the list; `x` on a line toggles that extra
+- `●` = enabled, `○` = off. Sections: "Recommended Languages", "Enabled
+  Plugins", "Enabled Languages", "Recommended Plugins", then all the rest
+- restart Neovim, then `:Lazy clean` (or `X` inside `:Lazy`) - deletes
+  the plugins a switched-off extra had downloaded
+
+What you see:
+
+```text
+  LazyVim Extras
+  Enabled Plugins: (4)
+    ● coding.blink                  ← LazyVim's built-in defaults show
+    ● coding.mini-surround          ← here too; mini-surround is ours
+    ● editor.snacks_explorer           (x on its line turns it off)
+    ● editor.snacks_picker
+  Recommended Plugins: (2)
+    ○ ai.copilot                    ← off
+    ○ coding.yanky
+  Plugins: (...)
+    ○ ai.supermaven
+    ○ coding.mini-comment
+```
+
+`x` acts instantly on the line under the cursor, so scrolling while
+pressing `x` switches on extras by accident - check "Enabled Plugins"
+before closing. The list is saved in `~/.config/nvim/lazyvim.json`
+(`"extras": [...]`), which can also be edited by hand.
+
+`:Lazy clean` removes plugin folders only. Some extras also leave files
+elsewhere - Supermaven, for example, creates `~/.supermaven`.
+
+Default: stock LazyVim enables no extras (`"extras": []`); now only
+`lazyvim.plugins.extras.coding.mini-surround` **[custom]**.
+
+Switched on by mistake once and removed again: `ai.supermaven`,
+`ai.tabnine` (AI completion), `coding.luasnip`, `coding.mini-snippets`
+(snippets already come from blink.cmp) and `coding.mini-comment` (Neovim's
+own `gc` does commenting).
 
 ### Plugin manager windows
 Inside `:Lazy` (`<lead>l`):
@@ -2474,8 +2804,12 @@ Vim has four levels controlling how many characters are "special".
   \V  very nomagic  literally everything except \ is a plain character
 ```
 
-`\V` is the one to reach for when searching text full of punctuation -
-`/\Vhttp://x.com` needs no escaping at all.
+`\v` vs `\V` is a classic trap:
+- `\v` (lowercase) = **very magic** (turns ON regex metacharacters).
+- `\V` (uppercase) = **very nomagic** (turns OFF regex, matches literal verbatim text).
+
+`\V` is the one to reach for when searching text full of punctuation or exact code -
+`/\Vhttp://x.com` or `:%s/\Vv[i-k]/el/g` needs no escaping at all.
 
 ### Very magic mode: \v
 Put `\v` at the start and Vim's regex behaves the way you expect from other
@@ -2489,6 +2823,14 @@ languages.
 Worth making a habit - nearly every non-trivial Vim pattern is shorter and
 more readable with `\v`.
 
+**The bracket / array gotcha:** In `\v`, square brackets `[...]` are STILL
+character classes, NOT literal brackets!
+```text
+  \vv[i-k]       matches "vi", "vj", "vk" (class [i-k], brackets are consumed)
+  \vv\[[i-k]\]   matches "v[i]", "v[j]", "v[k]" (escaped brackets around class)
+  \Vv[i-k]       matches literal "v[i-k]" (uppercase \V = verbatim search)
+```
+
 ### Character classes
 - `.` - any character except a newline
 - `\d` / `\D` - digit / non-digit
@@ -2498,6 +2840,7 @@ more readable with `\v`.
 - `\x` - hex digit
 - `[abc]` / `[^abc]` - any of / none of
 - `[a-z0-9_]` - ranges, as usual
+- `\[` / `\]` - literal square brackets (must escape to match array indices like `arr\[\d\+\]`)
 
 Careful: in a **replacement** `\u` and `\l` mean something completely
 different (see "case tricks" below).
@@ -2585,6 +2928,15 @@ The right-hand side of `:s` has its own small language.
   split on every comma:       :%s/,/\r/g
 ```
 
+Matching across line breaks:
+- `\_s` - whitespace **including** newline
+- `\_.` - any character **including** newline (multi-line / dotall match)
+
+```text
+  /\vfunc\_s+main        matches even if "main" is wrapped onto the next line
+  /\v/\*\_.*\*/          matches multi-line C-style /* comments */
+```
+
 ### Case sensitivity
 This setup has `ignorecase` **on** with `smartcase` **on** (verified).
 
@@ -2644,10 +2996,13 @@ runs an Ex command on every line matching a pattern.
   :g/TODO/m0           move them to the top (reverses their order)
   :g/^/m0              reverse the whole file
   :g/pat/normal A;     append a ";" to every matching line
+  :g/pat/norm gcc      comment out every matching line (see Comments)
 ```
 
 `:v` is just "inverse `:g`". Combining `:g` with `normal` lets you run any
 normal-mode keystrokes on every matching line.
+
+More of these, by task: the "Batch edits on many lines" category.
 
 ### Practical recipes
 ```text
@@ -2657,6 +3012,9 @@ normal-mode keystrokes on every matching line.
   remove adjacent duplicates    :g/^\(.*\)$\n\1$/d
   quote every line              :%s/^.*$/"&"/
   numbers → +1                  :%s/\d\+/\=submatch(0)+1/g
+  replace array indices         :%s/\vv\[([i-k])\]/el[\1]/g
+  literal punctuation replace   :%s/\Vv[i-k]/el/g
+  custom delimiter (paths/URLs) :%s#/var/log#/tmp#g
   keep only matching lines      :v/pattern/d
   count matches                 :%s/pattern//gn
 ```
@@ -2664,6 +3022,114 @@ normal-mode keystrokes on every matching line.
 The trailing `e` flag in the first one means "don't error if nothing
 matched", which keeps it safe inside mappings and macros. The `n` flag in
 the last one **counts** without changing anything.
+
+## Batch edits on many lines
+
+### Prefix or append text on many lines (start or end)
+- `:%norm A;` - append `;` to every line · `:5,20norm A,` - lines 5-20
+- `:'<,'>norm A,` - every line of a visual selection (`:` in visual
+  mode fills in the `'<,'>`)
+- `:%s/$/,/` - the same with a substitute
+- `:g/TODO/norm I- ` - prefix matching lines, after their indentation
+- `:5,20s/^/    /` - add 4 spaces at column 0 of lines 5-20
+- block `<C-v>`, then `$A;` - append to ragged line ends (see "Edit many
+  lines at once")
+
+```text
+  a              :%norm A;        a;
+  b        →                  →   b;
+```
+
+`norm` runs the keys as if typed on each line, so `A` / `I` keep their
+usual meaning: end of line / after the indentation.
+
+Stock Vim - nothing configured. Same in stock LazyVim and in Vim.
+
+### Change only the lines that match a pattern
+- `:g/TODO/s/old/new/g` - substitute, but only on lines containing `TODO`
+- `:g/TODO/norm gUU` - uppercase those lines
+- `:g/TODO/>` / `:g/TODO/<` - indent / unindent them one level
+- `:g/TODO/norm @q` - run macro `q` on each of them
+- `:g/v/exe "norm \<C-a>"` - add 1 to the first number on each
+- `:v/TODO/...` - any of the above on lines **not** matching
+
+```text
+    TODO one             :g/TODO/norm gUU         TODO ONE
+  banana           →                       →    banana
+    TODO two                                      TODO TWO
+```
+
+`<C-a>` can't be typed straight into `:norm`, so the `exe "norm
+\<C-a>"` form spells the key out (`:norm` then `<C-v><C-a>` also works).
+
+Stock Vim - nothing configured. Same in stock LazyVim and in Vim.
+
+### Copy, collect, duplicate or space out lines
+- `:call setreg('a', []) | g/TODO/y A` - collect every matching line
+  into register `a` (then `"ap` pastes them all)
+- `:let @+ = @a` - copy that collection to the system clipboard
+- `:g/TODO/t$` / `:g/TODO/m0` - copy them to the end / move to the top
+- `:g/^/t.` - duplicate every line
+- `:g/TODO/put _` - a blank line after each match · `:g/^/put _` -
+  double-space the file
+
+```text
+  :call setreg('a', []) | g/TODO/y A
+     register a  →  "  TODO one\n  TODO two\n"
+```
+
+Upper-case `A` **appends** to register `a`, which is why it starts empty.
+The common `qaq` trick to empty it leaves a stray blank first line -
+`setreg('a', [])` doesn't.
+
+Stock Vim - nothing configured. Same in stock LazyVim and in Vim.
+
+### Join lines in bulk
+- `:g/key/j` - join every line containing `key` with the line below
+- `:g/^/j` - join lines in pairs (1+2, 3+4, ...)
+- `:'<,'>j` - join a selection into one line · `:'<,'>j!` - without
+  adding spaces
+
+```text
+  key:                      key: value
+    value      :g/key/j     other
+  other           →         key: v2
+  key:
+    v2
+```
+
+Stock Vim - nothing configured. Same in stock LazyVim and in Vim.
+
+### Number, de-duplicate, sort and align lines
+- `:%s/^/\=line('.') .. '. '/` - number every line `1. 2. 3.`
+- `:'<,'>s/^/\=(line('.') - line("'<") + 1) .. '. '/` - number a
+  selection starting from 1
+- `:%!awk '\!seen[$0]++'` - drop duplicate lines, keeping the original
+  order (the `\!` stops Vim reading `!` as "previous command")
+- `:sort u` - sort and drop duplicates · `:sort n` - numeric sort
+- `:'<,'>!column -t` - line text up in columns
+
+```text
+  a = 1                          a       =  1
+  longer = 22   :%!column -t     longer  =  22
+  x = 3              →           x       =  3
+```
+
+`:%!cmd` sends lines through a shell command and replaces them with its
+output - `awk` and `column` are ordinary system tools.
+
+Stock Vim - nothing configured. Same in stock LazyVim and in Vim.
+
+### Delete part of every line
+- `:%s/\s*#.*//e` - remove `#` comments from the end of every line
+- `:%s/^\s\+//` - remove all indentation
+- `:%norm dw` - delete the first word of every line
+- `:%norm f#D` - delete from the first `#` to the end (leaves the space
+  before it - the `:s` version above doesn't)
+- `:%s/\v(\w+), (\w+)/\2, \1/` - swap two fields: `doe, john` →
+  `john, doe`
+
+Stock Vim - nothing configured. Same in stock LazyVim and in Vim.
 
 ## GhostText & buffer language
 
@@ -2769,13 +3235,49 @@ send your code to the same place.
 The same actions as commands:
 - `:Leet run` / `:Leet test` - run against the example test cases
 - `:Leet submit` - submit for judging
-- `:Leet console` - reopen the results console
+- `:Leet console` - show / hide the docked console
 - `:Leet desc` - toggle the problem description
 - `:Leet lang` - switch language for this problem
 - `:Leet reset` - reset the code to the starting template
 - `:Leet last_submit` - restore your last submission
 - `:Leet open` - open the problem in the browser
 - `:Leet yank` - copy just the solution code
+
+### More keys in a solution file
+All **[custom]**, only inside LeetCode solution files (`\` = local leader):
+
+- `\e` - show / hide the description (side panel - `e` like the explorer)
+- `\c` - show / hide the docked console
+- `\h` - hints
+- `\i` - info (stats, topics)
+- `\t` - jump to another open question
+- `\o` - open the problem in the browser
+- `\y` - yank just the solution code
+- `\R` - reset the code to the starting template (`u` undoes)
+- `\L` - restore your last submission (`u` undoes)
+
+Capitals are the two that replace your code.
+
+### Layout: test cases and results docked at the bottom
+Every question opens as **[custom]**:
+
+```text
+  ┌─ description ─┬───── code ─────┐
+  │               │                │
+  ├── testcases ──┴──── result ────┤
+  └────────────────────────────────┘
+```
+
+- the console stays open while you edit - compare output with code
+  side by side
+- `\r` / `\s` keep you in the code; the result fills in below
+- real splits: resize with `<C-w>+` / `<C-w>-` / `<C-w><` / `<C-w>>`
+  or by dragging with the mouse, move with `<C-w>h/j/k/l`
+- the result pane's title turns green / red with the verdict
+- `q` in the console hides it, `:Leet console` brings it back
+
+Stock leetcode.nvim shows the console as a floating box over the code
+that closes as soon as you leave it, and that ignores window commands.
 
 ### Console and test case keys
 Inside the results console:
@@ -2879,6 +3381,9 @@ it.
   <lead>st/sT  Telescope todo      →  Snacks grep (no Telescope here)
   <lead>xt/xT  Trouble todo        →  removed (Trouble disabled)
 
+  new  gsa gsd gsr gsf gsF gsh   surround (coding.mini-surround extra;
+                                 replaces Vim's gs = sleep)
+  new  t (explorer)  open the file in a new tab page
   new  <lead>ac    toggle autocomplete
   new  <lead>ghP   focused hunk popup
   new  <lead>y/Y   clipboard yank (OSC 52 over SSH)
@@ -2916,6 +3421,12 @@ Indent *logic* was already treesitter-based; only the width changed.
 ```
 
 ### Plugins added
+- `scope.nvim` - each tab page lists only its own buffers (default: all
+  buffers in every tab) - `lua/plugins/scope.lua`, see "What a tab is
+  here"
+- `mini.surround` - add / delete / replace quotes and brackets (`gsa`,
+  `gsd`, `gsr`), via LazyVim's `coding.mini-surround` extra - the only
+  extra enabled (default: none). See Surround.
 - `nvim-ghost.nvim` - edit browser textareas in Neovim (with per-site
   languages and LSP support - see the GhostText entry)
 - `leetcode.nvim` - solve LeetCode problems in Neovim (also brought the

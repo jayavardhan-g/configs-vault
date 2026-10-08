@@ -117,10 +117,10 @@ Everything changed after the migration, grouped by topic. Each file keeps its en
 
 | File | Covers |
 |---|---|
-| [`keybindings-and-editing.md`](keybindings-and-editing.md) | Key remaps and editing defaults layered on top of LazyVim: the old-vs-LazyVim key comparison, OSC 52 clipboard yank, VSCode-style comment toggle, 4-space indent, and the autocomplete toggle. (5 entries) |
-| [`appearance.md`](appearance.md) | Colours and transparency: the colorscheme that reads kitty's live theme, and see-through popups/sidebars. (2 entries) |
+| [`keybindings-and-editing.md`](keybindings-and-editing.md) | Key remaps and editing defaults layered on top of LazyVim: the old-vs-LazyVim key comparison, OSC 52 clipboard yank, VSCode-style comment toggle, 4-space indent, the autocomplete toggle, the mini.surround extra (plus cleanup of accidentally enabled extras), per-tab buffers via scope.nvim, the explorer's `t` new-tab key, plus a catch-up of unrecorded earlier changes (`dm{mark}`, autocomplete/diagnostics off at start, no auto signature popup). (11 entries) |
+| [`appearance.md`](appearance.md) | Colours and transparency: the colorscheme that reads kitty's live theme, and see-through popups/sidebars. Later: backgrounds moved to `NONE`. (3 entries) |
 | [`languages-and-lsp.md`](languages-and-lsp.md) | Which languages this setup supports and how: the treesitter trim, formatters (clang-format, ruff) and the clangd language server. (3 entries) |
 | [`plugin-review.md`](plugin-review.md) | The one-by-one pass over LazyVim's optional plugins: tested live, then kept, adjusted or disabled. Final verdict table is in the last entry. (9 entries) |
-| [`personal-cheatsheet.md`](personal-cheatsheet.md) | History of the searchable in-editor cheatsheet: why it's custom, the three UI rewrites, content audits, and the keybinding it ended up on. (10 entries) |
+| [`personal-cheatsheet.md`](personal-cheatsheet.md) | History of the searchable in-editor cheatsheet: why it's custom, the three UI rewrites, content audits, the keybinding it ended up on, the Surround/extras entries, the numbers entry, commenting many lines, and batch-edit recipes. (16 entries) |
 | [`ghosttext.md`](ghosttext.md) | nvim-ghost.nvim setup: per-site languages, formatting and LSP in ghost buffers, and the `<leader>cL` language picker. (1 entry) |
 | [`leetcode.md`](leetcode.md) | Solving LeetCode inside Neovim: setup, health check, run/submit keys, two-box sign-in, and the swap-file fix. (5 entries) |

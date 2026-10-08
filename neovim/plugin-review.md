@@ -124,7 +124,7 @@ i.e. git-tracked files).
 alongside it - the `on_attach` wrap didn't drop anything.
 
 **`flash.nvim` decision**: kept, no changes beyond the `gs`/`gS` rebind from the
-previous follow-up.
+previous follow-up. (Later reverted to `s`/`S` - see the Superseded note on that follow-up.)
 
 ## Follow-up: `<leader>ghP` now auto-focuses in one keypress (2026-09-22)
 
@@ -279,7 +279,7 @@ changes. This closes out the one-by-one review started earlier this session.
 
 | Plugin | Verdict |
 |---|---|
-| `flash.nvim` | kept - rebound off `s`/`S` to `gs`/`gS` |
+| `flash.nvim` | kept - briefly rebound to `gs`/`gS`, since back on default `s`/`S` (`gs` is now surround) |
 | `gitsigns.nvim` | kept - added `<leader>ghP` popup preview |
 | `persistence.nvim` | kept, unchanged |
 | `nvim-treesitter-textobjects` | **disabled** |

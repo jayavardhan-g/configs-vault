@@ -34,6 +34,7 @@ Personal runbook of system/config decisions, split by scope:
 | [`fish/`](fish/btop-force-utf-alias.md) | fish shell — `~/.config/fish/config.fish`; the `btop --force-utf` alias, why fish (not bash/zsh) is the login shell here, and why `source ~/.zshrc` from fish always errors |
 | [`mango/`](mango/keybinds.md) | MangoWM (tried alongside Hyprland) — keybinds/appearance/input matched to the Hyprland setup, the 0.16.1→0.17.0 AUR upgrade story |
 | [`bitlocker/`](bitlocker/bit-unlock-cryptsetup.md) | Unlock BitLocker drives via `cryptsetup` + Bitwarden CLI, no retyped passwords or plaintext keyfiles |
+| [`antigravity-cli/`](antigravity-cli/antigravity-cli.md) | Google Antigravity CLI (`agy`) for quick terminal Q&A — official installer; replaces the retired Gemini CLI |
 
 **Every folder above also has a `files/` subtree** holding actual copies of the real
 config files each entry touches, mirroring their real path under `$HOME` (e.g.

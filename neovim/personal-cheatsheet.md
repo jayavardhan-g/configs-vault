@@ -843,3 +843,57 @@ is retitled "Jump anywhere on screen - Flash (s / S)" (both files).
 headless picker mid-script): `s`, `S`, `flash` → the Flash entry first (was 74th /
 not found); `sm` → marks; `dm` → Marks; `x` → "Delete, change, yank"; `gd` → "Go to
 things"; `wrap` → the wrap entries.
+
+## Follow-up: Surround category, LazyExtras entry, current-vs-default notes (2026-09-28)
+
+**What**: added a **Surround** category (5 entries) for the `coding.mini-surround` extra enabled in [[keybindings-and-editing]], plus a new "Turn LazyVim extras on and off" entry, and notes in the Flash, Autopairs, `:LazyExtras` and Customizations entries. Asked for: every surround key mentioned, and for each one both this setup and the defaults. Now **234 entries**.
+
+- *Add / Delete or change / Next-previous-find-highlight*: `gsa`, `gsd`, `gsr`, `gsf`/`gsF`, `gsh`, the `n`/`l` suffixes, `b`/`q`/`t`/`f`/`?` targets, `.` repeat, the `)`-tight vs `(`-spaced rule. Every example was run live in headless Neovim before writing it down (results pasted as the "What you see" boxes).
+- *Surround keys: this setup vs defaults*: here (`gs*`, LazyVim) vs mini.surround's own `sa`/`sd`/`sr`/... vs vim-surround's `ys`/`yss`/`ds`/`cs`/visual `S` vs stock Vim (none; `gs` = sleep), why vim-surround keys weren't adopted, and the `opts.mappings` snippet to switch.
+- *Surround without the plugin*: `ciw"<C-r>""<Esc>` by hand; Vim's auto-pairs Fast Wrap (`<M-e>`).
+- *Turn LazyVim extras on and off*: `:LazyExtras` + `x`, `●`/`○`, section order, `lazyvim.json`, `:Lazy clean` not removing out-of-tree leftovers (`~/.supermaven`), default (no extras) vs now (mini-surround only), and the five extras once enabled by mistake.
+
+**Found while testing**: `gsn` ("Update n_lines") is still mapped by LazyVim's extra spec but current mini.surround dropped the action - pressing it does nothing. Documented rather than worked around; `n_lines` stays at its default 20.
+
+Both `cheatsheet.md` and `cheatsheet.user.md` got identical edits (they were identical before). The stored [`files/`](files/.config/nvim/cheatsheet.md) copy was re-synced - it had been ~1,300 lines behind from earlier unrecorded cheatsheet edits, so that sync pulls those in too.
+
+## Follow-up: numbers entry, and why it couldn't be found (2026-09-30)
+
+**What**: asked why increment/decrement wasn't in the cheatsheet. It was - `<C-a>`/`<C-x>` as one bullet in "Repeat and small operators", `g<C-a>`/`g<C-x>` split over two visual-mode entries - but the picker only searches **titles, categories and backtick keys**, never body prose (by design, see the 2026-09-23 search follow-ups), and no title said "number"/"increase"/"increment". `<C-a>` itself is in 8 entries. Added **Editing > "Increase or decrease numbers (increment / decrement)"**; the old bullet now points to it, and "Number a column automatically" links it. Now **235 entries**; "increase", "increment", "decrease" each hit only the new entry.
+
+**Content** (every example run live first): counts, `.` repeat, visual `<C-a>`, `g<C-a>`/`2g<C-a>`/`g<C-x>` sequences, hex/binary, and current-vs-default for everything:
+- keys: not remapped in Neovim (stock); `~/.vimrc` adds `<leader>+`/`<leader>-` aliases (not in Neovim - `<leader>-` is LazyVim's split).
+- `nrformats`: Neovim `bin,hex` (default, not set). Vim with this `.vimrc` is `bin,octal,hex` - a vimrc stops `defaults.vim` loading, which is what normally drops `octal` - so `007` → `010` in Vim vs `008` in Neovim.
+- `item-5` → `item-4` gotcha: `blank` in `nrformats` fixes it and keeps `x = -3` working; `unsigned` fixes it but breaks real negatives (`-3` + 5 → `-8`). Documented only, not enabled.
+- LazyVim `editor.dial` extra (off) as the smarter option: booleans, `&&`/`||`, dates, weekdays, hex colours, semver, markdown checkboxes.
+
+## Follow-up: commenting many lines at once (2026-10-04)
+
+**What**: asked whether the cheatsheet covers commenting every line that matches a pattern / prefixing lines with `//`. Only fragments existed (a macro doing `I// `, block-insert `I # `, `:g/pat/normal A;`) - nothing findable. Added **Comments > "Comment out many lines: matching a pattern, a range, a selection"** and a `:g/pat/norm gcc` line in the `:g`/`:v` recipes. Now **236 entries**.
+
+All tested live in a C++ buffer first: `:g/TODO/norm gcc`, `:v/TODO/norm gcc`, `:5,20norm gcc`, `norm I// ` (after indent) vs `s#^#// #` (column 0), visual-range forms, and the `:%s#^\(\s*\)// #\1#` uncomment. Two gotchas documented: `:norm!` does nothing (in Neovim `gcc` is a built-in *mapping*; `!` skips mappings), and `gcc` toggles, so already-commented matches get uncommented - use `norm I// ` then. Current vs default: `gc`/`gcc` are Neovim's own (0.10+), same as stock LazyVim; Vim gets them from vim-commentary.
+
+**Note**: `cheatsheet.md` and `cheatsheet.user.md` differ by one pre-existing edit (a 2026-10-02 session changed the Ctrl+Backspace line in the original only). The picker shows the user copy, so that change isn't visible there. Left as-is; the new entry went into both identically.
+
+## Follow-up: "Batch edits on many lines" category (2026-10-04)
+
+**What**: asked for more recipes like the comment-many-lines one. Added a **Batch edits on many lines** category (6 entries, after Regex & patterns) for the gaps not already in "Practical recipes" / the `:g` entry, which now points to it. Now **242 entries**.
+
+- *Prefix or append text on many lines*: `:%norm A;`, `:'<,'>norm A,`, `:%s/$/,/`, `:g/pat/norm I- `, `:5,20s/^/    /`, pointer to block `$A`.
+- *Change only the lines that match*: `:g/pat/s/old/new/g`, `norm gUU`, `:g/pat/>` / `<`, `norm @q`, `exe "norm \<C-a>"`.
+- *Copy, collect, duplicate, space out*: `call setreg('a', []) | g/pat/y A` (the usual `qaq` leaves a stray leading blank line - tested), `:let @+ = @a`, `t$`/`m0`, `:g/^/t.`, `put _`.
+- *Join in bulk*: `:g/pat/j`, `:g/^/j` (pairs), `:'<,'>j!`.
+- *Number, de-duplicate, sort, align*: `\=line('.')` numbering (whole file and selection-relative), `:%!awk '\!seen[$0]++'` (order-keeping dedupe; `\!` needed or Vim expands `!` to the previous command), `:sort u`/`n`, `:'<,'>!column -t`.
+- *Delete part of every line*: `:%s/\s*#.*//e`, `:%s/^\s\+//`, `:%norm dw`, `:%norm f#D`, `\v` field swap.
+
+Every recipe run live in headless Neovim first. All stock Vim - each entry says so (same in stock LazyVim and Vim). First title "Add text to ..." found nothing for "append", so it was renamed "Prefix or append text on many lines (start or end)".
+
+
+## Follow-up: tab-page numbers explained (2026-10-04)
+
+**What**: asked what the numbers at the top right are. They are bufferline's tab-page indicators (stock LazyVim, `show_tab_indicators`), shown once 2+ tab pages exist; the left part is buffers. Retitled the entry "What a tab is here (the numbers at the top right)" and added a sketch, `gt`/`gT`/`2gt`, closing tab pages, and the stock-vs-current note (unchanged; `<leader>uA` toggles the bar).
+- 2026-10-04: "Create, close, switch tabs" now also lists every way to open one (`:tabe`, picker `<C-t>`, `<C-w>T`, `:tab {cmd}`) - they were spread over four entries.
+- 2026-10-04: tab entry explains why a new tab page shows its `[No Name]` buffer in every tab (buffers are global; bufferline lists all of them) - tested: `:e` reuses the empty buffer, `:tabe {file}` never creates it.
+- 2026-10-04: tab entry rewritten for per-tab buffers (scope.nvim, see [[keybindings-and-editing]]); "Plugins added" lists it.
+- 2026-10-04: explorer entry gets `t` (new tab page); the three "create `lua/plugins/snacks.lua`" hints now say "add to" since the file exists.
+

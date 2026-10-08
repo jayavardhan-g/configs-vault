@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Pings the default gateway (the user's own router, not the wider internet).
+# If the gateway itself is unreachable, this is a real local link/DHCP
+# problem -> reset the ethernet interface.
+#
+# If the gateway IS reachable but a real internet site is NOT, that means
+# the LAN link is fine but the router's own upstream connection is down
+# (e.g. the college network's LDAP captive-portal session expired).
+# Resetting the local interface would NOT fix that, so we only log it
+# distinctly - someone needs to log back into the portal from a browser.
+
+IFACE="enp2s0"
+GATEWAY=$(ip route show default | awk '/default/ {print $3; exit}')
+
+if [ -z "$GATEWAY" ]; then
+    logger -t net-watchdog "No default gateway found, skipping check"
+    exit 0
+fi
+
+if ping -c 3 -W 2 "$GATEWAY" > /dev/null 2>&1; then
+    # Local link to the router is fine. Check real internet separately,
+    # using two independent domains (not a bare IP - some networks
+    # specifically filter well-known resolver IPs like 1.1.1.1/8.8.8.8,
+    # which caused false positives here). Require BOTH to fail before
+    # concluding the internet is actually down.
+    if ! curl -fsS -m 5 -o /dev/null https://archlinux.org && ! curl -fsS -m 5 -o /dev/null https://cloudflare.com; then
+        logger -t net-watchdog "Gateway $GATEWAY is reachable but internet is NOT - upstream/college login likely needed (LDAP captive portal?). Not resetting the interface since the local link is fine."
+    fi
+else
+    logger -t net-watchdog "Gateway $GATEWAY unreachable - resetting $IFACE"
+    nmcli device disconnect "$IFACE" || true
+    sleep 2
+    nmcli device connect "$IFACE" || true
+fi

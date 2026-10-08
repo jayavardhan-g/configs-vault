@@ -12,14 +12,11 @@ Installed the Cloudflare WARP client (`warp-cli`/`warp-svc`, the Linux equivalen
 User wanted Cloudflare WARP as a VPN/DNS client.
 
 ## Change
-Not in the official repos or as Flatpak — only on the AUR, and no AUR helper (`yay`/
-`paru`) was installed, so built manually with `makepkg` (only needs `git` + `base-devel`,
-both already present):
+Now in the `cachyos` repo, so a plain pacman install works (Shelly installs the same
+package):
 
 ```bash
-git clone https://aur.archlinux.org/cloudflare-warp-bin.git ~/build/cloudflare-warp-bin
-cd ~/build/cloudflare-warp-bin
-makepkg -si
+sudo pacman -S cloudflare-warp-bin
 
 sudo systemctl enable --now warp-svc
 
@@ -29,13 +26,21 @@ warp-cli connect
 warp-cli status              # should show "Connected"
 ```
 
-During `makepkg -si`, pacman prompts to pick optional deps for `webkit2gtk-4.1` (a hard
-dependency of this package, used only by its GUI tray app — see Notes): `geoclue`,
-`gst-libav`, `gst-plugins-bad`, `gst-plugins-good`. Skipped all of them — none are needed
-for `warp-cli`/`warp-svc` to work, they only matter if something renders web content or
-plays media inside WebKit.
+pacman may prompt for optional deps of `webkit2gtk-4.1` (a hard dependency of this
+package, used only by its GUI tray app — see Notes): `geoclue`, `gst-libav`,
+`gst-plugins-bad`, `gst-plugins-good`. Skip all of them — none are needed for
+`warp-cli`/`warp-svc` to work.
 
 ## Notes
+- **Originally (2026-09-14) built from the AUR by hand**, because it wasn't in any repo
+  then and no AUR helper or Shelly was installed: `git clone
+  https://aur.archlinux.org/cloudflare-warp-bin.git` then `makepkg -si`. On 2026-10-02 a
+  system update replaced it with the signed `cachyos` repo build of the same package
+  (`pacman -Qi` now shows `Installed From: cachyos`), so the manual build is no longer
+  needed.
+- The home server runs WARP differently — `warp-cli mode proxy` (local SOCKS5 on port
+  40000) so only qBittorrent uses it and Tailscale's routing isn't touched. See
+  [[homeserver-setup]] (`../homeserver/homeserver-setup.md`).
 - The package also ships a tray GUI, `warp-taskbar` (Flutter-based, not a plain script —
   that's why the package pulls in `libayatana-appindicator`/`webkit2gtk-4.1`). It's a
   separate **user** systemd service, not enabled by default install:
@@ -46,5 +51,3 @@ plays media inside WebKit.
   only exposes styling options (`capsule`, `capsule_fill`) — no overflow/grouping, icons
   just show flat. No extra wiring needed beyond enabling the service; the icon will just
   appear alongside whatever else is in the tray.
-- `Installed From: None` in `pacman -Qi` is expected for anything built locally via
-  `makepkg` rather than pulled from a repo — not a sign anything went wrong.

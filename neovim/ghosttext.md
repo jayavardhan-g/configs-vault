@@ -207,3 +207,12 @@ config; full e2e still 34/34.
 **Install**: in Zen, *Install Add-on From File* `ghosttext-patched-26.5.12.2.xpi` over
 the old one (Nani; Study still needs the original swap), and restart Neovim so the new
 server code loads.
+
+**Confirmed** working in daily use after installing v26.5.12.2 (2026-10-13).
+
+**Upstream status** (checked 2026-10-13): fregante/GhostText is maintained but slow -
+releases 24.7.6, 24.8.10, 26.5.12 (2026-05-12), 40 open issues. Related open issues:
+#296 "CodeMirror 6 only works on the first connection" and #261 "Improve UX
+expectations for `contentEditable`"; nothing filed yet for the throttle, `cmTile`,
+`stopGT` or stale-echo bugs. Whether to fork the source and send these upstream was
+raised the same day - see the next entry if one gets made.

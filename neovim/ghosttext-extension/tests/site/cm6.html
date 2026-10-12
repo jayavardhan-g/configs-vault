@@ -1,0 +1,8 @@
+<!doctype html><meta charset="utf-8"><body>
+<div id="ed"></div>
+<script type="module">
+import { EditorView, basicSetup } from "https://esm.sh/codemirror@6.0.1";
+import { python } from "https://esm.sh/@codemirror/lang-python@6.1.6";
+window.view = new EditorView({ doc: "a = 1\nb = 2", extensions: [basicSetup, python()], parent: document.getElementById("ed") });
+view.focus(); window.ready = true;
+</script>

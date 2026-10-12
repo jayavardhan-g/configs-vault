@@ -1,0 +1,16 @@
+<!doctype html><meta charset="utf-8"><body>
+<div id="root"></div>
+<script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script>
+const h = React.createElement;
+function App() {
+  const [text, setText] = React.useState("");
+  const [n, setN] = React.useState(0);
+  window.reactState = text;
+  // Escape forces a re-render, like a site closing a popup
+  return h("textarea", { id: "ta", value: text, onChange: e => setText(e.target.value), onKeyDown: e => { if (e.key === "Escape") setN(n + 1); } });
+}
+ReactDOM.createRoot(document.getElementById("root")).render(h(App));
+setTimeout(() => { document.getElementById("ta").focus(); window.ready = true; }, 200);
+</script>

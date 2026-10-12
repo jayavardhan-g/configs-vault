@@ -1,0 +1,7 @@
+<!doctype html><meta charset="utf-8"><body>
+<div id="ed" style="width:600px;height:200px"></div>
+<script src="https://cdn.jsdelivr.net/npm/ace-builds@1.36.2/src-min-noconflict/ace.js"></script>
+<script>
+const editor = ace.edit("ed"); editor.session.setMode("ace/mode/c_cpp");
+editor.setValue("int a;\nint b;\nint c;", -1); window.editor = editor; editor.focus(); window.ready = true;
+</script>

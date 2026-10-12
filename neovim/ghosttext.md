@@ -93,3 +93,83 @@ confirming.)
 `<leader>cL` in the customizations summary. Keymap coverage 280/284, same four known
 non-gaps. Note: format-on-save never fires in ghost buffers (never written) - documented
 to use `<leader>cf` before submitting.
+
+## Follow-up: own GhostText server + patched extension (2026-10-12)
+
+**What**: replaced `nvim-ghost.nvim` with a Lua GhostText server in the config
+(`lua/ghosttext/init.lua` + `protocol.lua`), and replaced the AMO GhostText add-on with
+a patched build ([`ghosttext-extension/`](ghosttext-extension/README.md)). Asked to
+analyse both for shortcomings after two known bugs: pressing Escape cleared the page's
+text box, and commenting several lines in a web editor arrived in Neovim as one
+commented line. Then: "fix whatever we can", custom extension OK.
+
+**Root causes of the two reported bugs** (both in the extension, reproduced in a
+headless-Firefox suite against the stock add-on):
+- *One line commented*: the page-world bridge's throttle kept the **first** call's
+  arguments in each 50 ms window. Ace reports a multi-line toggle as one change per
+  line, so only the first-line state was sent - and the next Neovim keystroke then
+  pushed that stale text back, undoing the other comments in the page. Monaco and
+  CodeMirror 6 weren't affected by this one.
+- *Escape clears the field*: contenteditable fields were written as `innerHTML`. Rich
+  editors (Lexical, ProseMirror, Slate...) keep their own model and throw such DOM
+  writes away on their next update - and the next browser keystroke then sent the
+  editor's (empty) text back, wiping Neovim's copy too. React `<textarea>`s were tested
+  and are **not** a cause in Firefox (content-script writes already bypass React's value
+  tracker); the exact site wasn't identified.
+
+**Server: why replace rather than patch nvim-ghost** - its Python server ran the
+WebSocket and Neovim listener on separate threads, with a "skip the next buffer event"
+flag set *after* the buffer write: depending on timing it swallowed the next real edit
+in Neovim or bounced a stale browser state back. It also sent each change twice,
+rewrote the whole buffer per keystroke (undo/cursor/marks churn), measured the cursor in
+bytes vs code points (browsers use UTF-16), had several crash paths, accepted
+WebSocket connections from any web page, and the plugin is unmaintained since Nov 2024.
+Its Python deps aren't installed system-wide (it ships a PyInstaller binary), so a
+patched `binary.py` would have needed a venv anyway.
+
+**New server design** (single-threaded on Neovim's loop, no dependencies):
+- each UI Neovim listens for WebSockets on a random localhost port; one "hub" also owns
+  port 4001 and answers the extension's `GET /` with the port of whichever Neovim last
+  had focus (`FocusGained` -> `GET /focus?port=N`). Hub gone -> the next instance to
+  gain focus, or a 3 s watchdog, takes 4001 over. An old nvim-ghost binary on 4001 is
+  asked to `/exit` first;
+- WebSocket handshakes/requests with a web-page `Origin` get 403 (extensions and our own
+  instances only);
+- echo suppression = "last text both sides agreed on", so no race; changes in one tick
+  (a `:s`, a comment toggle, a formatter) go out as one message;
+- browser -> Neovim replaces only the changed run of lines; cursor offsets are UTF-16 both
+  ways; the page's editor language (Monaco/Ace/CodeMirror, sent by the patched add-on)
+  sets the filetype and follows language switches unless the filetype was changed by
+  hand;
+- opening a field fires `User GhostTextOpen` with `data = { buf, host, title }` inside
+  the new buffer - replaces nvim-ghost's `User <hostname>` events, so the "only accept
+  names that look like hostnames" workaround above is gone, and the wrong-buffer case
+  (two fields connecting together) can't happen.
+- `:GhostTextStatus` prints port / hub / connected fields.
+
+`lua/plugins/ghosttext.lua` is now a lazy.nvim `virtual = true` spec (nothing to
+install) that calls `require("ghosttext").setup()` and keeps the site defaults, LSP
+naming and `<leader>cL` behaviour from the entries above. `nvim-ghost.nvim` removed with
+`:Lazy clean` (also gone from `lazy-lock.json`).
+
+**Extension**: see the fix table in
+[`ghosttext-extension/README.md`](ghosttext-extension/README.md) - besides the two bugs:
+current CodeMirror 6 wasn't detected at all (`cmView` renamed `cmTile`), Monaco's undo
+history was wiped on every Neovim keystroke, the "Disconnect" menu item/shortcut threw
+(minifier renamed `stopGT`), Ace ignored page-made changes, and listeners leaked on
+reconnect.
+
+**Install** (manual, per Zen profile - Nani and Study have GhostText):
+`about:config` `xpinstall.signatures.required=false` -> `about:addons` -> *Install
+Add-on From File* -> `neovim/ghosttext-extension/ghosttext-patched-26.5.12.1.xpi` ->
+remove the original GhostText. Zen allows unsigned add-ons (built without
+`MOZ_REQUIRE_SIGNING`, checked in its `omni.ja`); stock Firefox release wouldn't.
+
+**Verified**: `ghosttext-extension/tests/` - server 22/22, multi-instance/hub 7/7
+(incl. killing the real nvim-ghost binary on a spare port), real config headless
+(LeetCode -> cpp + clangd, Monaco `python` hint overrides the site default, GitHub
+plain), end-to-end in headless Firefox 34/34 patched vs 15/34 stock.
+
+**Gotcha**: after updating, restart Neovim instances; the first new one shuts the old
+nvim-ghost server down. Still-running old instances keep sending nvim-ghost's
+`/focus?focus=` requests, which the new hub ignores.

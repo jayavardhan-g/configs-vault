@@ -1,0 +1,11 @@
+<!doctype html><meta charset="utf-8"><body>
+<div id="ed"></div>
+<script type="module">
+import { EditorState } from "https://esm.sh/prosemirror-state@1.4.3";
+import { EditorView } from "https://esm.sh/prosemirror-view@1.33.8";
+import { schema } from "https://esm.sh/prosemirror-schema-basic@1.2.3";
+import { exampleSetup } from "https://esm.sh/prosemirror-example-setup@1.2.3";
+window.pm = new EditorView(document.getElementById("ed"), { state: EditorState.create({ schema, plugins: exampleSetup({ schema, menuBar: false }) }) });
+window.pmText = () => pm.state.doc.textBetween(0, pm.state.doc.content.size, "\n", "\n");
+pm.focus(); window.ready = true;
+</script>

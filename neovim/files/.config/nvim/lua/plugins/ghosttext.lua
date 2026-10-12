@@ -1,19 +1,19 @@
 -- GhostText: edit browser textareas in Neovim.
 --
--- nvim-ghost opens each textarea as an unnamed scratch buffer
--- (buftype=nofile) with whatever filetype the browser hinted - usually none.
--- That breaks two things, and they need different fixes:
+-- The server is our own (lua/ghosttext/), not nvim-ghost.nvim - see the
+-- header there for why. Each textarea opens as an unnamed scratch buffer
+-- (buftype=nofile) with the filetype the page hinted (Monaco/Ace/CodeMirror
+-- language), if any. Two things still need help, and they need different fixes:
 --
 --   formatting  only needs a filetype -> per-site defaults below, plus the
 --               <leader>cL picker (config/keymaps.lua) for anything else.
 --   LSP         also needs a file path, and Neovim's auto-attach refuses any
 --               buffer whose buftype isn't "" ($VIMRUNTIME/lua/vim/lsp.lua:
 --               "Only ever attach to buffers ... that represent an actual
---               file"). Flipping buftype to "" would satisfy that, but breaks
---               nvim-ghost's own close: it runs a plain :bdelete, which
---               refuses a modified normal buffer. So the buffer stays nofile,
---               is given a name with the right extension, and the matching
---               language servers are started by hand.
+--               file"). Flipping buftype to "" would make Neovim nag about
+--               unsaved changes when the field closes, so the buffer stays
+--               nofile, is given a name with the right extension, and the
+--               matching language servers are started by hand.
 
 -- Sites that should open straight into a language (host -> filetype).
 local site_filetypes = {
@@ -36,18 +36,6 @@ local extensions = {
   json = "json",
   yaml = "yaml",
 }
-
-local function is_filetype(ft)
-  return ft ~= "" and vim.list_contains(vim.fn.getcompletion("", "filetype"), ft)
-end
-
---- nvim-ghost's events are `User <host>`, but a pattern-"*" User autocmd
---- also fires for every other plugin's plain `doautocmd User Foo` (lazy.nvim
---- alone fires VeryLazy, LazyRender, LazyDone...). Only a hostname counts.
----@param s string
-local function is_host(s)
-  return s:match("^[%w%.%-]+:?%d*$") ~= nil and (s:find(".", 1, true) ~= nil or s:match("^localhost") ~= nil)
-end
 
 --- Give a ghost buffer a path matching its filetype and attach the language
 --- servers for it. Safe to call repeatedly (e.g. when the language changes).
@@ -83,34 +71,20 @@ end
 
 return {
   {
-    "subnut/nvim-ghost.nvim",
+    "ghosttext",
+    virtual = true, -- lives in lua/ghosttext/, nothing to install
     lazy = false,
     config = function()
-      -- nvim-ghost fires `User <host>` in this exact group once a textarea
-      -- opens, and only creates the group itself if it doesn't exist yet.
-      local ghost = vim.api.nvim_create_augroup("nvim_ghost_user_autocommands", { clear = true })
+      require("ghosttext").setup()
+
       vim.api.nvim_create_autocmd("User", {
-        group = ghost,
-        pattern = "*",
+        group = vim.api.nvim_create_augroup("ghost_open", { clear = true }),
+        pattern = "GhostTextOpen",
         callback = function(ev)
-          if not is_host(ev.match) then
-            return
-          end
-          local buf = vim.api.nvim_get_current_buf()
-          -- ghost buffers are unnamed nofile scratch buffers until we name them
-          if vim.bo[buf].buftype ~= "nofile" then
-            return
-          end
-          if vim.api.nvim_buf_get_name(buf) ~= "" and not vim.b[buf].ghost_host then
-            return
-          end
-
-          local host = ev.match:gsub("^www%.", "")
+          local buf = ev.data.buf
+          local host = ev.data.host:gsub(":%d+$", ""):gsub("^www%.", "")
           vim.b[buf].ghost_host = host
-
-          -- the browser's hint is often empty, or a MIME type like
-          -- "text/x-c++src" rather than a Neovim filetype
-          if not is_filetype(vim.bo[buf].filetype) and site_filetypes[host] then
+          if vim.bo[buf].filetype == "" and site_filetypes[host] then
             vim.bo[buf].filetype = site_filetypes[host] -- FileType below attaches
             return
           end

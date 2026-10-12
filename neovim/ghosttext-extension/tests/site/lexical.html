@@ -1,0 +1,11 @@
+<!doctype html><meta charset="utf-8"><body>
+<div id="ed" contenteditable="true" style="min-height:100px"></div>
+<script type="module">
+import { createEditor, $getRoot } from "https://esm.sh/lexical@0.17.1";
+import { registerRichText, HeadingNode, QuoteNode } from "https://esm.sh/@lexical/rich-text@0.17.1?deps=lexical@0.17.1";
+const editor = createEditor({ namespace: "t", nodes: [HeadingNode, QuoteNode], onError: e => { throw e; } });
+editor.setRootElement(document.getElementById("ed")); registerRichText(editor);
+window.lex = editor;
+window.lexText = () => editor.getEditorState().read(() => $getRoot().getTextContent());
+document.getElementById("ed").focus(); window.ready = true;
+</script>

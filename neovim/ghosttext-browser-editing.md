@@ -40,6 +40,10 @@ works in Zen too, since it's Firefox-based). No other browser-side config needed
 extension defaults to port 4001, matching this plugin's default.
 
 ## Notes
+- **Superseded 2026-10-12**: `nvim-ghost.nvim` was replaced by a Lua server in
+  `lua/ghosttext/` and the AMO extension by a patched build - see the last entry in
+  [[ghosttext]]. The `Change` above is the original 2026-09-16 state, kept for
+  history; the current `lua/plugins/ghosttext.lua` is in `files/`.
 - Usage: open a Neovim instance (leave it running), then click the GhostText icon in
   the browser toolbar while focused in a textarea/contenteditable field. It opens as a
   synced buffer in that Neovim instance.

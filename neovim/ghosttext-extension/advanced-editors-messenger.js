@@ -108,11 +108,14 @@
 	}
 
 	function codeMirror6(view) {
+		// last document we know about - ours included, so the poll below never
+		// mistakes text that came from Neovim for an edit made in the page (that
+		// echo sent stale text back while typing fast, losing characters)
+		let doc = view.state.doc;
 		return {
 			get: () => view.state.doc.toString(),
 			syntax: () => view.contentDOM.dataset.language,
 			listen(onChange) {
-				let doc = view.state.doc;
 				// CM6 offers no change event without access to its modules, so poll -
 				// documents are immutable, so an unchanged one is the same object
 				const timer = setInterval(() => {
@@ -124,7 +127,10 @@
 				return () => clearInterval(timer);
 			},
 			replace({from, to, insert}) {
+				const before = view.state.doc;
 				view.dispatch({changes: {from, to, insert}, userEvent: 'input.ghosttext'});
+				// a page edit still pending in the poll must not be swallowed
+				if (doc === before) doc = view.state.doc;
 			},
 		};
 	}

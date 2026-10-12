@@ -34,6 +34,7 @@ Status per shortcoming. *Server* = fixed by the Lua server that replaced nvim-gh
 | Contenteditable read/written as HTML (`<p>`, `&amp;` in Neovim; `<b>` typed in Neovim renders) | Add-on: plain text both ways |
 | Monaco/CM6 replaced the whole document per keystroke - cursor jumps, Monaco undo wiped | Add-on: changed span only |
 | CodeMirror 6 polled every 500 ms | Add-on: 100 ms |
+| *Regression in our first build:* CM6 poll echoed Neovim's text back, so fast typing lost characters (2026-10-13) | Add-on v26.5.12.2 + Server: stale-echo filter |
 | Current CodeMirror 6 not detected at all (`cmView` renamed `cmTile`) | Add-on (found while testing) |
 | Ace ignored changes the page made itself | Add-on |
 | Monaco/CM5 checked only the first event per 50 ms window | Add-on |

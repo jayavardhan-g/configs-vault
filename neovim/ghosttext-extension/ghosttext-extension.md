@@ -29,6 +29,7 @@ everything the audit found.
 | CodeMirror 6 looked for `.cmView` | Current `@codemirror/view` (6.39+) renamed it `cmTile`: field connected but never sent anything | Resolve the view like `EditorView.findFromDOM` does |
 | Monaco / CM6 / Ace replaced the whole document on every Neovim keystroke | Page cursor jumped to the top, Monaco's undo history was wiped | Replace only the changed span (`pushEditOperations`, CM6 `dispatch`, Ace `session.replace`) |
 | CodeMirror 6 polled every 500 ms | Up to half a second lag | 100 ms, comparing immutable docs by identity |
+| (ours, v26.5.12.1) CM6 poll saw text written from Neovim as a page edit | Stale copies bounced back while typing fast in Neovim: characters lost or landing behind the cursor ("browfox n") | Bridge records the doc it wrote; fixed in v26.5.12.2 |
 | Bridges for CM5/Monaco/Ace never removed their listeners | Reconnecting a field duplicated every message | All bridges honour `gt:kill`; one bridge per element |
 | `syntax` was always `""` | Neovim never learned the language | Sends Monaco language id / Ace mode / CodeMirror mode; the server maps it to a filetype |
 | Minifier renamed `stopGT()` to `l()` inside the injected function | "Disconnect GhostText on this page" and the Disconnect shortcut threw `ReferenceError` | Call `stopGT()` |
@@ -64,10 +65,18 @@ installed permanently (stock Firefox release builds can't do this):
 ## Tests
 
 ```sh
-python3 tests/test_server.py      # Lua server, one Neovim (22 checks)
+python3 tests/test_server.py      # Lua server, one Neovim (26 checks)
 python3 tests/test_hub.py         # several Neovims + legacy nvim-ghost takeover
-python3 tests/test_e2e.py ghosttext-patched-26.5.12.1.xpi patched
+python3 tests/test_e2e.py ghosttext-patched-26.5.12.2.xpi patched
+ONLY=typing python3 tests/test_e2e.py ghosttext-patched-26.5.12.2.xpi patched
+FULLCONFIG=1 ONLY=typing python3 tests/test_e2e.py ghosttext-patched-26.5.12.2.xpi patched
 ```
+`ONLY=typing` types a sentence into Neovim key by key (and into the page) for
+every editor and requires both sides to match with nothing sent back from the
+page meanwhile. `FULLCONFIG=1` runs Neovim with the real `~/.config/nvim`
+instead of `--clean`. 2026-10-13: 27/27 both ways (Lexical's browser-typing
+check is skipped - Lexical drops Marionette's synthetic keys even without
+GhostText).
 `test_e2e.py` drives headless Firefox over Marionette, loads the build as a
 temporary add-on, clicks its toolbar action from chrome context (the real
 injection path), and checks Ace, Monaco, CodeMirror 6, a React textarea,

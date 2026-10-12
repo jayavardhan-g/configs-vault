@@ -52,6 +52,28 @@ check("syntax switch -> python", nv.lua('vim.bo.filetype')=="python")
 nv.lua('vim.cmd(\"set ft=lua\")'); w.send({"text":"y","url":"leetcode.com","syntax":"java"}); time.sleep(0.2)
 check("manual ft kept", nv.lua('vim.bo.filetype')=="lua")
 w.drain()
+# fast typing in nvim while the page echoes stale text back: no rewind
+w.send({"text":"the quick brown","url":"leetcode.com"}); time.sleep(0.2); w.drain()
+nv.lua('vim.api.nvim_win_set_cursor(0,{1,15})')
+nv.lua('vim.api.nvim_buf_set_text(0,0,15,0,15,{\" \"})'); time.sleep(0.1)
+nv.lua('vim.api.nvim_buf_set_text(0,0,16,0,16,{\"f\"})'); time.sleep(0.1)
+w.send({"text":"the quick brown ","url":"leetcode.com"}); time.sleep(0.2)  # stale echo of an earlier send
+check("stale echo ignored", nv.lua('vim.api.nvim_get_current_line()')=="the quick brown f", nv.lua('vim.api.nvim_get_current_line()'))
+w.drain()
+# genuine browser edit before the cursor carries the cursor along
+nv.lua('vim.api.nvim_buf_set_lines(0,0,-1,false,{\"the quick brown\"})'); time.sleep(0.2); w.drain()
+nv.lua('vim.api.nvim_win_set_cursor(0,{1,15})')
+w.send({"text":"XX the quick brown","url":"leetcode.com"}); time.sleep(0.2)
+# (normal mode: the cursor sat on the final "n", and must still be on it)
+check("cursor follows text after browser insert", nv.lua('vim.api.nvim_win_get_cursor(0)[2]')=="17", nv.lua('vim.api.nvim_win_get_cursor(0)[2]'))
+nv.lua('vim.api.nvim_buf_set_text(0,0,18,0,18,{\" fox\"})'); time.sleep(0.2)
+check("typing after browser insert lands at the end", nv.lua('vim.api.nvim_get_current_line()')=="XX the quick brown fox")
+w.drain()
+# an old text is only "stale" for a few seconds: a later real revert still applies
+time.sleep(3.2)
+w.send({"text":"the quick brown","url":"leetcode.com"}); time.sleep(0.2)
+check("old text applies after the echo window", nv.lua('vim.api.nvim_get_current_line()')=="the quick brown", nv.lua('vim.api.nvim_get_current_line()'))
+w.drain()
 # ping
 w.send(None, op=9, raw=b"hi"); r=w.recv(); check("ping->pong", r==(10,b"hi"), r)
 # big message (>64k, 16/64-bit length)

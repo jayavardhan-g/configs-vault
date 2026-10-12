@@ -163,7 +163,7 @@ reconnect.
 
 **Install** (manual, per Zen profile - Nani and Study have GhostText):
 `about:config` `xpinstall.signatures.required=false` -> `about:addons` -> *Install
-Add-on From File* -> `neovim/ghosttext-extension/ghosttext-patched-26.5.12.1.xpi` ->
+Add-on From File* -> `neovim/ghosttext-extension/ghosttext-patched-26.5.12.2.xpi` ->
 remove the original GhostText. Zen allows unsigned add-ons (built without
 `MOZ_REQUIRE_SIGNING`, checked in its `omni.ja`); stock Firefox release wouldn't.
 
@@ -175,3 +175,35 @@ plain), end-to-end in headless Firefox 34/34 patched vs 15/34 stock.
 **Gotcha**: after updating, restart Neovim instances; the first new one shuts the old
 nvim-ghost server down. Still-running old instances keep sending nvim-ghost's
 `/focus?focus=` requests, which the new hub ignores.
+
+## Follow-up: characters lost when typing fast (2026-10-13)
+
+**What**: typing quickly in Neovim sometimes left text one character behind - "the
+quick brown" + " fox" became "the quick browfox n".
+
+**Root cause**: a stale copy of the text coming back from the page and rewinding the
+buffer mid-typing. The "n" vanished, came back after the cursor, and the next keys went
+in before it. Reproduced with a new key-by-key typing test: on CodeMirror 6 our own
+bridge polled the editor, saw text that Neovim had just written as a page edit, and
+sent it back - five stale copies per sentence, one of which ate a character.
+Ace/Monaco/textarea/ProseMirror/Lexical sent nothing back. The real config
+(`FULLCONFIG=1`) behaved the same, so it wasn't a plugin.
+
+**Fix** (both sides, so no editor or site can cause it again):
+- extension v26.5.12.2: the CM6 bridge remembers the document it wrote;
+- server: browser texts that exactly match something Neovim sent in the last 3 s - but
+  has since moved past - are dropped as stale echoes (`stale` in the trace). This also
+  covers the Study profile, which still had the stock add-on. Trade-off: undoing in the
+  page to a text Neovim sent within those 3 s is ignored; the next Neovim edit re-syncs.
+- server: when a real browser edit lands, every window's cursor is moved with the text
+  around it. `nvim_buf_set_lines`/`set_text` leave the cursor column where it was, so
+  an insert earlier on the cursor's line used to leave it behind its text.
+- debugging aid: `:let g:ghosttext_debug = 1`, reproduce, `:GhostTextLog` shows the
+  last 200 messages each way.
+
+**Verified**: server 26/26; `ONLY=typing` 27/27 with `--clean` and with the real
+config; full e2e still 34/34.
+
+**Install**: in Zen, *Install Add-on From File* `ghosttext-patched-26.5.12.2.xpi` over
+the old one (Nani; Study still needs the original swap), and restart Neovim so the new
+server code loads.

@@ -35,6 +35,19 @@ local state = {
   warned = false,
 }
 
+-- Message trace for debugging sync problems: `:let g:ghosttext_debug = 1`,
+-- reproduce, then `:GhostTextLog`.
+M.log = {}
+local function trace(dir, session, text)
+  if not vim.g.ghosttext_debug then
+    return
+  end
+  table.insert(M.log, { ms = math.floor(uv.hrtime() / 1e6), dir = dir, buf = session.buf, text = text })
+  if #M.log > 200 then
+    table.remove(M.log, 1)
+  end
+end
+
 local function notify(msg, level)
   vim.schedule(function()
     vim.notify("[ghosttext] " .. msg, level or vim.log.levels.INFO)
@@ -161,6 +174,7 @@ function Session.new(client)
     pending = false,
     inbox = "",
     fragments = {},
+    recent = {}, -- texts sent to the browser lately, oldest first
     closed = false,
     socket_closed = false,
   }, Session)
@@ -294,6 +308,7 @@ function Session:on_message(message)
     return
   end
   data.text = data.text:gsub("\r\n", "\n")
+  trace("in", self, data.text)
   if self.buf then
     self:apply(data)
   else
@@ -355,14 +370,61 @@ function Session:open(data)
   end)
 end
 
---- Browser -> Neovim. Only the changed run of lines is replaced, so the
---- cursor, folds, marks and diagnostics elsewhere stay put.
+-- How long a text we sent counts as "recent" for stale-echo detection.
+local ECHO_WINDOW_MS = 3000
+
+local function now_ms()
+  return uv.hrtime() / 1e6
+end
+
+--- Did we send exactly this text a moment ago (and have moved on since)?
+--- A page that re-emits what it was given - a polling editor bridge, a site
+--- that rewrites its field - would otherwise rewind the buffer mid-typing,
+--- dropping or reordering the characters typed since.
+function Session:is_stale_echo(text)
+  local cutoff = now_ms() - ECHO_WINDOW_MS
+  for i = #self.recent, 1, -1 do
+    local sent = self.recent[i]
+    if sent.ms < cutoff then
+      break
+    end
+    if sent.text == text then
+      return true
+    end
+  end
+  return false
+end
+
+--- Byte offset of a (row, col) cursor in `lines` joined by "\n".
+local function to_offset(lines, row, col)
+  local offset = 0
+  for i = 1, row - 1 do
+    offset = offset + #lines[i] + 1
+  end
+  return offset + col
+end
+
+local function from_offset(lines, offset)
+  for row, line in ipairs(lines) do
+    if offset <= #line or row == #lines then
+      return row, math.min(offset, #line)
+    end
+    offset = offset - #line - 1
+  end
+  return 1, 0
+end
+
+--- Browser -> Neovim. Only the changed run of lines is replaced, so folds,
+--- marks and diagnostics elsewhere stay put, and every window's cursor is
+--- carried along with the text around it.
 function Session:apply(data)
   local buf = self.buf
   if not vim.api.nvim_buf_is_valid(buf) then
     return
   end
-  if data.text ~= self.synced then
+  if data.text ~= self.synced and self:is_stale_echo(data.text) then
+    trace("stale", self, data.text)
+  elseif data.text ~= self.synced then
     self.synced = data.text
     local new = vim.split(data.text, "\n", { plain = true })
     local old = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
@@ -375,9 +437,38 @@ function Session:apply(data)
       tail = tail + 1
     end
     if head + tail < math.max(#old, #new) then
+      -- where the text actually differs, in bytes of the joined text
+      local old_text = table.concat(old, "\n")
+      local new_text = data.text
+      local max = math.min(#old_text, #new_text)
+      local prefix = 0
+      while prefix < max and old_text:byte(prefix + 1) == new_text:byte(prefix + 1) do
+        prefix = prefix + 1
+      end
+      local suffix = 0
+      while suffix < max - prefix and old_text:byte(#old_text - suffix) == new_text:byte(#new_text - suffix) do
+        suffix = suffix + 1
+      end
+
+      local cursors = {}
+      for _, win in ipairs(vim.fn.win_findbuf(buf)) do
+        local row, col = unpack(vim.api.nvim_win_get_cursor(win))
+        local at = to_offset(old, row, col)
+        if at >= #old_text - suffix then
+          at = at + #new_text - #old_text -- after the change: keep its place in the text
+        elseif at > prefix then
+          at = #new_text - suffix -- inside it: end of the new text
+        end
+        cursors[win] = at
+      end
+
       self.applying = true
       pcall(vim.api.nvim_buf_set_lines, buf, head, #old - tail, false, vim.list_slice(new, head + 1, #new - tail))
       self.applying = false
+
+      for win, at in pairs(cursors) do
+        pcall(vim.api.nvim_win_set_cursor, win, { from_offset(new, at) })
+      end
     end
   end
 
@@ -402,6 +493,12 @@ function Session:flush()
     return
   end
   self.synced = text
+  trace("out", self, text)
+  local t = now_ms()
+  table.insert(self.recent, { text = text, ms = t })
+  while #self.recent > 64 or (self.recent[1] and self.recent[1].ms < t - ECHO_WINDOW_MS) do
+    table.remove(self.recent, 1)
+  end
   local message = { text = text }
   local offset = cursor_offset(buf, lines)
   if offset then
@@ -669,6 +766,11 @@ end
 ---@param opts? { port?: integer }
 function M.setup(opts)
   M.config = vim.tbl_extend("force", M.config, opts or {})
+  vim.api.nvim_create_user_command("GhostTextLog", function()
+    for _, e in ipairs(M.log) do
+      print(("%d %-3s buf=%s %q"):format(e.ms, e.dir, e.buf or "-", e.text))
+    end
+  end, { desc = "GhostText message trace (needs g:ghosttext_debug)" })
   vim.api.nvim_create_user_command("GhostTextStatus", function()
     vim.print(M.status())
   end, { desc = "GhostText server state" })

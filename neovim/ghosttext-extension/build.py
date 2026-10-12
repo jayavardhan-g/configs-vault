@@ -18,7 +18,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 UPSTREAM_VERSION = "26.5.12"
-PATCH_LEVEL = "1"
+PATCH_LEVEL = "2"
 ADDON_ID = "ghosttext-patched@configs.local"
 NAME = "GhostText (patched)"
 

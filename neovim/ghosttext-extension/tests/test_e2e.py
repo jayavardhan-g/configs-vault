@@ -55,8 +55,10 @@ procs.append(subprocess.Popen([sys.executable, "-m", "http.server", str(WEB_PORT
 sock = os.path.join(ext_dir, "nvim.sock")
 if os.path.exists(sock):
     os.remove(sock)
-procs.append(subprocess.Popen(["nvim", "--headless", "--clean", "--listen", sock, "-u", os.path.join(HERE, "boot.lua")],
-                              env={**os.environ, "TEST_PORT": str(GT_PORT)}, stderr=subprocess.DEVNULL))
+FULL = os.environ.get("FULLCONFIG") == "1"  # the real ~/.config/nvim, plugins and all
+nvim_cmd = ["nvim", "--headless", "--listen", sock] if FULL else ["nvim", "--headless", "--clean", "--listen", sock, "-u", os.path.join(HERE, "boot.lua")]
+procs.append(subprocess.Popen(nvim_cmd, env={**os.environ, "TEST_PORT": str(GT_PORT), "GHOSTTEXT_SERVER_PORT": str(GT_PORT)},
+                              stderr=subprocess.DEVNULL))
 profile = tempfile.mkdtemp(prefix="ffprof-")
 open(os.path.join(profile, "user.js"), "w").write(f"""
 user_pref("marionette.port", {MN_PORT});
@@ -69,6 +71,11 @@ procs.append(subprocess.Popen(["firefox", "--headless", "--marionette", "--remot
                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL))
 time.sleep(1)
 nv = Nvim(sock)
+if FULL:
+    wait(lambda: os.path.exists(sock), 10)
+    time.sleep(3)  # let lazy.nvim finish
+    nv.lua('vim.api.nvim_create_autocmd(\"User\", { pattern = \"GhostTextOpen\", callback = function(ev) _G.opened = { buf = ev.data.buf } end }) and require(\"ghosttext\").start()')
+nv.lua('(function() vim.g.ghosttext_debug = true end)()')
 m = wait(lambda: Marionette(MN_PORT), 30, 0.5)
 m.cmd("WebDriver:NewSession", {"capabilities": {}})
 m.cmd("Addon:Install", {"path": ext_dir, "temporary": True})
@@ -199,6 +206,44 @@ try:
         time.sleep(0.6)
         check("plain-ce: '<' stays text, newline kept", m.js("return document.getElementById('ed').innerText.trim()") == "a < b\nc", repr(m.js("return document.getElementById('ed').innerText")))
 
+    # ---- Fast typing on both sides: nothing may be lost, reordered or bounced back
+    if ONLY and "typing" in ONLY.split(","):
+        readers = {
+            "react": ("#ta", "return document.getElementById('ta').value"),
+            "ace": ("textarea.ace_text-input", "return editor.getValue()"),
+            "monaco": ("textarea.inputarea", "return editor.getValue()"),
+            "cm6": (".cm-content", "return view.state.doc.toString()"),
+            "plain-ce": ("#ed", "return document.getElementById('ed').innerText.replace(/\\n$/, '')"),
+            "prosemirror": (".ProseMirror", "return pmText()"),
+            "lexical": ("#ed", "return lexText()"),
+        }
+        pages = os.environ.get("PAGES", ",".join(readers)).split(",")
+        for page in pages:
+            selector, read = readers[page]
+            open_page(page)
+            nvim_set_lines(["the quick brown"])
+            time.sleep(0.5)
+            nv.lua('(function() require(\"ghosttext\").log = {} end)()')
+            nv.lua('vim.api.nvim_win_set_cursor(0,{1,0})')
+            nv.keys("A")
+            for ch in " fox jumps over the lazy dog":
+                nv.keys(ch)
+                time.sleep(0.01)
+            nv.keys("<Esc>")
+            time.sleep(1)
+            back = json.loads(nv.lua('vim.json.encode(vim.tbl_map(function(e) return e.text end, vim.tbl_filter(function(e) return e.dir == \"in\" end, require(\"ghosttext\").log)))'))
+            check(f"typing {page}: browser sent nothing back while typing in nvim", not back, back)
+            want = "the quick brown fox jumps over the lazy dog"
+            ok = wait(lambda: buf_text() == want and m.js(read) == want, 3)
+            check(f"typing {page}: fast typing in nvim", ok, repr((buf_text(), m.js(read))))
+            # and the other way: fast keystrokes in the page. Skipped for Lexical:
+            # it drops Marionette's synthetic keys even with GhostText off
+            # ("dog" -> "d"), so the check would only test the harness.
+            if page == "lexical":
+                continue
+            type_into(selector, "!!! abc")
+            ok = wait(lambda: buf_text() == m.js(read) and "abc" in buf_text(), 3)
+            check(f"typing {page}: fast typing in browser", ok, repr((buf_text(), m.js(read))))
 finally:
     passed = sum(ok for _, ok in results)
     print(f"== {LABEL}: {passed}/{len(results)} passed")

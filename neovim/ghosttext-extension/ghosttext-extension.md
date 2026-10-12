@@ -1,13 +1,14 @@
 # Patched GhostText extension
 
 <!-- graph:begin -->
-**Graph:** [[Neovim]] · [[Zen Browser]]
+**Graph:** [[Neovim]] · [[Zen Browser]] · [[GhostText]]
 <!-- graph:end -->
 
 A rebuilt [GhostText](https://github.com/fregante/GhostText) 26.5.12 with the
 bugs below fixed, installed in Zen in place of the AMO version. Pairs with the
 Lua GhostText server in `~/.config/nvim/lua/ghosttext/` - see
-[[ghosttext]] for the whole story.
+[[ghosttext]] for the whole story and [[ghosttext-shortcomings-audit]] for
+everything the audit found.
 
 - `build.py` - takes the upstream `.xpi`, applies exact-match patches to the
   minified `ghost-text.js` / `background*.js`, swaps in our

@@ -160,6 +160,12 @@ ENTITIES = {
         summary="Browser (Flatpak): profiles migrated from Windows, vim-flavoured shortcuts.",
         config="`~/.var/app/app.zen_browser.zen/`", related=["Windows", "Neovim"],
         match=r"\bzen\b|zen-browser|zen_browser"),
+    "GhostText": dict(hub="Editors",
+        summary="Edit browser text fields in Neovim. Own Lua server in the Neovim config "
+                "(replaced nvim-ghost.nvim) plus a patched build of the GhostText add-on in Zen.",
+        config="`~/.config/nvim/lua/ghosttext/`, `~/.config/nvim/lua/plugins/ghosttext.lua`; "
+               "add-on build in `neovim/ghosttext-extension/`",
+        related=["Neovim", "Zen Browser"], match=r"ghosttext|nvim-ghost"),
     "Spotify": dict(hub="Apps",
         summary="Spotify (Flatpak, user scope) with the SpotX patch; lives in the special workspace.",
         config="", related=["Hyprland"], match=r"spotify"),

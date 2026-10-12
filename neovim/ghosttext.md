@@ -4,7 +4,7 @@
 **Files touched:** `lua/plugins/ghosttext.lua`, `lua/config/keymaps.lua` (all under `~/.config/nvim/`; copies in [`files/`](files/))
 
 <!-- graph:begin -->
-**Graph:** [[Neovim]]
+**Graph:** [[Neovim]] · [[GhostText]]
 <!-- graph:end -->
 
 nvim-ghost.nvim setup: per-site languages, formatting and LSP in ghost buffers, and the `<leader>cL` language picker. Part of the LazyVim setup - see [[lazyvim-migration]] for the migration itself and the index of all topic files.
@@ -98,10 +98,12 @@ to use `<leader>cf` before submitting.
 
 **What**: replaced `nvim-ghost.nvim` with a Lua GhostText server in the config
 (`lua/ghosttext/init.lua` + `protocol.lua`), and replaced the AMO GhostText add-on with
-a patched build ([`ghosttext-extension/`](ghosttext-extension/README.md)). Asked to
+a patched build ([[ghosttext-extension]]). Asked to
 analyse both for shortcomings after two known bugs: pressing Escape cleared the page's
 text box, and commenting several lines in a web editor arrived in Neovim as one
 commented line. Then: "fix whatever we can", custom extension OK.
+
+Full list of what the audit found and the status of each: [[ghosttext-shortcomings-audit]].
 
 **Root causes of the two reported bugs** (both in the extension, reproduced in a
 headless-Firefox suite against the stock add-on):
@@ -153,7 +155,7 @@ naming and `<leader>cL` behaviour from the entries above. `nvim-ghost.nvim` remo
 `:Lazy clean` (also gone from `lazy-lock.json`).
 
 **Extension**: see the fix table in
-[`ghosttext-extension/README.md`](ghosttext-extension/README.md) - besides the two bugs:
+[[ghosttext-extension]] - besides the two bugs:
 current CodeMirror 6 wasn't detected at all (`cmView` renamed `cmTile`), Monaco's undo
 history was wiped on every Neovim keystroke, the "Disconnect" menu item/shortcut threw
 (minifier renamed `stopGT`), Ace ignored page-made changes, and listeners leaked on

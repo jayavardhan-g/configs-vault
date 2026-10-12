@@ -5,7 +5,7 @@
 **Files touched:** `~/.config/nvim/lua/plugins/ghosttext.lua` (new)
 
 <!-- graph:begin -->
-**Graph:** [[Neovim]]
+**Graph:** [[Neovim]] · [[GhostText]]
 <!-- graph:end -->
 
 ## What

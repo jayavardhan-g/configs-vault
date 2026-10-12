@@ -13,7 +13,8 @@ Browser (Flatpak): profiles migrated from Windows, vim-flavoured shortcuts.
 <!-- auto:begin -->
 ## Entries
 
-- [[README|Patched GhostText extension]]
+- [[ghosttext-extension|Patched GhostText extension]]
+- [[ghosttext-shortcomings-audit|GhostText shortcomings audit]]
 - [[vim-style-keyboard-shortcuts|Vim-flavored Zen keyboard shortcuts (LazyVim-inspired)]]
 - [[windows-profile-migration|Migrating Zen Browser profiles from Windows to Linux]]
 <!-- auto:end -->

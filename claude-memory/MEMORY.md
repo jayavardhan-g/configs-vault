@@ -12,3 +12,4 @@
 - [Nvim buffer picker → jump to tab](nvim-buffer-picker-jump-to-tab-plan.md) — shelved: <leader>fB opens in current tab; idea is a confirm action reading scope.nvim cache
 - [Nvim fixed theme declined](nvim-fixed-theme-declined.md) — kept Noctalia-following colors/kitty.lua; fixes for contrast are kitty opacity/blur or per-group
 - [GhostText custom stack](ghosttext-custom-stack.md) — own Lua server + add-on from our fork, built by GitHub on tags; no npm locally, never reinstall nvim-ghost
+- [GhostText rebrand plan](ghosttext-rebrand-plan.md) — shelved: own-branded extension from the fork; name/icon/nvim rename/repo still undecided

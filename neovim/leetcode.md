@@ -330,3 +330,23 @@ description visible → hidden → visible; `\c` hid the console.
 
 **Cheatsheet**: new "More keys in a solution file" entry in the LeetCode category
 (before the layout entry), in both `cheatsheet.md` and `cheatsheet.user.md`.
+
+## Follow-up: docked console grew on every run/submit (2026-10-13)
+
+**What**: each `\r` / `\s` made the testcases + result row taller, squeezing the code.
+
+**Cause**: our own `dock_console`, not the plugin. `Console:run` calls `self:show()`
+on every run/submit (`open_on_runcode`, on by default), and the `Console.show` wrapper
+re-docks. Re-docking windows that are already splits goes through
+`nvim_win_set_config`, which removes and re-inserts each window: pulling testcases out
+gives its rows to result beside it, re-inserting it at the bottom with the remembered
+`height` takes fresh rows from above, and moving result back next to it hands result's
+rows to testcases again. Reproduced headless with the same calls: 15 -> 23 -> 35 -> 38
+-> 41 -> 44 rows over six re-docks, the code window down to 3 rows. The first dock
+(from floats) was always right, which is why opening a question looked fine.
+
+**Fix** - `lua/plugins/leetcode.lua`, `dock_console`: after the two moves, pin the
+row with `vim.api.nvim_win_set_height(tc.winid, height)`. `height` is still read
+before moving, so a height you set by resizing is kept. Verified with the same
+reproduction: 15 rows on all six re-docks, also after a `:Leet desc`-style full-height
+left split, with the code window getting its space back.

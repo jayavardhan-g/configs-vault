@@ -109,6 +109,10 @@ local function dock_console(console)
   local height = floating and math.floor(vim.o.lines * 0.3) or vim.api.nvim_win_get_height(tc.winid)
   vim.api.nvim_win_set_config(tc.winid, { split = "below", win = -1, height = height })
   vim.api.nvim_win_set_config(res.winid, { split = "right", win = tc.winid })
+  -- Moving a window that's already a split hands its rows to its neighbours
+  -- first: re-docking (every run/submit shows the console again) gave the
+  -- bottom row the result's old rows on top of `height`, growing it each time.
+  vim.api.nvim_win_set_height(tc.winid, height)
 
   for _, popup in ipairs({ tc, res }) do
     if valid(popup.border.winid) then

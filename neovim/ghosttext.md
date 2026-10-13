@@ -216,3 +216,35 @@ releases 24.7.6, 24.8.10, 26.5.12 (2026-05-12), 40 open issues. Related open iss
 expectations for `contentEditable`"; nothing filed yet for the throttle, `cmTile`,
 `stopGT` or stale-echo bugs. Whether to fork the source and send these upstream was
 raised the same day - see the next entry if one gets made.
+
+## Follow-up: fork with our commits, built by GitHub Actions (2026-10-13)
+
+**What**: the add-on's source of truth moved to a fork,
+[jayavardhan-g/GhostText](https://github.com/jayavardhan-g/GhostText), branch `patched`
+(clone: `~/claude/GhostText`, `upstream` remote = fregante/GhostText; fork `main` stays
+an untouched mirror). Each fix is one commit on top of upstream: throttle, `cmTile`,
+Disconnect, WebSocket error, bridge rewrite (minimal/echo-free edits), syntax hint,
+real-input writes + plain-text contenteditable, keep-alive, fork identity.
+
+**Why**: `build.py` patches minified code with exact-string matches, which breaks on
+every upstream release and duplicates the fixes. A fork makes them readable commits
+and an upstream update a rebase. No npm on this machine (asked for explicitly), so
+builds run on GitHub.
+
+**Release process**: `.github/workflows/build-xpi.yml` on the fork runs **only on `v*`
+tags** - it sets the manifest version from the tag, runs `npm ci && npm run build` on
+GitHub's runner, and attaches `ghosttext-patched-<version>.xpi` to a GitHub Release:
+```sh
+git -C ~/claude/GhostText/.claude/worktrees/patched tag -a v26.5.12.4 -m "..."
+git -C ~/claude/GhostText/.claude/worktrees/patched push origin v26.5.12.4
+gh release download v26.5.12.4 -R jayavardhan-g/GhostText   # then install in Zen
+```
+Upstream's `CI` workflow is disabled on the fork (`gh workflow disable CI`) so plain
+pushes build nothing; its Lint job fails on our code style, its Build job passed.
+
+**Notes**:
+- Skip upstream's `npm run pre:build`: it rewrites `web_accessible_resources` into the
+  Manifest V2 shape, which Parcel rejects for this V3 manifest (upstream CI skips it too).
+- First release `v26.5.12.3` (2026-10-13): GitHub build passed e2e 34/34 and typing 27/27.
+- `build.py` (patch approach) is kept until the GitHub-built add-on is confirmed in daily
+  use, then retired.

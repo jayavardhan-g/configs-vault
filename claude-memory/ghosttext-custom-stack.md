@@ -15,6 +15,11 @@ installed unsigned in Zen with `xpinstall.signatures.required=false`.
 CodeMirror 6, and nvim-ghost's server raced its own threads - see [[ghosttext-shortcomings-audit]]
 and [[ghosttext]].
 
+Since 2026-10-13 the add-on source is the fork jayavardhan-g/GhostText (`patched`
+branch, clone `~/claude/GhostText`); releases are built by GitHub Actions on `v*` tags
+only. The user wants **no npm installed locally** - never run npm/node builds on the PC;
+tag and let GitHub build.
+
 **How to apply:** for any GhostText problem, start from those notes and run the test
 suites in `neovim/ghosttext-extension/tests/`, not nvim-ghost docs. If Zen auto-updates
 or GhostText upstream moves past 26.5.12, `build.py` refuses to build; re-check its

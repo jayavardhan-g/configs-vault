@@ -4,6 +4,11 @@
 **Graph:** [[Neovim]] · [[Zen Browser]] · [[GhostText]]
 <!-- graph:end -->
 
+> **Source of truth is now the fork** [jayavardhan-g/GhostText](https://github.com/jayavardhan-g/GhostText)
+> (`patched` branch, releases built by GitHub Actions on `v*` tags) - see the
+> 2026-10-13 fork entry in [[ghosttext]]. `build.py` below is the older patch-the-minified-build
+> approach, kept until the fork's release is confirmed, then retired.
+
 A rebuilt [GhostText](https://github.com/fregante/GhostText) 26.5.12 with the
 bugs below fixed, installed in Zen in place of the AMO version. Pairs with the
 Lua GhostText server in `~/.config/nvim/lua/ghosttext/` - see

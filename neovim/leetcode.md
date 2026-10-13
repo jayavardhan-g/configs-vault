@@ -331,22 +331,33 @@ description visible → hidden → visible; `\c` hid the console.
 **Cheatsheet**: new "More keys in a solution file" entry in the LeetCode category
 (before the layout entry), in both `cheatsheet.md` and `cheatsheet.user.md`.
 
-## Follow-up: docked console grew on every run/submit (2026-10-13)
+## Follow-up: docked console resized on every run/submit (2026-10-13, 2026-10-14)
 
-**What**: each `\r` / `\s` made the testcases + result row taller, squeezing the code.
+**What**: each `\r` / `\s` changed the bottom row: first it grew taller every run,
+squeezing the code; after a first fix the height held but testcases | result snapped
+back to an even 50/50 split, losing any width set by hand.
 
 **Cause**: our own `dock_console`, not the plugin. `Console:run` calls `self:show()`
 on every run/submit (`open_on_runcode`, on by default), and the `Console.show` wrapper
-re-docks. Re-docking windows that are already splits goes through
-`nvim_win_set_config`, which removes and re-inserts each window: pulling testcases out
-gives its rows to result beside it, re-inserting it at the bottom with the remembered
-`height` takes fresh rows from above, and moving result back next to it hands result's
-rows to testcases again. Reproduced headless with the same calls: 15 -> 23 -> 35 -> 38
--> 41 -> 44 rows over six re-docks, the code window down to 3 rows. The first dock
-(from floats) was always right, which is why opening a question looked fine.
+re-docked every time. Moving windows that are already splits with
+`nvim_win_set_config` removes and re-inserts them: the removed window's rows go to its
+neighbours (so the remembered height landed on top of rows the row already had -
+reproduced headless: 15 -> 23 -> 35 -> 38 -> 41 -> 44 rows over six runs, code down to
+3 rows), and re-splitting result off testcases always halves the row (130/69 -> 99/100).
 
-**Fix** - `lua/plugins/leetcode.lua`, `dock_console`: after the two moves, pin the
-row with `vim.api.nvim_win_set_height(tc.winid, height)`. `height` is still read
-before moving, so a height you set by resizing is kept. Verified with the same
-reproduction: 15 rows on all six re-docks, also after a `:Leet desc`-style full-height
-left split, with the code window getting its space back.
+**Fix** - `lua/plugins/leetcode.lua`, `dock_console`:
+- if the bottom row of the tab is already exactly testcases | result (checked with
+  `vim.fn.winlayout()`), leave the windows alone - a run changes nothing;
+- otherwise (console hidden and re-shown as floats, or `:Leet desc` reshuffled the
+  layout) re-dock and put back the last docked size, pinned after the moves with
+  `nvim_win_set_height` / `nvim_win_set_width`; 30% high and an even split only the
+  very first time;
+- the last docked size is remembered per console (weak table), refreshed on every run.
+
+**Verified** - the real `dock_console` extracted from the config, with a fake console,
+headless 200x50: first open 99x15 / 100x15; after resizing to 130x20 / 69x20, three
+runs, a `:Leet desc` reshuffle (testcases squeezed to 1 column) + re-dock, and
+hide + re-show as fresh floats all came back 130x20 / 69x20, winbars intact.
+
+**Notes**: the 2026-10-13 version only pinned the height after re-docking, which
+stopped the growth but still reset the width split on every run.

@@ -91,10 +91,32 @@ end
 --- titles move to winbars drawn in FloatBorder, which the plugin re-links
 --- per window to colour the verdict (green accepted, red wrong), so the
 --- result's winbar still changes colour.
+--- Last docked size per console ({ height, width } of the testcases window),
+--- so a re-dock puts back the size you resized to.
+local dock_sizes = setmetatable({}, { __mode = "k" })
+
+--- Is the bottom row of the current tab exactly testcases | result?
+local function is_docked(tc_win, res_win)
+  local layout = vim.fn.winlayout()
+  if layout[1] ~= "col" then
+    return false
+  end
+  local bottom = layout[2][#layout[2]]
+  return bottom[1] == "row"
+    and #bottom[2] == 2
+    and bottom[2][1][1] == "leaf"
+    and bottom[2][1][2] == tc_win
+    and bottom[2][2][1] == "leaf"
+    and bottom[2][2][2] == res_win
+end
+
 ---@param console lc.ui.Console?
 local function dock_console(console)
   local function valid(win)
     return win and vim.api.nvim_win_is_valid(win)
+  end
+  local function floating(win)
+    return vim.api.nvim_win_get_config(win).relative ~= ""
   end
   if not console or not console.visible then
     return
@@ -104,15 +126,36 @@ local function dock_console(console)
     return
   end
 
-  -- keep the height the user resized to; 30% when first converted
-  local floating = vim.api.nvim_win_get_config(tc.winid).relative ~= ""
-  local height = floating and math.floor(vim.o.lines * 0.3) or vim.api.nvim_win_get_height(tc.winid)
-  vim.api.nvim_win_set_config(tc.winid, { split = "below", win = -1, height = height })
-  vim.api.nvim_win_set_config(res.winid, { split = "right", win = tc.winid })
-  -- Moving a window that's already a split hands its rows to its neighbours
-  -- first: re-docking (every run/submit shows the console again) gave the
-  -- bottom row the result's old rows on top of `height`, growing it each time.
-  vim.api.nvim_win_set_height(tc.winid, height)
+  -- Every run/submit shows the console again. If it's already docked, leave
+  -- the windows alone: moving a window that's already a split re-creates it,
+  -- which grew the bottom row each time and reset testcases | result to 50/50.
+  local already = not floating(tc.winid) and not floating(res.winid) and is_docked(tc.winid, res.winid)
+  if already then
+    dock_sizes[console] = {
+      height = vim.api.nvim_win_get_height(tc.winid),
+      width = vim.api.nvim_win_get_width(tc.winid),
+    }
+  else
+    -- Re-docking: the console came back as floats (hidden and re-shown), or
+    -- :Leet desc reshuffled the layout. Put back the last docked size; 30%
+    -- high and an even split the very first time.
+    local size = dock_sizes[console] or {}
+    local height = size.height
+      or (not floating(tc.winid) and vim.api.nvim_win_get_height(tc.winid))
+      or math.floor(vim.o.lines * 0.3)
+    vim.api.nvim_win_set_config(tc.winid, { split = "below", win = -1, height = height })
+    vim.api.nvim_win_set_config(res.winid, { split = "right", win = tc.winid })
+    -- moving hands the moved windows' rows to their neighbours first, so set
+    -- the size again afterwards
+    vim.api.nvim_win_set_height(tc.winid, height)
+    if size.width then
+      vim.api.nvim_win_set_width(tc.winid, size.width)
+    end
+    dock_sizes[console] = {
+      height = vim.api.nvim_win_get_height(tc.winid),
+      width = vim.api.nvim_win_get_width(tc.winid),
+    }
+  end
 
   for _, popup in ipairs({ tc, res }) do
     if valid(popup.border.winid) then

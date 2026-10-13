@@ -249,3 +249,29 @@ pushes build nothing; its Lint job fails on our code style, its Build job passed
 - `build.py` (patch approach) was retired the same day, once the GitHub-built v26.5.12.3
   was confirmed in daily use; the committed `.xpi` and bridge copy went with it (still
   in git history). Install paths in the entries above refer to that old approach.
+
+## Follow-up: E367 error on `:q` while a field was open (2026-10-14)
+
+**What**: with a GhostText field open, `:q` (e.g. closing the dashboard tab, or `:tabonly`)
+showed a big noice error:
+```
+Error in BufWipeout Autocommands for "<buffer=1>":
+...snacks/dashboard.lua:262: Vim:E367: No such group: "--Deleted--"
+```
+
+**Cause**: the server opened each field with `tab sbuffer N`. That splits the *current*
+window first, so the new tab briefly showed the current buffer - usually the Snacks
+dashboard (buffer 1, `bufhidden=wipe`). Snacks reacted to the dashboard appearing in the
+extra window and ended up with its BufDelete/BufWipeout cleanup registered twice; when
+the dashboard was later wiped, the second call deleted an already-deleted augroup.
+Isolated in a real UI (`nvim --remote-ui` under `script`; headless never showed it): a
+plain `tab sbuffer` of a scratch buffer reproduces it with GhostText out of the picture,
+`:tabnew` doesn't.
+
+**Fix** - `lua/ghosttext/init.lua`, `Session:open`: `tabnew`, put the field's buffer in
+that window, delete the empty placeholder. Verified in the real UI: `:tabonly`, `:q` on
+the dashboard tab, `:q` on the GhostText tab and quitting Neovim are all clean; server
+tests 26/26.
+
+**Notes**: first suspected the exit path (the `VimLeavePre` cleanup wiping buffers);
+changing that made no difference and was reverted.

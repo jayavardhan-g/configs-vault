@@ -246,5 +246,6 @@ pushes build nothing; its Lint job fails on our code style, its Build job passed
 - Skip upstream's `npm run pre:build`: it rewrites `web_accessible_resources` into the
   Manifest V2 shape, which Parcel rejects for this V3 manifest (upstream CI skips it too).
 - First release `v26.5.12.3` (2026-10-13): GitHub build passed e2e 34/34 and typing 27/27.
-- `build.py` (patch approach) is kept until the GitHub-built add-on is confirmed in daily
-  use, then retired.
+- `build.py` (patch approach) was retired the same day, once the GitHub-built v26.5.12.3
+  was confirmed in daily use; the committed `.xpi` and bridge copy went with it (still
+  in git history). Install paths in the entries above refer to that old approach.

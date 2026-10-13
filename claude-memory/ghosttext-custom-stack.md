@@ -1,6 +1,6 @@
 ---
 name: ghosttext-custom-stack
-description: GhostText here is custom - own Lua server in nvim config + patched unsigned add-on in Zen; rebuild with build.py after upstream updates
+description: GhostText here is custom - own Lua server in nvim config + add-on from the jayavardhan-g/GhostText fork, built by GitHub Actions on v* tags; no npm on the PC
 metadata:
   type: project
 ---
@@ -22,8 +22,8 @@ tag and let GitHub build.
 
 **How to apply:** for any GhostText problem, start from those notes and run the test
 suites in `neovim/ghosttext-extension/tests/`, not nvim-ghost docs. If Zen auto-updates
-or GhostText upstream moves past 26.5.12, `build.py` refuses to build; re-check its
-patches against the new minified files. Don't suggest reinstalling nvim-ghost or the
+or GhostText upstream releases, rebase the fork's `patched` branch and tag - `build.py`
+was retired 2026-10-13. Don't suggest reinstalling nvim-ghost or the
 AMO GhostText. Related: [[GhostText]], [[Neovim]], [[Zen Browser]].
 
 <!-- graph:begin -->

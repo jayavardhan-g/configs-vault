@@ -1,4 +1,4 @@
-function labvpn --description 'Interactive control for the lab VPN (openfortivpn)'
+function labvpn --description 'Control the lab VPN (openfortivpn): labvpn [start|stop|status|log]'
     set -l config_path ~/.config/openfortivpn/config
     set -l log_path ~/.cache/openfortivpn.log
 
@@ -7,6 +7,25 @@ function labvpn --description 'Interactive control for the lab VPN (openfortivpn
         return 1
     end
 
+    # One-shot: `labvpn start` etc. runs the command and returns.
+    if set -q argv[1]
+        switch $argv[1]
+            case start
+                _labvpn_start $config_path $log_path
+            case stop
+                _labvpn_stop
+            case status
+                _labvpn_status
+            case log
+                tail -n 20 -f $log_path
+            case '*'
+                echo "usage: labvpn [start|stop|status|log]   (no argument = interactive prompt)"
+                return 1
+        end
+        return
+    end
+
+    # No argument: interactive prompt.
     echo "labvpn — commands: start, stop, status, log, exit"
     while true
         read -P "labvpn> " -l cmd
@@ -40,7 +59,11 @@ function _labvpn_start
     end
 
     touch $log_path
-    sudo -b openfortivpn -c $config_path >>$log_path 2>&1
+    # Fully detach from this terminal: stdin from /dev/null and a new session
+    # (setsid). Before, the root openfortivpn kept the terminal as its stdin, so
+    # the window couldn't close after `exit`. sudo still prompts for the password
+    # (it reads /dev/tty, not stdin).
+    sudo -b setsid openfortivpn -c $config_path </dev/null >>$log_path 2>&1
     echo -n "connecting"
 
     for i in (seq 1 20)

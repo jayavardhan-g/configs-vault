@@ -6,8 +6,9 @@
 
 ## What
 Set up `openfortivpn` (lightweight CLI Fortinet SSL-VPN client) plus a `labvpn` fish
-function that gives an interactive `start`/`stop`/`status`/`log` prompt, so the VPN needed
-to reach a lab SSH/GPU server can be brought up or down with minimal typing.
+function: `labvpn start|stop|status|log` runs one command and returns, and plain `labvpn`
+opens an interactive prompt. The VPN needed to reach a lab SSH/GPU server can be brought
+up or down with minimal typing, from any terminal, which can then be closed.
 
 ## Why
 User needs to connect through a Fortinet VPN before SSHing into a lab GPU server for
@@ -35,7 +36,7 @@ trusted-cert = <sha256 digest — see Notes>
 `~/.config/fish/functions/labvpn.fish` (autoloaded automatically by fish — no `source`
 needed):
 ```fish
-function labvpn --description 'Interactive control for the lab VPN (openfortivpn)'
+function labvpn --description 'Control the lab VPN (openfortivpn): labvpn [start|stop|status|log]'
     set -l config_path ~/.config/openfortivpn/config
     set -l log_path ~/.cache/openfortivpn.log
 
@@ -44,6 +45,25 @@ function labvpn --description 'Interactive control for the lab VPN (openfortivpn
         return 1
     end
 
+    # One-shot: `labvpn start` etc. runs the command and returns.
+    if set -q argv[1]
+        switch $argv[1]
+            case start
+                _labvpn_start $config_path $log_path
+            case stop
+                _labvpn_stop
+            case status
+                _labvpn_status
+            case log
+                tail -n 20 -f $log_path
+            case '*'
+                echo "usage: labvpn [start|stop|status|log]   (no argument = interactive prompt)"
+                return 1
+        end
+        return
+    end
+
+    # No argument: interactive prompt.
     echo "labvpn — commands: start, stop, status, log, exit"
     while true
         read -P "labvpn> " -l cmd
@@ -77,7 +97,11 @@ function _labvpn_start
     end
 
     touch $log_path
-    sudo -b openfortivpn -c $config_path >>$log_path 2>&1
+    # Fully detach from this terminal: stdin from /dev/null and a new session
+    # (setsid). Before, the root openfortivpn kept the terminal as its stdin, so
+    # the window couldn't close after `exit`. sudo still prompts for the password
+    # (it reads /dev/tty, not stdin).
+    sudo -b setsid openfortivpn -c $config_path </dev/null >>$log_path 2>&1
     echo -n "connecting"
 
     for i in (seq 1 20)
@@ -140,6 +164,14 @@ end
   manually via `sudo -b` + log redirection to `~/.cache/openfortivpn.log`.
 - The interface it brings up is named `ppp0` (via `pppd`), not `tun0` — `_labvpn_status`
   greps for `ppp[0-9]+` accordingly.
+- **Terminal wouldn't close after `start` (fixed 2026-10-10).** The original start line was
+  `sudo -b openfortivpn … >>log 2>&1`. That redirects output but not input, so the root
+  `openfortivpn` kept the terminal as its stdin (`ps` showed `TT pts/1`). The window then
+  waited forever after `exit`, and force-closing didn't stop the VPN, since the root
+  process survives the hang-up. Fix: `sudo -b setsid openfortivpn … </dev/null`, which
+  gives it a new session with no terminal. The VPN never needed the terminal open.
+- **One-shot subcommands added the same day** (`labvpn start` etc.), as the user
+  asked; the no-argument prompt is kept.
 - `sudo -b` still needs a sudo password on `start`; it's cached (~15 min, default sudo
   timestamp) so `stop`/subsequent `start` calls in the same terminal session usually don't
   re-prompt.

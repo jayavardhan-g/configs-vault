@@ -33,7 +33,7 @@ Personal runbook of system/config decisions, split by scope:
 | [`spotify/`](spotify/spotify-and-spotx.md) | Spotify (Flatpak) + SpotX ad-block patch |
 | [`limine/`](limine/windows-dual-boot-order-and-bitlocker.md) | Limine bootloader — Windows dual-boot NVRAM order + BitLocker chainload fix |
 | [`xpad/`](xpad/xpad-sticky-notes.md) | Xpad desktop sticky notes — install, `--no-new`/`--quit` flags, why `sticky` (x-apps) doesn't work here |
-| [`mpv/`](mpv/mpv-video-player.md) | mpv video player — plain repo install, no player was present by default |
+| [`mpv/`](mpv/mpv-video-player.md) | mpv video player — repo install plus uosc skin, vim-style binds, scripts (autoload, memo, mpris), NAS start folder |
 
 | [`noctalia/`](noctalia/palette-source-not-persisting.md) | Noctalia shell — wallpaper-based palette source not persisting to settings.toml; [Theme Mode pinned to Dark](noctalia/theme-mode-pinned-dark.md) instead of time-of-day `Auto`; [stripes transitions](noctalia/wallpaper-transition.md) for wallpaper changes and lock/unlock (and why every login animates) |
 | [`zen-browser/`](zen-browser/windows-profile-migration.md) | Zen Browser (Flatpak) — migrating profiles from a Windows install (`profiles.ini`, profile-switcher DB, app launchers) and [vim-flavored keyboard shortcuts](zen-browser/vim-style-keyboard-shortcuts.md) (the actual shortcut file lives in the separate `~/dotfiles` repo, not here); [low-memory tab unloading](zen-browser/low-memory-tab-unloading.md) — what the threshold pref really means and why unloads are invisible in Zen |

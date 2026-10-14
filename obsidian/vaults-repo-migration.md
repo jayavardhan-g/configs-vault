@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-14
 **Category:** obsidian
-**Files touched:** `~/.config/obsidian/obsidian.json` (vault path; copy in `obsidian/files/.config/obsidian/obsidian.json`); new clone `/mnt/study/vaults/`; old clones renamed `~/notes.old`, `/mnt/study/Jay.old`
+**Files touched:** `~/.config/obsidian/obsidian.json` (vault path; copy in `obsidian/files/.config/obsidian/obsidian.json`); new clone `/mnt/study/vaults/`; old clones `~/notes` and `/mnt/study/Jay` removed
 
 <!-- graph:begin -->
 **Graph:** [[Obsidian]]
@@ -59,7 +59,7 @@ git pull --rebase --autostash && git push
   workspace.json churn the old repo had.
 - `obsidian-git` is still in the vault. Inside a sparse clone it can only see `personal/`,
   so its commits stay scoped to this vault.
-- `~/notes.old` / `/mnt/study/Jay.old` are backups to delete later. `Obsidian-Vault-Jay`
+- The `~/notes.old` / `/mnt/study/Jay.old` backups were deleted the same day after checking `personal/` matched them. `Obsidian-Vault-Jay`
   on GitHub is untouched and no longer used.
 - Stored vault-file copies moved from `obsidian/files/notes/` to
   `obsidian/files/mnt/study/vaults/personal/`.

@@ -17,7 +17,7 @@ Back to [[Home]].
 - [[Windows]] — The dual-booted Windows install, and things migrated from it (browser profiles, the notes vault) (4 entries)
 - [[greetd]] — Login manager (Noctalia greeter) (4 entries)
 - [[GNOME Keyring]] — Secret store used by VSCode Settings Sync and browsers; unlocked at login via greetd PAM (2 entries)
-- [[uwsm]] — Session manager wrapping Hyprland's login; once removed by `pacman` autoremove, which silently broke login (1 entries)
+- [[uwsm]] — Session manager wrapping Hyprland's login; once removed by `pacman` autoremove, which silently broke login (2 entries)
 - [[NVIDIA]] — Discrete GPU (3 entries)
 - [[Locale]] — System locale named `en_IN.UTF-8` (bare `en_IN` broke btop from the launcher) (3 entries)
 - [[Bitwarden]] — Password manager; its CLI (`bw`) feeds BitLocker unlock keys to cryptsetup (1 entries)

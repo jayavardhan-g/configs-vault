@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-14
 **Category:** obsidian
-**Files touched:** `~/.config/obsidian/obsidian.json` (vault path; copy in `obsidian/files/.config/obsidian/obsidian.json`); new clone `/mnt/study/vaults/`; old clones `~/notes` and `/mnt/study/Jay` removed
+**Files touched:** `~/.config/obsidian/obsidian.json` (vault path; copy in `obsidian/files/.config/obsidian/obsidian.json`); new clones `/mnt/study/vaults/` and `~/claude/vaults/`; `~/claude/CLAUDE.md`; Claude memory symlink; old clones `~/notes` and `/mnt/study/Jay` removed
 
 <!-- graph:begin -->
 **Graph:** [[Obsidian]]
@@ -55,11 +55,37 @@ git pull --rebase --autostash && git push
   folder is now `Jay.old`). Windows git will want
   `git config --global --add safe.directory <path>` once, since the folder is owned by
   the Linux uid.
-- The repo's `.gitignore` drops `.obsidian/workspace*.json`, which ended the
-  workspace.json churn the old repo had.
+- The repo's root `.gitignore` drops `**/.obsidian/workspace*.json` in every vault folder.
+  It first said `.obsidian/workspace*.json`, which only matches at the repo root (a pattern
+  with a slash in it is anchored), so `personal/.obsidian/workspace.json` got committed.
+  Fixed the same day and the file untracked.
 - `obsidian-git` is still in the vault. Inside a sparse clone it can only see `personal/`,
   so its commits stay scoped to this vault.
 - The `~/notes.old` / `/mnt/study/Jay.old` backups were deleted the same day after checking `personal/` matched them. `Obsidian-Vault-Jay`
   on GitHub is untouched and no longer used.
 - Stored vault-file copies moved from `obsidian/files/notes/` to
   `obsidian/files/mnt/study/vaults/personal/`.
+
+## Later the same day: the configs vault moved in too
+This configs repo (also an Obsidian vault) is now `configs/` in the same `vaults` repo, in
+its own sparse clone at `~/claude/vaults` (btrfs, so `scripts/` keep their exec bit; the
+Study-drive clone stays `personal`-only).
+```bash
+# history kept: imported in a full (non-sparse) temp clone, then pushed
+git clone https://github.com/jayavardhan-g/vaults.git /tmp/vaults-full && cd /tmp/vaults-full
+git subtree add --prefix=configs https://github.com/jayavardhan-g/configs.git main
+git push
+# the working copy
+git clone --filter=blob:none --sparse https://github.com/jayavardhan-g/vaults.git ~/claude/vaults
+cd ~/claude/vaults && git sparse-checkout set configs
+# (+ user.name/user.email as above)
+cp -a ~/claude/configs/.claude configs/                                   # untracked local state
+cp -a ~/claude/configs/.obsidian/workspace.json configs/.obsidian/
+ln -sfn ~/claude/vaults/configs/claude-memory ~/.claude/projects/-home-jayavardhan-claude/memory
+# obsidian.json: configs vault "path" → /home/jayavardhan/claude/vaults/configs
+```
+- `~/claude/CLAUDE.md` now points at `vaults/configs/` instead of `configs/`.
+- `git log` shows all the old commits, but their paths have no `configs/` prefix, so
+  `git log -- configs/<file>` stops at the subtree merge. For one file's older history use
+  `git log <merge-commit>^2 -- <file>` (path without `configs/`).
+- The old `jayavardhan-g/configs` GitHub repo is no longer used. Jayavardhan plans to delete it.

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # One-time switch: make Claude Code's memory dir a symlink into this vault's claude-memory/.
-# Run from the main checkout (~/claude/configs) after the vault branch is on main:
+# Run from the main checkout (~/claude/vaults/configs) after the vault branch is on main:
 #   bash scripts/link-claude-memory.sh
 # Safe to re-run: does nothing once the symlink exists.
 set -euo pipefail

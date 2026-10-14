@@ -40,6 +40,13 @@ table and re-run it. Hand-written text outside the markers is kept.
 **When working from this repo, use the graph**: to find everything that touches a tool,
 read `entities/<Tool>.md` (or grep `[[<Tool>]]`) before searching folders by hand.
 
+**Where this lives and how to commit.** This folder is `configs/` inside the shared
+`jayavardhan-g/vaults` repo (one folder per Obsidian vault), sparse-cloned at
+`~/claude/vaults` with only `configs/` checked out. It used to be its own repo
+(`jayavardhan-g/configs`); its history was imported with `git subtree`. Commit from inside
+this folder with `git add .` (never `git add -A` / `git commit -a` from the repo root), then
+`git pull --rebase --autostash && git push`. See the repo root `README.md`.
+
 **Don't commit `.claude/`** — it holds session-local Claude Code settings (e.g. `settings.local.json`, a permission allowlist), not part of this record. Keep a `.gitignore` at the repo root with `.claude/` in it.
 
 ## What you (Claude) must do in this repo

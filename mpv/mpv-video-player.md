@@ -90,18 +90,15 @@ YouTube/URL playback needs `yt-dlp`; deliberately NOT installed (2026-10-15), so
 `sudo pacman -S mpv-mpris`.
 
 ## Keybinds (2026-10-15)
-vim-style, in `~/.config/mpv/input.conf`:
+vim-style, rewritten from scratch the same day; final file in `mpv/files/.config/mpv/input.conf`:
 ```
-h seek -5
-l seek 5
-H playlist-prev
-L playlist-next
-k add volume 5
-j add volume -5
-MBTN_RIGHT script-binding uosc/menu
-TAB script-binding uosc/menu
+h/l seek -5/+5          H/L seek -30/+30        Ctrl+h/l exact seek -1/+1
+k/j volume +5/-5        g/G playlist prev/next
+, . frame back/step     [ ] speed x0.9/x1.1     { } speed x0.5/x2     BS reset speed
+0..9 jump to 0..90%     SPACE pause  f fullscreen  m mute  q quit  Q quit-watch-later
+: open console          MBTN_RIGHT / TAB uosc menu
 ```
-Overrides mpv defaults: `j`/`J` (cycle subtitles; `J` is untouched, `j` is now volume down), `l` (A-B loop) and `L` (cycle file loop). Arrow keys still seek. Subtitle cycling remains in the uosc menu/button.
+Overrides mpv defaults: `j`/`l`/`L` (subtitle cycle, A-B loop, file loop), `H`, `g`/`G`, `0`-`9` (volume `9`/`0` and picture contrast/brightness/gamma/saturation `1`-`8`, now unbound). Arrow keys keep their defaults. Subtitle cycling remains in the uosc menu. Earlier version had `H`/`L` as playlist prev/next; moved to `g`/`G` to free `H`/`L` for 30s seeks.
 
 ## Notes
 - Further mpv config/script changes go in this entry rather than a new one.

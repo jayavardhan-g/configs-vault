@@ -28,7 +28,6 @@ Main editor, on LazyVim since 2026-09-15: custom keymaps, searchable `<leader>h`
 - [[personal-cheatsheet|Personal cheatsheet (`<leader>h`)]]
 - [[plugin-review|Plugin-by-plugin review]]
 - [[vim-neovim-parity-pass|Vim/Neovim parity pass + leader timeout fix]]
-- [[nvim-lazyvim-config-session|nvim-lazyvim-config-session.md]]
 - [[vim-mode-nvim-parity|Obsidian vim mode matching the nvim/LazyVim keymaps]]
 - [[vimrc-keybindings|Obsidian vimrc: nvim-flavored keybindings, and the real dispatcher gotchas found along the way]]
 - [[vim-style-keyboard-shortcuts|Vim-flavored Zen keyboard shortcuts (LazyVim-inspired)]]

@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-20 to 2026-09-21
 **Category:** obsidian
-**Files touched:** `.obsidian/.obsidian.vimrc` in the `~/notes` vault repo (see
+**Files touched:** `.obsidian/.obsidian.vimrc` in the personal vault (`/mnt/study/vaults/personal`) (see
 
 <!-- graph:begin -->
 **Graph:** [[Neovim]] · [[Vim]] · [[Obsidian]]

@@ -88,9 +88,9 @@ ENTITIES = {
         config="`~/.vimrc` (copy in `vim/files/.vimrc`)", related=["Neovim"],
         match=r"\.vimrc\b(?!.*obsidian)|^vim/"),
     "Obsidian": dict(hub="Editors",
-        summary="Notes app. Personal vault `~/notes` (own git remote) uses vim keys mirroring "
+        summary="Notes app. Personal vault `/mnt/study/vaults/personal` (sparse clone of the shared `vaults` repo) uses vim keys mirroring "
                 "Neovim; this configs repo is itself a vault too.",
-        config="`~/notes/.obsidian/.obsidian.vimrc`, `hotkeys.json`; this repo's `.obsidian/`",
+        config="`/mnt/study/vaults/personal/.obsidian/.obsidian.vimrc`, `hotkeys.json`; this repo's `.obsidian/`",
         related=["Neovim", "Vim"], match=r"obsidian"),
     "CachyOS": dict(hub="System",
         summary="The distro (Arch-based). Packages via pacman + AUR; some configs are "

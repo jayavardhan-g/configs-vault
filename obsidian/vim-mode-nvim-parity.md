@@ -2,17 +2,17 @@
 
 **Date:** 2026-10-02
 **Category:** obsidian
-**Files touched:** `~/notes/.obsidian/.obsidian.vimrc`, `~/notes/.obsidian/hotkeys.json`,
+**Files touched:** `/mnt/study/vaults/personal/.obsidian/.obsidian.vimrc`, `/mnt/study/vaults/personal/.obsidian/hotkeys.json`,
 
 <!-- graph:begin -->
 **Graph:** [[Neovim]] · [[Vim]] · [[Obsidian]]
 <!-- graph:end -->
 
-`~/notes/.obsidian/community-plugins.json`, `~/notes/.obsidian/plugins/mrj-jump-to-link/`
-(stored copies under `obsidian/files/notes/.obsidian/`)
+`/mnt/study/vaults/personal/.obsidian/community-plugins.json`, `/mnt/study/vaults/personal/.obsidian/plugins/mrj-jump-to-link/`
+(stored copies under `obsidian/files/mnt/study/vaults/personal/.obsidian/`)
 
 ## What
-Obsidian's vim mode (vault `~/notes`) remapped so the same keys do the same thing as in
+Obsidian's vim mode (vault `/mnt/study/vaults/personal`) remapped so the same keys do the same thing as in
 `~/.config/nvim` (see [[keybindings-and-editing]]), via the Vimrc Support plugin's
 `.obsidian.vimrc`. Added the Jump to link plugin as the stand-in for flash.nvim.
 
@@ -22,7 +22,7 @@ keys and Obsidian-only choices (H/L = ^/$, surround on `s`, Alt+hjkl focus) that
 something different in nvim.
 
 ## Change
-Prereqs (vault-local, travel with the `~/notes` git repo):
+Prereqs (vault-local, travel with the vault in the `vaults` repo):
 - Settings → Editor → Vim key bindings on (`"vimMode": true` in `app.json`).
 - Community plugins: **Vimrc Support** (`obsidian-vimrc-support`, 0.10.2), **Omnisearch**,
   **Git** (`obsidian-git`), **Jump to link** (`mrj-jump-to-link`, 0.6.1 — installed from
@@ -31,8 +31,8 @@ Prereqs (vault-local, travel with the `~/notes` git repo):
   **Hotkeys for specific files** (`obsidian-hotkeys-for-specific-files`, 1.4.1 — same
   install route from `vinzent03/obsidian-hotkeys-for-specific-files`; its `data.json`
   registers `Tools/Obsidian-Cheatsheet.md`).
-- Cheatsheet note `~/notes/Tools/Obsidian-Cheatsheet.md` (copy:
-  `obsidian/files/notes/Tools/Obsidian-Cheatsheet.md`), opened with `<Space>h` like
+- Cheatsheet note `/mnt/study/vaults/personal/Tools/Obsidian-Cheatsheet.md` (copy:
+  `obsidian/files/mnt/study/vaults/personal/Tools/Obsidian-Cheatsheet.md`), opened with `<Space>h` like
   nvim's cheatsheet. Same `## Category` / `### Entry` layout; search it with `<Space>sb`.
 - Default hotkeys cleared in `hotkeys.json` because Obsidian hotkeys fire *before*
   vimrc maps: Ctrl+O (quick switcher), Ctrl+I/B (italic/bold), Ctrl+H (search & replace),
@@ -80,7 +80,7 @@ Key map (nvim key → Obsidian action):
 
 Kept from before: Ctrl+T/W/Tab/Shift+Tab, Ctrl+P / Ctrl+Shift+P, Ctrl+B / Ctrl+Shift+B,
 Ctrl+Shift+F, Ctrl+Shift+M, Ctrl+O/I history, zo/zc/zR/zM folds, Alt+P paste-as-link,
-`set clipboard=unnamed`. Full file: `obsidian/files/notes/.obsidian/.obsidian.vimrc`.
+`set clipboard=unnamed`. Full file: `obsidian/files/mnt/study/vaults/personal/.obsidian/.obsidian.vimrc`.
 
 ## Notes
 - `set clipboard=unnamed` stays: nvim locally uses LazyVim's `clipboard=unnamedplus`, so

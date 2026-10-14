@@ -85,3 +85,6 @@ after this point, same self-syncing property `~/dotfiles` has for Zen's shortcut
 - The abandoned empty vault on `desktop-c` was left alone — not deleted, just not used.
 - See [[vimrc-keybindings]] for everything done to `.obsidian/.obsidian.vimrc` after this
   point.
+- **Superseded 2026-10-14:** the vault no longer lives in `~/notes` or syncs through
+  `Obsidian-Vault-Jay`. It is now `personal/` in the shared `vaults` repo, sparse-cloned at
+  `/mnt/study/vaults` for both OSes. See [[vaults-repo-migration]]. Steps 1, 2 and 5 above still apply.

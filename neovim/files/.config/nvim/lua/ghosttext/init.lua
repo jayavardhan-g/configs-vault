@@ -325,7 +325,20 @@ function Session:open(data)
   local lines = vim.split(data.text, "\n", { plain = true })
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
 
-  if not pcall(vim.cmd, "tab sbuffer " .. buf) then
+  -- A new tab, then the buffer: `tab sbuffer` splits the current window first,
+  -- so the new tab briefly shows whatever was current. When that was the Snacks
+  -- dashboard, Snacks registered its BufDelete/BufWipeout cleanup twice, and
+  -- closing the dashboard tab later errored with E367 No such group
+  -- "--Deleted--". `tabnew` starts the tab on an empty placeholder instead.
+  local opened = pcall(function()
+    vim.cmd("tabnew")
+    local placeholder = vim.api.nvim_get_current_buf()
+    vim.api.nvim_win_set_buf(0, buf)
+    if placeholder ~= buf and vim.api.nvim_buf_is_valid(placeholder) then
+      vim.api.nvim_buf_delete(placeholder, { force = true })
+    end
+  end)
+  if not opened then
     notify(("field from %s opened in hidden buffer %d"):format(self.host, buf))
   end
   local sel = type(data.selections) == "table" and data.selections[1]

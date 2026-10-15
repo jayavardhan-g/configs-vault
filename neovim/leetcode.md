@@ -1,13 +1,13 @@
 # LeetCode in Neovim (leetcode.nvim)
 
 **Category:** neovim
-**Files touched:** `lua/plugins/leetcode.lua`, `lua/plugins/languages.lua` (all under `~/.config/nvim/`; copies in [`files/`](files/))
+**Files touched:** `lua/plugins/leetcode.lua`, `lua/plugins/languages.lua`, `lua/config/autocmds.lua` (all under `~/.config/nvim/`; copies in [`files/`](files/))
 
 <!-- graph:begin -->
 **Graph:** [[Neovim]]
 <!-- graph:end -->
 
-Solving LeetCode inside Neovim: setup, health check, run/submit keys, two-box sign-in, the swap-file fix, the console docked at the bottom, and the solution-file keys. Part of the LazyVim setup - see [[lazyvim-migration]] for the migration itself and the index of all topic files.
+Solving LeetCode inside Neovim: setup, health check, run/submit keys, two-box sign-in, the swap-file fix, the console docked at the bottom, the solution-file keys, and the split that window moves/resizes created. Part of the LazyVim setup - see [[lazyvim-migration]] for the migration itself and the index of all topic files.
 
 Entries are in the order they happened. They were split out of `lazyvim-migration.md` on 2026-09-23 without rewording, so "above" and "previous follow-up" refer to entries in this file unless a link says otherwise.
 
@@ -361,3 +361,44 @@ hide + re-show as fresh floats all came back 130x20 / 69x20, winbars intact.
 
 **Notes**: the 2026-10-13 version only pinned the height after re-docking, which
 stopped the growth but still reset the width split on every run.
+
+## Follow-up: moving/resizing the window split the code window (2026-10-15)
+
+**What**: moving nvim's kitty window between monitors or resizing it from Hyprland,
+while focused in a LeetCode question, either moved focus into the testcases window
+or split the code window in two (same `.cpp` in both, focus in the new one).
+
+**Cause**: LazyVim's `lazyvim_resize_splits` autocmd runs `tabdo wincmd =` on every
+`VimResized`, and leetcode.nvim puts each question in its own tab and sets
+`'winfixbuf'` on its code, description and menu windows. `:tabdo` won't start from a
+`'winfixbuf'` window: it first jumps to the previous window (`wincmd p`), or splits a
+new window when the previous one is fixed too (e.g. the description). Not caused by
+`dock_console`: separate `:tabnext` calls don't do it, only `:tabdo`. A clean Neovim
+with a float turned into a split, but no `'winfixbuf'`, doesn't do it either.
+
+**Fix** - `lua/config/autocmds.lua`: redefine the `lazyvim_resize_splits` augroup
+(`clear = true` drops LazyVim's handler) with the same behaviour, equalizing every
+tab, but visiting tabs with `nvim_win_call` instead of `:tabdo`:
+
+```lua
+vim.api.nvim_create_autocmd("VimResized", {
+  group = vim.api.nvim_create_augroup("lazyvim_resize_splits", { clear = true }),
+  callback = function()
+    for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
+      vim.api.nvim_win_call(vim.api.nvim_tabpage_get_win(tab), function()
+        vim.cmd("wincmd =")
+      end)
+    end
+  end,
+})
+```
+
+**Verified**: `nvim leetcode.nvim` run in a real pty (Python `pty`, resized with
+`TIOCSWINSZ` + `SIGWINCH`), `:Leet daily`, focus in the code. Before: one resize moved
+focus to testcases; with the description as the previous window, a resize split the
+code window. After (real config only): resizes with either previous window keep focus
+in the code and the same four windows; other tabs still get equalized.
+
+**Notes**: `wincmd =` still evens out the LeetCode tab on every resize, as LazyVim
+always did (description/code widths, console height) - only the focus jump and split
+are fixed here.

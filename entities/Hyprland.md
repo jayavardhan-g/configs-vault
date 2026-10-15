@@ -29,6 +29,7 @@ Wayland compositor, the daily-driver session. Config is Lua, split into topic fi
 - [[kill-mode-cannot-use-escape|Kill mode can't be bound to Escape: SUPER+Escape → SUPER+ALT+Q]]
 - [[layout-cycle|SUPER+N cycles layout engine: master → dwindle → scrolling]]
 - [[mango-emoji-picker|Ported emoji picker bind (SUPER+.) from Hyprland to Mango]]
+- [[power-button-session-menu|Power button opens the session menu instead of powering off]]
 - [[resize|Window resizing: submap and reset]]
 - [[screenshot-keys|Screenshot keys: Print, SUPER+Print, F6]]
 - [[scroller-proportion-preset-remap|Scroller width-preset cycle: ALT+X → SUPER+U]]

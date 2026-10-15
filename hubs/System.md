@@ -15,7 +15,7 @@ Back to [[Home]].
 - [[Limine]] — Bootloader, including the Windows dual-boot entry and snapshot-restore notification (3 entries)
 - [[BitLocker]] — Windows drive encryption (4 entries)
 - [[Windows]] — The dual-booted Windows install, and things migrated from it (browser profiles, the notes vault) (4 entries)
-- [[greetd]] — Login manager (Noctalia greeter) (4 entries)
+- [[greetd]] — Login manager (Noctalia greeter) (5 entries)
 - [[GNOME Keyring]] — Secret store used by VSCode Settings Sync and browsers; unlocked at login via greetd PAM (2 entries)
 - [[uwsm]] — Session manager wrapping Hyprland's login; once removed by `pacman` autoremove, which silently broke login (2 entries)
 - [[NVIDIA]] — Discrete GPU (3 entries)

@@ -15,9 +15,11 @@ The desktop shell: bar, launcher, notifications, lock screen, greeter sync, wall
 
 - [[noctalia-template-application-gotchas|Noctalia theme-template application: gotchas found while trialing Wezterm]]
 - [[mango-emoji-picker|Ported emoji picker bind (SUPER+.) from Hyprland to Mango]]
+- [[power-button-session-menu|Power button opens the session menu instead of powering off]]
 - [[wallpaper-picker-on-super-w|Wallpaper picker rebind: SUPER+SHIFT+W → SUPER+W]]
 - [[cachyos-mango-noctalia-setup|Installing cachyos-mango-noctalia alongside an existing cachyos-hypr-noctalia setup]]
 - [[dms-trial|DankMaterialShell (DMS) trial: a Noctalia-identical setup, measured against Noctalia]]
+- [[greeter-no-input-after-boot|Greeter had no keyboard/mouse after boot (unresolved, one-off so far)]]
 - [[mango-nvidia-cpu-spin-switched-to-hyprland|Switched default session back to Hyprland — Mango has an unresolved NVIDIA GPU-selection bug]]
 - [[noctalia-greeter-sync-password-prompt|Noctalia greeter-sync password prompt]]
 - [[noctalia-shell-mode-vs-theme-mode|Noctalia shell chrome shifting to light mode]]

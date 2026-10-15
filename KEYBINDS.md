@@ -83,6 +83,7 @@ external monitor, plus a dedicated 7th for Xpad notes.
 | `XF86AudioPlay` / `Pause` | Toggle media playback |
 | `XF86AudioNext` / `Prev` | Next/previous track |
 | `XF86MonBrightnessUp` / `Down` | Brightness up/down (repeats while held) |
+| `XF86PowerOff` (short press) | Noctalia session panel (logind ignores the key; long hold = hardware off) |
 
 ### Screenshots & utilities
 | Key | Action |

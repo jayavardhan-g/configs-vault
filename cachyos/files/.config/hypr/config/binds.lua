@@ -386,6 +386,11 @@ hl.bind(mainMod .. " + period", hl.dsp.exec_cmd(shell_cmd("panel-toggle launcher
 -- Removed: SUPER+ALT+C, a second bind for the same session panel already on
 -- SUPER+SHIFT+Q. One way in is enough. SUPER+ALT+C is free.
 hl.bind(mainMod .. " + SHIFT + Q", hl.dsp.exec_cmd(shell_cmd("panel-toggle session")))
+-- Power button opens the same session menu instead of powering off at once (an
+-- accidental press shut the laptop down). Needs logind to leave the key alone:
+-- HandlePowerKey=ignore in /etc/systemd/logind.conf.d/power-key.conf. A long hold
+-- still forces the machine off in hardware.
+hl.bind("XF86PowerOff", hl.dsp.exec_cmd(shell_cmd("panel-toggle session")))
 hl.bind(
 	mainMod .. " + P",
 	hl.dsp.exec_cmd(launchPrefix .. os.getenv("HOME") .. "/.config/hypr/scripts/display-mode.sh")

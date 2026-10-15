@@ -27,8 +27,10 @@ Singleton {
     property int dailyGoalMin: 0         // 0 = off
 
     // ── settings: focus side effects ──
-    property bool dnd: false             // Noctalia Do Not Disturb while focus runs
-    property bool caffeine: false        // Noctalia caffeine (idle inhibitor) while focus runs
+    property bool dnd: false             // shell's Do Not Disturb while focus runs
+    property bool caffeine: false        // shell's caffeine (idle inhibitor) while focus runs
+    // DND/caffeine go through this helper, which talks to Noctalia or DMS, whichever runs
+    readonly property string shellctl: Quickshell.env("HOME") + "/.config/quickshell/shellctl.sh"
     property string sound: "complete"    // freedesktop sound at phase end, or "off"
 
     // ── settings: corner timer ──
@@ -388,7 +390,7 @@ Singleton {
     Process {
         id: dndOn
         // Only take DND over if it's currently off, so a manual DND is left alone
-        command: ["sh", "-c", "[ \"$(noctalia msg notification-dnd-status)\" = off ] && noctalia msg notification-dnd-set on >/dev/null && echo owned"]
+        command: ["sh", "-c", "[ \"$(\"$1\" dnd-status)\" = off ] && \"$1\" dnd-on >/dev/null && echo owned", "dndOn", pomo.shellctl]
         stdout: StdioCollector {
             onStreamFinished: { if (this.text.trim() === "owned") { pomo.dndOwned = true; pomo.save(); } }
         }
@@ -401,17 +403,17 @@ Singleton {
         if (wantDnd && !dndOwned && !dndOn.running)
             dndOn.running = true;
         else if (!wantDnd && dndOwned) {
-            Quickshell.execDetached(["noctalia", "msg", "notification-dnd-set", "off"]);
+            Quickshell.execDetached([pomo.shellctl, "dnd-off"]);
             dndOwned = false;
         }
         // Noctalia has no caffeine status command, so this can't tell a manual caffeine
         // apart: it is switched off whenever focus stops.
         const wantCaf = caffeine && focusRunning;
         if (wantCaf && !caffeineOwned) {
-            Quickshell.execDetached(["noctalia", "msg", "caffeine-enable"]);
+            Quickshell.execDetached([pomo.shellctl, "caffeine-on"]);
             caffeineOwned = true;
         } else if (!wantCaf && caffeineOwned) {
-            Quickshell.execDetached(["noctalia", "msg", "caffeine-disable"]);
+            Quickshell.execDetached([pomo.shellctl, "caffeine-off"]);
             caffeineOwned = false;
         }
         save();
@@ -602,14 +604,36 @@ Singleton {
     }
 
     // ── phone sync (pomo-sync.py carries the messages; the rules live here) ──
+    // The listener runs only while pairing or paired: an idle HTTPS stream, no polling.
     Process {
         id: syncListen
-        running: pomo.loaded
         command: ["python3", pomo.syncHelper, "listen"]
         stdout: SplitParser { onRead: line => pomo.onSyncLine(line) }
         onExited: syncRestart.start()
     }
-    Timer { id: syncRestart; interval: 5000; onTriggered: syncListen.running = true }
+    Timer { id: syncRestart; interval: 5000; onTriggered: pomo.ensureListener() }
+
+    // One look at the pairing when the widget starts; the listener takes over from there.
+    Process {
+        running: pomo.loaded
+        command: ["python3", pomo.syncHelper, "status"]
+        stdout: SplitParser { onRead: line => pomo.onSyncLine(line) }
+    }
+
+    property bool syncAskedSinceStart: false
+    onSyncPairedChanged: ensureListener()
+    onPairingQrChanged: ensureListener()
+
+    function ensureListener() {
+        if ((syncPaired || pairingQr !== "") && !syncListen.running)
+            syncListen.running = true;
+        // Back after being off or asleep: ask the phone for anything we missed,
+        // however long ago (ntfy.sh only keeps messages for 12 hours).
+        if (syncPaired && !syncAskedSinceStart) {
+            syncAskedSinceStart = true;
+            syncSend([{ type: "sync" }]);
+        }
+    }
 
     Process {
         id: pairProc

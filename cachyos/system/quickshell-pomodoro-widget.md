@@ -58,6 +58,9 @@ Focus To-Do, Flora). Built in Quickshell, running next to Noctalia.
     Whether the widget owns it is saved as `dndOwned`.
   - Noctalia has no caffeine status command, so keep-awake can't tell a manual caffeine
     apart. It switches caffeine off whenever focus stops.
+  - Both go through `~/.config/quickshell/shellctl.sh`, which talks to Noctalia or DMS,
+    whichever is running (since 2026-10-15, [[dms-trial]]; before that `Pomo.qml` called
+    `noctalia msg` directly).
 - While a cycle is active and the panel is closed, a **"fused notch"** timer sits in the
   top-right corner of **every monitor** (one per screen via `Variants` in `shell.qml`).
   - Shape: a 96px square flush with the top and right edges, with a rounded inner corner
@@ -72,8 +75,10 @@ Focus To-Do, Flora). Built in Quickshell, running next to Noctalia.
 - Defaults: 25 / 5 / 15 min, a long break every 4 sessions, rounds ∞, breaks auto-start and focus
   after a break doesn't. Each phase end sends a `notify-send` (shown by Noctalia) and
   plays the chosen sound.
-- Colours follow Noctalia's wallpaper palette, read live from its generated
-  `~/.config/gtk-4.0/noctalia.css`. Category colours are fixed.
+- Colours follow the shell's wallpaper palette, read live from the GTK4 colour file that
+  `~/.config/gtk-4.0/gtk.css` imports: Noctalia's `noctalia.css`, or DMS's
+  `dank-colors.css` during the [[dms-trial]] (was hard-wired to `noctalia.css` before
+  2026-10-15). Category colours are fixed.
 - Everything (settings, categories, history and the running timer) persists to
   `~/.local/share/pomodoro/data.json`, so a running session survives a `qs` restart or
   a re-login.

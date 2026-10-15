@@ -1,5 +1,4 @@
 local mainMod = "SUPER"
-local noctCall = "noctalia msg "
 local launchPrefix = "uwsm app -- " -- if you are not using UWSM, make this empty (e.g. "")
 local HOME = os.getenv("HOME")
 
@@ -233,7 +232,7 @@ hl.bind(mainMod .. " + L", focus_across("right"))
 hl.bind(mainMod .. " + K", hl.dsp.focus({ direction = "up" }))
 hl.bind(mainMod .. " + J", hl.dsp.focus({ direction = "down" }))
 hl.bind("ALT + Tab", hl.dsp.window.cycle_next())
-hl.bind(mainMod .. " + Tab", hl.dsp.exec_cmd(noctCall .. "window-switcher"))
+hl.bind(mainMod .. " + Tab", hl.dsp.exec_cmd(shell_cmd("window-switcher")))
 
 -- Move active window around workspaces & monitors
 hl.bind(mainMod .. " + SHIFT + Up", hl.dsp.window.move({ direction = "u" }))
@@ -367,12 +366,12 @@ hl.bind("XF86Calculator", hl.dsp.exec_cmd(launchPrefix .. CALCULATOR))
 -- Wallpaper (moved here from SUPER+SHIFT+W), which is the more obvious mnemonic
 -- and costs nothing since B already covers the browser.
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(launchPrefix .. BROWSER))
-hl.bind(mainMod .. " + W", hl.dsp.exec_cmd(noctCall .. "panel-toggle wallpaper"))
+hl.bind(mainMod .. " + W", hl.dsp.exec_cmd(shell_cmd("panel-toggle wallpaper")))
 hl.bind("CONTROL + SHIFT + Escape", hl.dsp.exec_cmd(launchPrefix .. TERMINAL .. " -e btop"))
-hl.bind(mainMod .. " + Z", hl.dsp.exec_cmd(noctCall .. "settings-toggle"))
-hl.bind(mainMod .. " + X", hl.dsp.exec_cmd(noctCall .. "panel-toggle control-center"))
-hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd(noctCall .. "panel-toggle launcher"))
-hl.bind(mainMod .. " + period", hl.dsp.exec_cmd(noctCall .. "panel-toggle launcher /emo"))
+hl.bind(mainMod .. " + Z", hl.dsp.exec_cmd(shell_cmd("settings-toggle")))
+hl.bind(mainMod .. " + X", hl.dsp.exec_cmd(shell_cmd("panel-toggle control-center")))
+hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd(shell_cmd("panel-toggle launcher")))
+hl.bind(mainMod .. " + period", hl.dsp.exec_cmd(shell_cmd("panel-toggle launcher /emo")))
 -- There is deliberately NO dedicated lock bind. Lock is reached through the
 -- session panel on SUPER+SHIFT+Q, which is now the single way in.
 --
@@ -386,7 +385,7 @@ hl.bind(mainMod .. " + period", hl.dsp.exec_cmd(noctCall .. "panel-toggle launch
 -- ALT+X was abandoned for the scroller preset bind).
 -- Removed: SUPER+ALT+C, a second bind for the same session panel already on
 -- SUPER+SHIFT+Q. One way in is enough. SUPER+ALT+C is free.
-hl.bind(mainMod .. " + SHIFT + Q", hl.dsp.exec_cmd(noctCall .. "panel-toggle session"))
+hl.bind(mainMod .. " + SHIFT + Q", hl.dsp.exec_cmd(shell_cmd("panel-toggle session")))
 hl.bind(
 	mainMod .. " + P",
 	hl.dsp.exec_cmd(launchPrefix .. os.getenv("HOME") .. "/.config/hypr/scripts/display-mode.sh")
@@ -397,20 +396,20 @@ hl.bind(
 ---------------------------
 
 -- Audio
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd(noctCall .. "volume-up"), { locked = true, repeating = true })
-hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd(noctCall .. "volume-down"), { locked = true, repeating = true })
-hl.bind("XF86AudioMute", hl.dsp.exec_cmd(noctCall .. "volume-mute"), { locked = true })
-hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd(noctCall .. "mic-mute"), { locked = true })
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd(shell_cmd("volume-up")), { locked = true, repeating = true })
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd(shell_cmd("volume-down")), { locked = true, repeating = true })
+hl.bind("XF86AudioMute", hl.dsp.exec_cmd(shell_cmd("volume-mute")), { locked = true })
+hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd(shell_cmd("mic-mute")), { locked = true })
 
 -- Media
-hl.bind("XF86AudioPlay", hl.dsp.exec_cmd(noctCall .. "media toggle"), { locked = true })
-hl.bind("XF86AudioPause", hl.dsp.exec_cmd(noctCall .. "media toggle"), { locked = true })
-hl.bind("XF86AudioNext", hl.dsp.exec_cmd(noctCall .. "media next"), { locked = true })
-hl.bind("XF86AudioPrev", hl.dsp.exec_cmd(noctCall .. "media previous"), { locked = true })
+hl.bind("XF86AudioPlay", hl.dsp.exec_cmd(shell_cmd("media toggle")), { locked = true })
+hl.bind("XF86AudioPause", hl.dsp.exec_cmd(shell_cmd("media toggle")), { locked = true })
+hl.bind("XF86AudioNext", hl.dsp.exec_cmd(shell_cmd("media next")), { locked = true })
+hl.bind("XF86AudioPrev", hl.dsp.exec_cmd(shell_cmd("media previous")), { locked = true })
 
 -- Brightness
-hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd(noctCall .. "brightness-up"), { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(noctCall .. "brightness-down"), { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd(shell_cmd("brightness-up")), { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(shell_cmd("brightness-down")), { locked = true, repeating = true })
 
 -------------------
 ---- UTILITIES ----
@@ -421,9 +420,9 @@ hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(noctCall .. "brightness-down"),
 -- hyprpicker was never installed, so the bind had always been dead. Removed
 -- rather than installing it - no need for a colour picker here.
 -- SUPER+SHIFT+P is now free.
-hl.bind("Print", hl.dsp.exec_cmd(noctCall .. "screenshot-fullscreen"))
-hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd(noctCall .. "screenshot-region"))
-hl.bind("F6", hl.dsp.exec_cmd(noctCall .. "screenshot-region"))
+hl.bind("Print", hl.dsp.exec_cmd(shell_cmd("screenshot-fullscreen")))
+hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd(shell_cmd("screenshot-region")))
+hl.bind("F6", hl.dsp.exec_cmd(shell_cmd("screenshot-region")))
 
 -- Theming and Wallpaper
 -- The wallpaper picker moved to plain SUPER+W (see the LAUNCHER section) once
@@ -433,10 +432,10 @@ hl.bind("F6", hl.dsp.exec_cmd(noctCall .. "screenshot-region"))
 hl.bind(mainMod .. " + ALT + R", hl.dsp.exec_cmd(HOME .. "/.config/hypr/scripts/refresh-rate.sh toggle"))
 
 -- Clipboard
-hl.bind(mainMod .. " + V", hl.dsp.exec_cmd(noctCall .. "panel-toggle clipboard"))
+hl.bind(mainMod .. " + V", hl.dsp.exec_cmd(shell_cmd("panel-toggle clipboard")))
 
 -- Notifications
-hl.bind(mainMod .. " + A", hl.dsp.exec_cmd(noctCall .. "panel-toggle control-center notifications"))
+hl.bind(mainMod .. " + A", hl.dsp.exec_cmd(shell_cmd("panel-toggle control-center notifications")))
 
 -------------------------------
 ---- WORKSPACES & MONITORS ----

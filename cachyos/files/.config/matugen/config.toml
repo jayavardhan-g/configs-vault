@@ -1,0 +1,12 @@
+# User matugen templates. DMS (DankMaterialShell) appends everything from the
+# [templates] line down to its own generated config on every theme regeneration.
+# Noctalia doesn't read this file.
+
+[config]
+
+[templates]
+
+# DMS has no built-in btop template; this reuses Noctalia's (same matugen syntax).
+[templates.dmsbtop]
+input_path = '~/.config/matugen/templates/btop.theme'
+output_path = '~/.config/btop/themes/dank.theme'

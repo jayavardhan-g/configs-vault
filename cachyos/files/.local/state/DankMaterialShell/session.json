@@ -1,0 +1,12 @@
+{
+  "isLightMode": false,
+  "wallpaperPath": "/home/<user>/Downloads/wallpapers/wallhaven-zpv8mj.png",
+  "perMonitorWallpaper": false,
+  "wallpaperTransition": "stripes",
+  "wallpaperCyclingEnabled": true,
+  "wallpaperCyclingRandom": true,
+  "wallpaperCyclingMode": "interval",
+  "wallpaperCyclingInterval": 1800,
+  "wallpaperCyclingFolderPath": "/home/<user>/Downloads/wallpapers",
+  "configVersion": 6
+}

@@ -1,0 +1,10 @@
+[Unit]
+Description=Merge DMS's KDE colour scheme into kdeglobals (only while DMS is the shell)
+# A wallpaper change can rewrite the scheme several times in a row; the merge is cheap
+# and idempotent, so don't let the default start limit kill the watcher.
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+ExecStart=%h/.config/hypr/scripts/kde-colors-from-dms.py
+TimeoutStartSec=30s

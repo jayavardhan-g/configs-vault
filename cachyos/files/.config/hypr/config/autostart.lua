@@ -24,8 +24,11 @@ hl.on("hyprland.start", function ()
 
     hl.exec_cmd("dbus-update-activation-environment --systemd --all")
     hl.exec_cmd("gnome-keyring-daemon --start --components=pkcs11,secrets")
-    hl.exec_cmd("noctalia")
-    -- Quickshell, alongside Noctalia: hosts the pomodoro widget (SUPER+C).
+    -- The desktop shell: Noctalia, or DMS while trialing it (SHELL_NAME in shell.lua).
+    -- shell-theme.sh first points kitty/GTK/Qt/KDE/btop/alacritty at that shell's colours.
+    hl.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/shell-theme.sh " .. SHELL_NAME)
+    hl.exec_cmd(SHELL_START)
+    -- Quickshell, alongside the shell: hosts the pomodoro widget (SUPER+C).
     hl.exec_cmd("qs -d")
     -- Removed: hl.exec_cmd("xhost +SI:localuser:root") — CachyOS boilerplate
     -- that grants the local root account access to the X (XWayland) display, so

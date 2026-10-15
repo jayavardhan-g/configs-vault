@@ -1,0 +1,12 @@
+{
+    "id": "hotCorner",
+    "name": "Hot Corner",
+    "description": "Bottom-left screen corner opens the Hyprland window switcher (dankHyprlandWindows), matching Noctalia's hot_corners.bottom_left = window_switcher.",
+    "version": "1.0.0",
+    "author": "local",
+    "type": "daemon",
+    "capabilities": ["monitoring"],
+    "component": "./HotCorner.qml",
+    "icon": "south_west",
+    "permissions": ["settings_read"]
+}

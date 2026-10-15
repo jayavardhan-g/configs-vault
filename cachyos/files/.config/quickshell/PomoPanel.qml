@@ -638,8 +638,8 @@ PanelWindow {
 
                     Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: Theme.line }
                     Text { text: "DURING FOCUS"; color: Theme.accent; font.pixelSize: 11; font.bold: true; font.letterSpacing: 1 }
-                    SetToggle { label: "Do Not Disturb"; hint: "Turns on Noctalia's DND while focus runs. A DND you set yourself is left alone."; key: "dnd" }
-                    SetToggle { label: "Keep screen awake"; hint: "Turns on Noctalia's caffeine while focus runs (and off afterwards, even if you'd enabled it yourself)."; key: "caffeine" }
+                    SetToggle { label: "Do Not Disturb"; hint: "Turns on the shell's DND while focus runs. A DND you set yourself is left alone."; key: "dnd" }
+                    SetToggle { label: "Keep screen awake"; hint: "Turns on the shell's caffeine while focus runs (and off afterwards, even if you'd enabled it yourself)."; key: "caffeine" }
                     SetChoice {
                         label: "Sound at the end of each phase"
                         key: "sound"

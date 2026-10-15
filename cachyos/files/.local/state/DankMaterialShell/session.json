@@ -1,10 +1,9 @@
 {
-  "wallpaperPath": "/home/<user>/Downloads/wallpapers/wallhaven-zpv8mj.png",
+  "wallpaperPath": "/home/<user>/Downloads/wallpapers/wallhaven-lygwxp.jpg",
   "wallpaperTransition": "stripes",
   "wallpaperCyclingEnabled": true,
   "wallpaperCyclingRandom": true,
   "wallpaperCyclingInterval": 1800,
-  "wallpaperCyclingFolderPath": "/home/<user>/Downloads/wallpapers",
   "launcherLastQuery": "sett",
   "launcherQueryHistory": [
     ":e laugh",
@@ -13,5 +12,6 @@
     "setti",
     "settings"
   ],
+  "settingsSidebarExpandedIds": ",displays,personalization,",
   "configVersion": 5
 }

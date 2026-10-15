@@ -1,11 +1,69 @@
 {
   "currentThemeName": "dynamic",
   "matugenScheme": "scheme-fruit-salad",
+  "widgetColorMode": "colorful",
   "clockFormat": "24h",
   "animationSpeed": 0,
   "barElevationEnabled": false,
   "wallpaperFillMode": "Stretch",
   "controlCenterShowVpnIcon": false,
+  "controlCenterWidgets": [
+    {
+      "id": "volumeSlider",
+      "enabled": true,
+      "width": 50
+    },
+    {
+      "id": "brightnessSlider",
+      "enabled": true,
+      "width": 50
+    },
+    {
+      "id": "wifi",
+      "enabled": true,
+      "width": 50
+    },
+    {
+      "id": "bluetooth",
+      "enabled": true,
+      "width": 50
+    },
+    {
+      "id": "idleInhibitor",
+      "enabled": true,
+      "width": 50
+    },
+    {
+      "id": "nightMode",
+      "enabled": true,
+      "width": 50
+    },
+    {
+      "id": "doNotDisturb",
+      "enabled": true,
+      "width": 50
+    },
+    {
+      "id": "battery",
+      "enabled": true,
+      "width": 50
+    },
+    {
+      "id": "audioOutput",
+      "enabled": true,
+      "width": 50
+    },
+    {
+      "id": "audioInput",
+      "enabled": true,
+      "width": 50
+    },
+    {
+      "id": "darkMode",
+      "enabled": true,
+      "width": 50
+    }
+  ],
   "clockDateFormat": "dddd dd/MM/yy",
   "mediaSize": 0,
   "networkPreference": "wifi",
@@ -26,6 +84,15 @@
     "poweroff"
   ],
   "powerMenuDefaultAction": "lock",
+  "connectedFrameBarStyleBackups": {
+    "default": {
+      "shadowIntensity": 0,
+      "squareCorners": false,
+      "attachToScreenEdge": true,
+      "gothCornersEnabled": true,
+      "borderEnabled": false
+    }
+  },
   "barConfigs": [
     {
       "id": "default",
@@ -58,7 +125,7 @@
       "innerPadding": 4,
       "barLengthPadding": 0,
       "bottomGap": 0,
-      "attachToScreenEdge": true,
+      "attachToScreenEdge": false,
       "transparency": 0.9,
       "widgetTransparency": 1,
       "squareCorners": false,
@@ -67,8 +134,8 @@
       "maximizeWidgetText": false,
       "removeWidgetPadding": false,
       "widgetPadding": 8,
-      "batteryColorMode": "theme",
-      "gothCornersEnabled": true,
+      "batteryColorMode": "level",
+      "gothCornersEnabled": false,
       "gothCornerRadiusOverride": true,
       "gothCornerRadiusValue": 12,
       "borderEnabled": false,
@@ -132,5 +199,6 @@
     "valid": true,
     "rgba": -1
   },
+  "frameEnabled": true,
   "configVersion": 18
 }

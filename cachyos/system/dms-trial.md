@@ -95,7 +95,7 @@ verified yet — that's the live test.
 | Clipboard image action → `satty -f -` | no equivalent | **open** |
 | Screenshots (Print full, SUPER+Print/F6 region) piped to satty, no save/copy | `dms screenshot full\|region --stdout --no-file --no-clipboard --no-notify \| satty -f -` | done |
 | Control centre (SUPER+X), notification centre (SUPER+A), DND | built in | done |
-| Control-centre quick toggles: Wi-Fi, Bluetooth, **Caffeine**, Night light, **Notifications (DND)**, **Power profile** | DMS defaults have `wifi`, `bluetooth`, `nightMode` (+ audio in/out, dark mode) but not `idleInhibitor`, `doNotDisturb`; power profiles live in the `battery` tile/popout, no direct toggle | **open** — add `idleInhibitor`, `doNotDisturb`, `battery` after the frame-off run (found by Jayavardhan 2026-10-16) |
+| Control-centre quick toggles: Wi-Fi, Bluetooth, **Caffeine**, Night light, **Notifications (DND)**, **Power profile** | DMS defaults have `wifi`, `bluetooth`, `nightMode` (+ audio in/out, dark mode) but not `idleInhibitor`, `doNotDisturb`; power profiles live in the `battery` tile/popout, no direct toggle | done 2026-10-16: `controlCenterWidgets` now volume, brightness, wifi, bluetooth, **idleInhibitor**, nightMode, **doNotDisturb**, **battery** (power profiles in its detail), audio out/in, dark mode (found by Jayavardhan). Set by editing settings.json; `dms ipc call settings set` rejects list values |
 | Session menu (SUPER+SHIFT+Q): lock, logout, lock+suspend, reboot, shutdown, 3 s countdowns | `powerMenuActions` same order, `lockBeforeSuspend`; DMS confirms by hold (0.5 s), not countdown | diff |
 | Window switcher (SUPER+Tab) | `dankHyprlandWindows` (tile launcher with previews; not a hold-Tab cycle overlay) | diff |
 | Hot corner bottom-left → switcher | `hotCorner` plugin (2×2 px overlay, fires on entry) | done |
@@ -129,6 +129,22 @@ sum every process it runs (`dms` backend + its quickshell UI).
 
 (Noctalia's RSS was 138 MB on 2026-10-02 per [[quickshell-trial-plan]]; it grows with
 uptime, hence fresh restarts for the real comparison.)
+
+**DMS, frame off** (fresh start 2026-10-15 23:45 via `hyprctl dispatch 'hl.dsp.exec_cmd("dms run")'`;
+bar/widgets as in the parity table, before the control-centre tiles were added):
+
+| | 1 min | 5 min | 30 min |
+|---|---|---|---|
+| PSS total | 313 MB | 359 MB | 434 MB |
+| └ UI (`qs -p …/danklinux-shell`) | 284 MB | 330 MB | 389 MB |
+| └ backend (`dms run`) | 29 MB | 29 MB | 45 MB |
+| CPU (15 s sample at that point) | 0.33% | 0.20% | 0.27% |
+
+30-min average CPU 2.14% (peaks to 42% at start and while panels open), peak PSS 460 MB.
+PSS every 5 min: 320 → 359 → 365 → 368 → 369 → 391 MB (still climbing at 30 min).
+Correction: the first pass of the script also counted itself (its own command line
+contained the UI pattern, ~7.6 MB); figures above exclude it, and the script now skips
+its own process.
 
 ## Log
 - **2026-10-15** — Measured baseline (above). Inventoried Noctalia's effective config,
@@ -181,6 +197,9 @@ uptime, hence fresh restarts for the real comparison.)
   `~/Videos/Recordings` (the plugin default `~/Videos/Screencasting` was removed, empty).
   Note: an IPC start fired seconds after a `dms restart` silently did nothing; wait for
   the plugin to finish loading.
+- **2026-10-16 00:15** — Frame-off run done (see Measurements). Added the missing
+  control-centre tiles, then turned the frame on (`dms ipc call settings set frameEnabled
+  true`) and started the frame-on run.
 
 ## Change
 

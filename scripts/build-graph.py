@@ -60,6 +60,11 @@ ENTITIES = {
                 "SUPER+C pomodoro widget with phone sync; a left-edge side island is shelved.",
         config="`~/.config/quickshell/` (copies in `cachyos/files/.config/quickshell/`)",
         related=["Noctalia", "Hyprland"], match=r"quickshell|\bqs\b|pomodoro"),
+    "DankMaterialShell": dict(hub="Desktop",
+        summary="DMS (`dms-shell`), a Quickshell/QML desktop shell on trial against Noctalia: "
+                "configured to match Noctalia exactly, then measured. Chosen over Caelestia.",
+        config="DMS settings (`~/.config/DankMaterialShell/`)",
+        related=["Noctalia", "Quickshell", "Hyprland"], match=r"dankmaterial|\bdms\b"),
     "Monitors": dict(hub="Desktop",
         summary="Laptop panel (eDP-1, 1.2 scale) plus an external monitor: layout, refresh "
                 "rate, SUPER+P display-mode menu, per-monitor workspaces.",

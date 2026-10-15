@@ -37,6 +37,7 @@ Wayland compositor, the daily-driver session. Config is Lua, split into topic fi
 - [[wallpaper-picker-on-super-w|Wallpaper picker rebind: SUPER+SHIFT+W → SUPER+W]]
 - [[workspace-switching|hjkl workspace switching]]
 - [[cachyos-mango-noctalia-setup|Installing cachyos-mango-noctalia alongside an existing cachyos-hypr-noctalia setup]]
+- [[dms-trial|DankMaterialShell (DMS) trial: a Noctalia-identical setup, measured against Noctalia]]
 - [[limine-snapshot-restore-notification-autostart|Limine snapshot-restore notification never appeared under Hyprland]]
 - [[mango-nvidia-cpu-spin-switched-to-hyprland|Switched default session back to Hyprland — Mango has an unresolved NVIDIA GPU-selection bug]]
 - [[niri-tried-and-reverted|Tried niri, went back to Hyprland]]

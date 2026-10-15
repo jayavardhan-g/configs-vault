@@ -13,6 +13,7 @@ QML shell toolkit running next to Noctalia (`qs -d` autostart). Hosts the SUPER+
 <!-- auto:begin -->
 ## Entries
 
+- [[dms-trial|DankMaterialShell (DMS) trial: a Noctalia-identical setup, measured against Noctalia]]
 - [[quickshell-pomodoro-widget|Pomodoro widget on SUPER+C (Quickshell, click-through corner timer + stats)]]
 - [[quickshell-trial-shelved|Quickshell: tried alongside Noctalia, shelved for later]]
 <!-- auto:end -->

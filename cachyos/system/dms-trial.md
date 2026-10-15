@@ -95,6 +95,7 @@ verified yet — that's the live test.
 | Clipboard image action → `satty -f -` | no equivalent | **open** |
 | Screenshots (Print full, SUPER+Print/F6 region) piped to satty, no save/copy | `dms screenshot full\|region --stdout --no-file --no-clipboard --no-notify \| satty -f -` | done |
 | Control centre (SUPER+X), notification centre (SUPER+A), DND | built in | done |
+| Control-centre quick toggles: Wi-Fi, Bluetooth, **Caffeine**, Night light, **Notifications (DND)**, **Power profile** | DMS defaults have `wifi`, `bluetooth`, `nightMode` (+ audio in/out, dark mode) but not `idleInhibitor`, `doNotDisturb`; power profiles live in the `battery` tile/popout, no direct toggle | **open** — add `idleInhibitor`, `doNotDisturb`, `battery` after the frame-off run (found by Jayavardhan 2026-10-16) |
 | Session menu (SUPER+SHIFT+Q): lock, logout, lock+suspend, reboot, shutdown, 3 s countdowns | `powerMenuActions` same order, `lockBeforeSuspend`; DMS confirms by hold (0.5 s), not countdown | diff |
 | Window switcher (SUPER+Tab) | `dankHyprlandWindows` (tile launcher with previews; not a hold-Tab cycle overlay) | diff |
 | Hot corner bottom-left → switcher | `hotCorner` plugin (2×2 px overlay, fires on entry) | done |

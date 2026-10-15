@@ -200,6 +200,9 @@ its own process.
 - **2026-10-16 00:15** — Frame-off run done (see Measurements). Added the missing
   control-centre tiles, then turned the frame on (`dms ipc call settings set frameEnabled
   true`) and started the frame-on run.
+- **2026-10-16** — Frame-on run **cancelled**: Jayavardhan won't use the connected frame
+  (it takes screen space that windows could use, and its controls were glitchy). Frame
+  turned off again via IPC; DMS restored the edge-attached bar. Only frame-off is measured.
 
 ## Change
 

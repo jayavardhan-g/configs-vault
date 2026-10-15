@@ -5,5 +5,13 @@
   "wallpaperCyclingRandom": true,
   "wallpaperCyclingInterval": 1800,
   "wallpaperCyclingFolderPath": "/home/<user>/Downloads/wallpapers",
+  "launcherLastQuery": "sett",
+  "launcherQueryHistory": [
+    ":e laugh",
+    "!",
+    "sett",
+    "setti",
+    "settings"
+  ],
   "configVersion": 5
 }

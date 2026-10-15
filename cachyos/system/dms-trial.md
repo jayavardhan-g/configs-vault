@@ -72,7 +72,7 @@ code read before enabling — no network calls, commands properly quoted):
 | Plugin | Version / author | Covers | Status |
 |---|---|---|---|
 | `screenRecorder` | 1.5.3 / arqueon | Noctalia's `noctalia/screen_recorder` (gpu-screen-recorder, focused output, 30 fps) | installed, enabled |
-| `dankTodo` | 1.2.0 / Deepu K Sasidharan | Noctalia's `nightwatch75/todo` bar widget | installed, enabled |
+| `dankTodo` | 1.2.0 / Deepu K Sasidharan | Noctalia's `nightwatch75/todo` bar widget | **uninstalled 2026-10-15** (todo isn't used in Noctalia either) |
 | `dankHyprlandWindows` | 1.0.0 / Avenge Media (DMS authors) | SUPER+Tab window switcher with live previews (launcher mode, trigger `!`) | installed, enabled |
 | `emojiLauncher` | 1.7.2 / devnullvoid | SUPER+. emoji picker (launcher mode, trigger `:e`) | installed, enabled |
 | `hotCorner` | local (written for this trial) | Bottom-left hot corner → window switcher | written, enabled |
@@ -87,7 +87,7 @@ verified yet — that's the live test.
 |---|---|---|
 | Top bar, overlay layer, smart auto-hide (hidden with windows open, shown on empty workspace/hover), no reserved space, edge-attached, concave 12px corners, 90% opacity, 1.1 scale, no shadow | `barConfigs[0]`: `position 0`, `useOverlayLayer`, `autoHide` + `showOnWindowsOpen`, `attachToScreenEdge`, `gothCorners*` 12, `transparency 0.9`, font/icon scale 1.1 | done (thickness 35px has no direct key) |
 | Bar start: RAM sysmon, active window | `memUsage`, `focusedWindow` | done |
-| Bar center: clock (`%H:%M %A %d/%m/%y`), todo, screen recorder | `clock` (`24h` + `dddd dd/MM/yy`), `dankTodo`, `screenRecorder` | done |
+| Bar center: clock (`%H:%M %A %d/%m/%y`), screen recorder (Noctalia's `todo` entry is dead: its plugin isn't in `plugins.enabled`) | `clock` (`24h` + `dddd dd/MM/yy`), `screenRecorder` | done |
 | Bar end: workspaces (pills, no labels), media (album art only), tray, notifications, bluetooth, network, volume, battery, session | `workspaceSwitcher`, `music` (`mediaSize 0`), `spacer`, `systemTray`, `notificationButton`, `controlCenterButton` (network+bluetooth+audio icons in one), `battery`, `powerMenuButton` | diff: network/bluetooth/volume are one button |
 | Launcher (SUPER+Space), calculator | built in | done |
 | Emoji picker (SUPER+.) | `emojiLauncher` via `launcher openQuery ':e '` | done |
@@ -160,6 +160,14 @@ uptime, hence fresh restarts for the real comparison.)
 - **2026-10-15 23:31** — Jayavardhan turned on DMS's connected frame (`frameEnabled: true`)
   from its settings; DMS backed up the bar style and turned off edge-attach/concave
   corners to fit the frame. Not part of Noctalia parity.
+- **2026-10-15** — Todo dropped: Jayavardhan doesn't use it in Noctalia either (its
+  plugin is disabled there, only the layout entry remains). Removed `dankTodo` from the
+  bar and `plugin_settings.json`, `dms plugins uninstall dankTodo`.
+- **2026-10-15** — Asked about auto-hiding the dynamic island: **DMS 1.6.3 has no island
+  auto-hide**. The island is a per-bar mode (`"island": true` on a `barConfigs` entry);
+  `Modules/DankIsland` has no autoHide/reveal code, and its `island` IPC only
+  expands/collapses. Bar auto-hide (`autoHide` + `showOnWindowsOpen`) applies only to a
+  normal bar. Would need building if wanted.
 
 ## Change
 

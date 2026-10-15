@@ -1,7 +1,16 @@
 {
-  "screenRecorder": { "enabled": true, "captureSource": "focused", "fps": "30" },
-  "dankTodo": { "enabled": true },
-  "dankHyprlandWindows": { "enabled": true },
-  "emojiLauncher": { "enabled": true },
-  "hotCorner": { "enabled": true }
+  "screenRecorder": {
+    "enabled": true,
+    "captureSource": "focused",
+    "fps": "30"
+  },
+  "dankHyprlandWindows": {
+    "enabled": true
+  },
+  "emojiLauncher": {
+    "enabled": true
+  },
+  "hotCorner": {
+    "enabled": true
+  }
 }

@@ -1,6 +1,6 @@
 # DankMaterialShell (DMS) trial: a Noctalia-identical setup, measured against Noctalia
 
-**Date:** 2026-10-15 → 2026-10-16 (measured; decision pending)
+**Date:** 2026-10-15 → 2026-10-16 (decided: keep DMS installed, stay on Noctalia)
 **Category:** system
 **Files touched:** see [Change](#change) — every file is copied under `cachyos/files/` (username redacted to `<user>`)
 
@@ -57,10 +57,10 @@ Ledger of everything this trial installs, so it can be undone exactly.
 
 | Package | Version | Why | Status |
 |---|---|---|---|
-| `dms-shell` | 1.6.3-1 | The shell + `dms` CLI. The QML UI is embedded in the binary (`dist/`); ships a `dms.service` user unit, left **disabled** | installed |
-| `matugen` | 4.2.0-1.1 | Wallpaper-based colour generation for DMS theming/templates | installed |
-| `cava` | 1.0.0-1.1 | DMS audio visualizer (optional dep) | installed |
-| `wtype` | 0.4-2.2 | Paste from DMS clipboard history / emoji picker (optional dep) | installed |
+| `dms-shell` | 1.6.3-1 | The shell + `dms` CLI. The QML UI is embedded in the binary (`dist/`); ships a `dms.service` user unit, left **disabled** | installed, **kept (dormant)** |
+| `matugen` | 4.2.0-1.1 | Wallpaper-based colour generation for DMS theming/templates | installed, **kept (dormant)** |
+| `cava` | 1.0.0-1.1 | DMS audio visualizer (optional dep) | installed, **kept (dormant)** |
+| `wtype` | 0.4-2.2 | Paste from DMS clipboard history / emoji picker (optional dep) | installed, **kept (dormant)** |
 | `qt6-multimedia` | 6.12.0-1.1 | DMS sound effects. **Already installed before the trial**, don't remove | pre-existing |
 
 Already present and used: `quickshell` 0.3.2 (stable, unchanged), `gpu-screen-recorder`,
@@ -231,6 +231,14 @@ Noctalia here, so switching would not save memory.
 - **2026-10-16 00:22** — Back to Noctalia by relogin (`SHELL_NAME = "noctalia"`);
   `shell-theme.sh noctalia` restored all 7 colour sources. Noctalia restarted fresh at 00:25
   and measured 30 min (see Measurements). Measurement task done; decision pending.
+- **2026-10-16 — Decision:** keep DMS **installed but unused**; Noctalia stays the shell
+  (`SHELL_NAME = "noctalia"`) until DMS is as stable as Noctalia. Reasons: Noctalia is ~4×
+  lighter (116 vs 434 MB PSS), and DMS showed rough edges (frame controls glitchy, plugin
+  needed a local patch, island has no auto-hide). While dormant DMS costs nothing:
+  `dms.service` disabled, no processes; `kde-colors-from-dms.path` stays enabled but only
+  fires when DMS regenerates its scheme. To try it again later: set `SHELL_NAME = "dms"`
+  and log out/in (everything below is still configured). After a `dms plugins update`,
+  re-apply `focused-monitor.patch` to `screenRecorder`.
 
 ## Change
 

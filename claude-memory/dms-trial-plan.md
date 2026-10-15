@@ -1,6 +1,6 @@
 ---
 name: dms-trial-plan
-description: DMS vs Noctalia measured 2026-10-16 — DMS 434 MB PSS vs Noctalia 116 MB at 30 min; switch via SHELL_NAME in hypr/config/shell.lua; keep/remove decision pending
+description: DMS vs Noctalia measured 2026-10-16 — DMS 434 MB PSS vs Noctalia 116 MB at 30 min; switch via SHELL_NAME in hypr/config/shell.lua; decided: DMS kept installed but dormant, Noctalia stays
 metadata:
   type: project
 ---
@@ -25,7 +25,10 @@ default until he decides. Measure both shells fresh (PSS at 1/5/30 min).
 1.56% avg CPU; DMS (frame off) 434 MB PSS and still climbing, 2.14% avg CPU. Don't re-propose
 switching to a full QML shell for memory. He declined DMS's connected frame (wastes space,
 glitchy). Both shells stay switchable: `SHELL_NAME` in `~/.config/hypr/config/shell.lua` +
-logout. Pending: his keep/remove decision on DMS (Undo section of the vault entry).
+logout. **Decided 2026-10-16:** DMS stays installed but unused until it's as stable as
+Noctalia; don't suggest switching or removing it unless he brings it up. If he revisits:
+re-check DMS version/stability first, and re-apply the screenRecorder focused-monitor.patch
+after any `dms plugins update`.
 
 Related: [[quickshell-trial-plan]], [[lead-with-simpler-options]], [[ask-before-subjective-choices]]
 

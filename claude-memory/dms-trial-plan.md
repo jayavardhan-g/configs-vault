@@ -1,6 +1,6 @@
 ---
 name: dms-trial-plan
-description: In-progress trial (started 2026-10-15) — DankMaterialShell configured identical to Noctalia, then memory/CPU measured; package ledger + log live in the vault entry
+description: DMS vs Noctalia measured 2026-10-16 — DMS 434 MB PSS vs Noctalia 116 MB at 30 min; switch via SHELL_NAME in hypr/config/shell.lua; keep/remove decision pending
 metadata:
   type: project
 ---
@@ -21,8 +21,14 @@ installed, repo, why, status) and dated **Log** updated with every step; he expl
 asked for this. Never run `dms setup` (rewrites compositor configs). Noctalia stays
 default until he decides. Measure both shells fresh (PSS at 1/5/30 min).
 
+**Result 2026-10-16** (fresh starts, 30 min, same features): Noctalia 116 MB PSS, flat,
+1.56% avg CPU; DMS (frame off) 434 MB PSS and still climbing, 2.14% avg CPU. Don't re-propose
+switching to a full QML shell for memory. He declined DMS's connected frame (wastes space,
+glitchy). Both shells stay switchable: `SHELL_NAME` in `~/.config/hypr/config/shell.lua` +
+logout. Pending: his keep/remove decision on DMS (Undo section of the vault entry).
+
 Related: [[quickshell-trial-plan]], [[lead-with-simpler-options]], [[ask-before-subjective-choices]]
 
 <!-- graph:begin -->
-**Graph:** [[Noctalia]] · [[Quickshell]] · [[DankMaterialShell]] · [[CachyOS]]
+**Graph:** [[Hyprland]] · [[Noctalia]] · [[Quickshell]] · [[DankMaterialShell]] · [[CachyOS]]
 <!-- graph:end -->

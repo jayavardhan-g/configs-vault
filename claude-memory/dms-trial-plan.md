@@ -33,5 +33,5 @@ after any `dms plugins update`.
 Related: [[quickshell-trial-plan]], [[lead-with-simpler-options]], [[ask-before-subjective-choices]]
 
 <!-- graph:begin -->
-**Graph:** [[Hyprland]] · [[Noctalia]] · [[Quickshell]] · [[DankMaterialShell]] · [[CachyOS]]
+**Graph:** [[Hyprland]] · [[Noctalia]] · [[Quickshell]] · [[DankMaterialShell]] · [[Monitors]] · [[CachyOS]]
 <!-- graph:end -->

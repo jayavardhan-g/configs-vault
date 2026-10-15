@@ -22,7 +22,7 @@ PluginComponent {
             }
             implicitWidth: 2
             implicitHeight: 2
-            exclusionZone: 0
+            exclusiveZone: 0
             color: "transparent"
 
             WlrLayershell.layer: WlrLayer.Overlay

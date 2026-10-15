@@ -144,6 +144,22 @@ uptime, hence fresh restarts for the real comparison.)
   0 Hyprland config errors), theme switch script (round-trip tested on a copy of the
   real files: byte-identical after dms → noctalia), KDE colour watcher, pomodoro DND/
   caffeine helper. Live test and measurements still to do.
+- **2026-10-15 23:27** — Switched to DMS by relogin (`SHELL_NAME = "dms"` + `uwsm stop`).
+  DMS migrated `settings.json` to configVersion 18 (it now stores only non-default
+  values). Two bugs of mine found in its log and fixed:
+  - `hotCorner` didn't load: Quickshell's property is `exclusiveZone`, not `exclusionZone`.
+  - **Theme generation failed** (matugen exit 1, every app kept the stale 2026-09-21
+    palette): DMS finds the user `[templates]` section by plain text search, and my
+    comment in `~/.config/matugen/config.toml` contained that text, so it cut the file
+    mid-comment into invalid TOML. Comment reworded; generation now completes, btop
+    theme included, and `kde-colors-from-dms.path` merged the new KDE colours.
+  - While reproducing it, a bare `dms matugen generate` also wrote DMS's Neovim theme
+    (`nvim/colors/dms.lua`, `nvim/lua/lualine/themes/dms.lua`) because the CLI doesn't
+    read `matugenTemplateNeovim: false`; both deleted again. It also set the GNOME accent
+    colour (normal DMS behaviour).
+- **2026-10-15 23:31** — Jayavardhan turned on DMS's connected frame (`frameEnabled: true`)
+  from its settings; DMS backed up the bar style and turned off edge-attach/concave
+  corners to fit the frame. Not part of Noctalia parity.
 
 ## Change
 

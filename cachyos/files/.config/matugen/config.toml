@@ -1,6 +1,7 @@
-# User matugen templates. DMS (DankMaterialShell) appends everything from the
-# [templates] line down to its own generated config on every theme regeneration.
-# Noctalia doesn't read this file.
+# User matugen templates. DMS (DankMaterialShell) appends this file's templates section
+# to its own generated config on every theme regeneration. Noctalia doesn't read it.
+# Careful: DMS finds that section by plain text search, so the bracketed section name
+# must appear exactly once in this file (as the real header below), never in a comment.
 
 [config]
 

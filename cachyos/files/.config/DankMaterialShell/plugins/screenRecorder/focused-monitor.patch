@@ -1,0 +1,41 @@
+--- a/screenRecorder/ScreenRecorderService.qml	2026-10-15 23:13:35.175710034 +0530
++++ b/screenRecorder/ScreenRecorderService.qml	2026-10-15 23:41:04.217509924 +0530
+@@ -1,6 +1,7 @@
+ import QtQuick
+ import Quickshell
+ import Quickshell.Io
++import Quickshell.Hyprland // local patch: focused-monitor source
+ import qs.Common
+ import qs.Services
+ import qs.Modules.Plugins
+@@ -200,7 +201,12 @@
+             ("0" + now.getMinutes()).slice(-2) + "-" +
+             ("0" + now.getSeconds()).slice(-2)
+         const outputFile = directory.replace(/\/$/, "") + "/" + dateStr + ".mp4"
+-        const args = ["-w", _loadSetting("captureSource", "portal") || "portal",
++        // Local patch (DMS trial): "focused-monitor" records the focused monitor by name,
++        // like Noctalia's recorder; gsr's own "focused" (window) mode needs -s WxH.
++        const captureSetting = _loadSetting("captureSource", "portal") || "portal"
++        const captureTarget = captureSetting === "focused-monitor"
++            ? (Hyprland.focusedMonitor?.name || "screen") : captureSetting
++        const args = ["-w", captureTarget,
+                       "-f", _loadSetting("fps", "60") || "60",
+                       "-k", "h264",
+                       "-q", _loadSetting("quality", "very_high") || "very_high",
+--- a/screenRecorder/Settings.qml	2026-10-15 23:13:35.175959452 +0530
++++ b/screenRecorder/Settings.qml	2026-10-15 23:39:17.472456073 +0530
+@@ -85,11 +85,12 @@
+     SelectionSetting {
+         settingKey: "captureSource"
+         label: "Capture source"
+-        description: "portal = choose window/screen; screen = all screens; focused = focused window"
++        description: "portal = choose window/screen; screen = all screens; focused = focused window; focused-monitor = the monitor with focus"
+         options: [
+             { label: "Portal (choose)", value: "portal" },
+             { label: "All screens", value: "screen" },
+-            { label: "Focused window", value: "focused" }
++            { label: "Focused window", value: "focused" },
++            { label: "Focused monitor", value: "focused-monitor" } // local patch
+         ]
+         defaultValue: "portal"
+     }

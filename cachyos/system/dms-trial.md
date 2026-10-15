@@ -71,7 +71,7 @@ code read before enabling — no network calls, commands properly quoted):
 
 | Plugin | Version / author | Covers | Status |
 |---|---|---|---|
-| `screenRecorder` | 1.5.3 / arqueon | Noctalia's `noctalia/screen_recorder` (gpu-screen-recorder, focused output, 30 fps) | installed, enabled |
+| `screenRecorder` | 1.5.3 / arqueon | Noctalia's `noctalia/screen_recorder` (gpu-screen-recorder, focused monitor, 30 fps, `~/Videos/Recordings`) | installed, enabled, **locally patched** (see Notes) |
 | `dankTodo` | 1.2.0 / Deepu K Sasidharan | Noctalia's `nightwatch75/todo` bar widget | **uninstalled 2026-10-15** (todo isn't used in Noctalia either) |
 | `dankHyprlandWindows` | 1.0.0 / Avenge Media (DMS authors) | SUPER+Tab window switcher with live previews (launcher mode, trigger `!`) | installed, enabled |
 | `emojiLauncher` | 1.7.2 / devnullvoid | SUPER+. emoji picker (launcher mode, trigger `:e`) | installed, enabled |
@@ -168,6 +168,18 @@ uptime, hence fresh restarts for the real comparison.)
   `Modules/DankIsland` has no autoHide/reveal code, and its `island` IPC only
   expands/collapses. Bar auto-hide (`autoHide` + `showOnWindowsOpen`) applies only to a
   normal bar. Would need building if wanted.
+- **2026-10-15 23:40** — Screen recording failed: `gsr error: option -s is required when
+  using '-w focused' option`. My mapping was wrong: Noctalia's `video_source = "focused"`
+  means the **focused monitor** (its recorder passes `-w <focusedOutputName>`), while
+  gpu-screen-recorder's own `-w focused` is the focused **window** and needs `-s WxH`.
+  The DMS plugin only offers portal / all screens / focused window, so it got a
+  6-line local patch: a `focused-monitor` source resolved via
+  `Quickshell.Hyprland`'s `Hyprland.focusedMonitor.name` at record time. Verified with a
+  real 4 s recording through `dms ipc call screenRecorder startRecording/stopRecording`
+  (exit 0, file written, then deleted). Output folder set to Noctalia's
+  `~/Videos/Recordings` (the plugin default `~/Videos/Screencasting` was removed, empty).
+  Note: an IPC start fired seconds after a `dms restart` silently did nothing; wait for
+  the plugin to finish loading.
 
 ## Change
 
@@ -189,7 +201,8 @@ Files (copies under `cachyos/files/`, same relative paths):
 | `~/.config/quickshell/Pomo.qml`, `PomoPanel.qml` | DND/caffeine via `shellctl.sh`; hint text says "the shell's" |
 | `~/.config/quickshell/Theme.qml` | Reads the colour file `gtk-4.0/gtk.css` imports (`noctalia.css` or `dank-colors.css`) |
 | `~/.config/DankMaterialShell/settings.json` | DMS config mirroring Noctalia (see parity table) |
-| `~/.config/DankMaterialShell/plugin_settings.json` | Plugins enabled; recorder `captureSource focused`, `fps 30` |
+| `~/.config/DankMaterialShell/plugin_settings.json` | Plugins enabled; recorder `captureSource focused-monitor`, `fps 30`, `outputDir ~/Videos/Recordings` |
+| `~/.config/DankMaterialShell/plugins/screenRecorder/` | Local patch adding a `focused-monitor` capture source: `focused-monitor.patch` |
 | `~/.config/DankMaterialShell/plugins/hotCorner/` | **New** local plugin |
 | `~/.local/state/DankMaterialShell/session.json` | Dark, wallpaper, cycling, stretch, stripes |
 | `~/.config/matugen/config.toml`, `templates/btop.theme` | **New.** btop user template for DMS → `btop/themes/dank.theme` |
@@ -209,6 +222,9 @@ sudo pacman -Rns dms-shell matugen cava wtype   # not qt6-multimedia: pre-existi
 under Noctalia and can stay (or restore the pre-trial copies from git history).
 
 ## Notes
+- **`screenRecorder` is locally patched** (`cachyos/files/.config/DankMaterialShell/plugins/screenRecorder/focused-monitor.patch`).
+  `dms plugins update` would overwrite it; re-apply with `patch -p1` inside the plugin
+  folder, or upstream it.
 - Don't run `dms setup`: it rewrites compositor configs. DMS is configured only through
   its own settings; the Hyprland Lua config stays hand-written.
 - DMS's matugen templates only write **side files** (`kitty/dank-theme.conf`,

@@ -1,8 +1,9 @@
 {
   "screenRecorder": {
     "enabled": true,
-    "captureSource": "focused",
-    "fps": "30"
+    "captureSource": "focused-monitor",
+    "fps": "30",
+    "outputDir": "/home/<user>/Videos/Recordings"
   },
   "dankHyprlandWindows": {
     "enabled": true

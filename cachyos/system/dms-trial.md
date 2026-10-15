@@ -1,6 +1,6 @@
 # DankMaterialShell (DMS) trial: a Noctalia-identical setup, measured against Noctalia
 
-**Date:** 2026-10-15 (started; in progress)
+**Date:** 2026-10-15 → 2026-10-16 (measured; decision pending)
 **Category:** system
 **Files touched:** see [Change](#change) — every file is copied under `cachyos/files/` (username redacted to `<user>`)
 
@@ -146,6 +146,31 @@ Correction: the first pass of the script also counted itself (its own command li
 contained the UI pattern, ~7.6 MB); figures above exclude it, and the script now skips
 its own process.
 
+**Noctalia** (fresh start 2026-10-16 00:25 via `hyprctl dispatch 'hl.dsp.exec_cmd("noctalia")'`,
+same method; single process):
+
+| | 1 min | 5 min | 30 min |
+|---|---|---|---|
+| PSS | 196 MB | 123 MB | 116 MB |
+| CPU (15 s sample at that point) | 10.3% | 1.33% | 1.13% |
+
+30-min average CPU 1.56%, peak PSS 196 MB (start-up, then released).
+PSS every 5 min: 110 → 121 → 122 → 127 → 114 → 115 MB (flat).
+
+**Result (same feature set, fresh starts, 30 min each; the pomodoro `qs` excluded from both):**
+
+| | Noctalia 5.2.1 | DMS 1.6.3 (frame off) |
+|---|---|---|
+| PSS at 30 min | **116 MB** | **434 MB** (3.7×) |
+| Memory trend | flat ~115–127 MB after start-up | still climbing (320 → 391 MB UI+backend over the run) |
+| Average CPU, 30 min | 1.56% | 2.14% |
+| Idle CPU (30-min sample) | ~1.1% steady | ~0.3%, with spikes up to 42% on panels/start |
+| Processes / threads | 1 / 46 | 2 / 61 |
+
+DMS's cost is almost all its QML UI (`qs`, 389 MB); the Go backend is 45 MB. This settles
+the original question: a full Quickshell/QML shell is several times heavier than native
+Noctalia here, so switching would not save memory.
+
 ## Log
 - **2026-10-15** — Measured baseline (above). Inventoried Noctalia's effective config,
   binds and theme consumers. Evaluated Caelestia from source → rejected (see Why).
@@ -203,6 +228,9 @@ its own process.
 - **2026-10-16** — Frame-on run **cancelled**: Jayavardhan won't use the connected frame
   (it takes screen space that windows could use, and its controls were glitchy). Frame
   turned off again via IPC; DMS restored the edge-attached bar. Only frame-off is measured.
+- **2026-10-16 00:22** — Back to Noctalia by relogin (`SHELL_NAME = "noctalia"`);
+  `shell-theme.sh noctalia` restored all 7 colour sources. Noctalia restarted fresh at 00:25
+  and measured 30 min (see Measurements). Measurement task done; decision pending.
 
 ## Change
 

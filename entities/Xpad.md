@@ -20,4 +20,5 @@ Desktop sticky notes, pinned to a monitor-aware workspace 7.
 - [[default-layout-per-tag|Per-tag default layout: scroller for 1-4, fair for tag 5]]
 - [[mango/xpad-workspace-and-monitor-persistence|Tried and reverted: dedicated Xpad tag on Mango]]
 - [[xpad-sticky-notes|Xpad — desktop sticky notes]]
+- [[ctrl-period-gtk-emoji-chooser|Ctrl+. opened GTK's emoji chooser (broke Google Docs superscript)]]
 <!-- auto:end -->

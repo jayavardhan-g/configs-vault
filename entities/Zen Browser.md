@@ -16,6 +16,7 @@ Browser (Flatpak): profiles migrated from Windows, vim-flavoured shortcuts.
 - [[uwsm-browser-env-zen|$BROWSER pointed at Zen (was CachyOS's stock firefox)]]
 - [[ghosttext-extension|Patched GhostText extension]]
 - [[ghosttext-shortcomings-audit|GhostText shortcomings audit]]
+- [[ctrl-period-gtk-emoji-chooser|Ctrl+. opened GTK's emoji chooser (broke Google Docs superscript)]]
 - [[low-memory-tab-unloading|Low-memory tab unloading (how it really behaves in Zen)]]
 - [[vim-style-keyboard-shortcuts|Vim-flavored Zen keyboard shortcuts (LazyVim-inspired)]]
 - [[windows-profile-migration|Migrating Zen Browser profiles from Windows to Linux]]

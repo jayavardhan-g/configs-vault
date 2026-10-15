@@ -1,0 +1,8 @@
+/* Zen (Flatpak) reads its GTK config from here, not ~/.config/gtk-3.0.
+   Ctrl+. and Ctrl+; open GTK's emoji chooser in text fields, and the popup steals focus
+   (e.g. Ctrl+. is superscript in Google Docs). Unbound; SUPER+. is the emoji picker. */
+@binding-set NoEmojiChooser {
+    unbind "<Control>period";
+    unbind "<Control>semicolon";
+}
+entry, textview { -gtk-key-bindings: NoEmojiChooser; }

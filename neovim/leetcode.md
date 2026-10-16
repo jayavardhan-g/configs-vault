@@ -140,6 +140,24 @@ real `nvim leetcode.nvim` session (checked after `VimEnter`), `run` and `submit`
 both among its 23 subcommands. Not verified: pressing them on a live problem, which
 needs the user's login. Cheatsheet "Run, test and submit" entry updated.
 
+**Superseded (2026-10-16)** - now on the website's keys: `Ctrl+'` run, `Ctrl+Enter`
+submit, in normal **and** insert mode (as on leetcode.com, where you press them while
+typing); `\r` / `\s` removed at the user's request. Still buffer-local to solution
+buffers via the same `question_enter` hook (`map()` takes an optional mode list):
+
+```lua
+map("<C-'>", "run", "LeetCode: Run", { "n", "i" })
+map("<C-CR>", "submit", "LeetCode: Submit", { "n", "i" })
+```
+
+The terminal concern above doesn't bite here: kitty supports the kitty keyboard
+protocol and Neovim enables it, so both arrive as distinct keys (`CSI 39;5u`,
+`CSI 13;5u`); nothing in kitty.conf or the nvim config used them. Verified in a pty
+`nvim leetcode.nvim` session with `:Leet` stubbed (no real submit): those exact byte
+sequences ran `run` / `submit` from normal and from insert mode, stayed in insert mode,
+and typed nothing into the buffer. In a terminal without the protocol they'd arrive
+as plain `'` / Enter - `:Leet run` / `:Leet submit` still work there.
+
 ## Follow-up: LeetCode sign-in split into two boxes (2026-09-23)
 
 **What**: first real sign-in failed with "Bad csrf token format". The user had copied
@@ -306,8 +324,8 @@ buffer at all.
 
 | Key | Command | |
 |---|---|---|
-| `\r` | `:Leet run` | existing |
-| `\s` | `:Leet submit` | existing |
+| `<C-'>` | `:Leet run` | existing (was `\r` until 2026-10-16) |
+| `<C-CR>` | `:Leet submit` | existing (was `\s` until 2026-10-16) |
 | `\e` | `:Leet desc` | description show/hide |
 | `\c` | `:Leet console` | docked console show/hide |
 | `\h` | `:Leet hints` | |

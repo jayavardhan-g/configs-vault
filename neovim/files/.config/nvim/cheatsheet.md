@@ -3224,11 +3224,12 @@ Treat both values like a password - together they are your logged-in
 session.
 
 ### Run, test and submit
-- `\r` - run against the example test cases **[custom]**
-- `\s` - submit for judging **[custom]**
+- `<C-'>` - run against the example test cases **[custom]**
+- `<C-CR>` (Ctrl+Enter) - submit for judging **[custom]**
 
-`\` is the local leader. Both keys exist only inside a LeetCode solution
-file, so they can't clash with anything else. The plugin itself ships no
+The same keys as on leetcode.com, in normal and insert mode. Both exist
+only inside a LeetCode solution file, so they can't clash with anything
+else. The plugin itself ships no
 keys for these. There's no separate test key: `:Leet test` and `:Leet run`
 send your code to the same place.
 
@@ -3270,7 +3271,7 @@ Every question opens as **[custom]**:
 
 - the console stays open while you edit - compare output with code
   side by side
-- `\r` / `\s` keep you in the code; the result fills in below
+- `<C-'>` / `<C-CR>` keep you in the code; the result fills in below
 - real splits: resize with `<C-w>+` / `<C-w>-` / `<C-w><` / `<C-w>>`
   or by dragging with the mouse, move with `<C-w>h/j/k/l`
 - the result pane's title turns green / red with the verdict

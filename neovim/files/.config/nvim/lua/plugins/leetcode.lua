@@ -267,11 +267,14 @@ return {
         },
         question_enter = {
           function(question)
-            local function map(lhs, sub, desc)
-              vim.keymap.set("n", lhs, "<cmd>Leet " .. sub .. "<cr>", { buffer = question.bufnr, desc = desc })
+            local function map(lhs, sub, desc, mode)
+              vim.keymap.set(mode or "n", lhs, "<cmd>Leet " .. sub .. "<cr>", { buffer = question.bufnr, desc = desc })
             end
-            map("<localleader>r", "run", "LeetCode: Run")
-            map("<localleader>s", "submit", "LeetCode: Submit")
+            -- Run/submit on the website's keys, in insert mode too (as on the
+            -- site, where you press them while typing). kitty sends both as
+            -- distinct keys because Neovim enables its keyboard protocol.
+            map("<C-'>", "run", "LeetCode: Run", { "n", "i" })
+            map("<C-CR>", "submit", "LeetCode: Submit", { "n", "i" })
             map("<localleader>c", "console", "LeetCode: Console show/hide")
             map("<localleader>h", "hints", "LeetCode: Hints")
             map("<localleader>i", "info", "LeetCode: Info (stats, topics)")

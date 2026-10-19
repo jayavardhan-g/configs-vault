@@ -222,6 +222,49 @@ local function patch_console()
     dock_console(self.question and self.question.console)
     return ret
   end
+
+  -- :Leet restore only puts the solution back in the code window and
+  -- re-shows the description: sizes set by hand, a hidden console and any
+  -- extra splits all stay. Make it rebuild the layout a question opens with.
+  -- Like the cookie prompt, cmd.commands holds its own reference.
+  local cmd = require("leetcode.command")
+  local restore = cmd.restore
+  local function restore_layout()
+    restore()
+    local q = require("leetcode.utils").curr_question()
+    if not (q and q.winid and vim.api.nvim_win_is_valid(q.winid)) then
+      return
+    end
+    local desc, console = q.description, q.console
+    -- extra windows in the question's tab (stray splits) go; their buffers
+    -- stay loaded ('hidden'), only the window closes
+    local keep = { [q.winid] = true, [desc.winid or -1] = true }
+    keep[console.testcase.winid or -1] = true
+    keep[console.result.winid or -1] = true
+    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(vim.api.nvim_win_get_tabpage(q.winid))) do
+      if not keep[win] and vim.api.nvim_win_get_config(win).relative == "" then
+        pcall(vim.api.nvim_win_close, win, false)
+      end
+    end
+    -- console: shown if hidden, then first-open size (30% high, even split)
+    dock_sizes[console] = nil
+    console:show()
+    local tc, res = console.testcase.winid, console.result.winid
+    if tc and vim.api.nvim_win_is_valid(tc) and res and vim.api.nvim_win_is_valid(res) then
+      vim.api.nvim_win_set_height(tc, math.floor(vim.o.lines * 0.3))
+      vim.api.nvim_win_set_width(tc, math.floor((vim.o.columns - 1) / 2))
+      dock_sizes[console] = { height = vim.api.nvim_win_get_height(tc), width = vim.api.nvim_win_get_width(tc) }
+    end
+    -- description back to its configured width (40% by default)
+    if desc.winid and vim.api.nvim_win_is_valid(desc.winid) then
+      local width = require("leetcode.config").user.description.width
+      local pct = type(width) == "string" and tonumber(width:match("^(%d+)%%$"))
+      vim.api.nvim_win_set_width(desc.winid, pct and math.floor(vim.o.columns * pct / 100) or tonumber(width))
+    end
+    vim.api.nvim_set_current_win(q.winid)
+  end
+  cmd.restore = restore_layout
+  cmd.commands.restore[1] = restore_layout
 end
 
 return {

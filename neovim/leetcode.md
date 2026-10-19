@@ -7,7 +7,7 @@
 **Graph:** [[Neovim]]
 <!-- graph:end -->
 
-Solving LeetCode inside Neovim: setup, health check, run/submit keys, two-box sign-in, the swap-file fix, the console docked at the bottom, the solution-file keys, and the split that window moves/resizes created. Part of the LazyVim setup - see [[lazyvim-migration]] for the migration itself and the index of all topic files.
+Solving LeetCode inside Neovim: setup, health check, run/submit keys, two-box sign-in, the swap-file fix, the console docked at the bottom, the solution-file keys, the split that window moves/resizes created, and `:Leet restore` rebuilding the layout. Part of the LazyVim setup - see [[lazyvim-migration]] for the migration itself and the index of all topic files.
 
 Entries are in the order they happened. They were split out of `lazyvim-migration.md` on 2026-09-23 without rewording, so "above" and "previous follow-up" refer to entries in this file unless a link says otherwise.
 
@@ -420,3 +420,29 @@ in the code and the same four windows; other tabs still get equalized.
 **Notes**: `wincmd =` still evens out the LeetCode tab on every resize, as LazyVim
 always did (description/code widths, console height) - only the focus jump and split
 are fixed here.
+
+## Follow-up: `:Leet restore` rebuilds the default layout (2026-10-19)
+
+**What**: `:Leet restore` didn't bring back the layout a question opens with. Stock
+`cmd.restore` only puts the solution buffer back in the code window and re-shows the
+description - reproduced in a pty session (200x50): sizes set by hand stayed
+(description 50 cols, console 4 rows / 140|59), a hidden console stayed hidden, and a
+stray split stayed (with focus left in it).
+
+**Fix** - `lua/plugins/leetcode.lua`, `patch_console`: `cmd.restore` (and its own
+reference in `cmd.commands.restore[1]`, as with the cookie prompt) wrapped as
+`restore_layout`: run the stock restore, then
+- close any other non-floating window in the question's tab (buffers stay loaded,
+  `'hidden'` - only the window goes);
+- forget the remembered dock size, `console:show()` (docks it if hidden), then 30% of
+  `lines` high and an even testcases | result split - the first-open size;
+- description back to `description.width` (40% of `columns`);
+- focus the code window.
+
+**Verified** (pty `nvim leetcode.nvim`, `:Leet daily`): first open 80|119 x33, console
+99|100 x14. After hand-resizing, after hiding console + description, and after a
+`split | enew!` with text typed in it, `:Leet restore` gave the same four windows at
+the same sizes with focus in the code; the scratch buffer still existed. (One case
+read 32 rows instead of 33 - bufferline's tab bar had appeared because the scratch
+buffer was a second listed buffer, not restore.)
+

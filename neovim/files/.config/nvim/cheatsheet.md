@@ -3238,6 +3238,8 @@ The same actions as commands:
 - `:Leet submit` - submit for judging
 - `:Leet console` - show / hide the docked console
 - `:Leet desc` - toggle the problem description
+- `:Leet restore` - put the layout back as the question opened: description,
+  code, console docked at the bottom, default sizes, extra splits closed **[custom]**
 - `:Leet lang` - switch language for this problem
 - `:Leet reset` - reset the code to the starting template
 - `:Leet last_submit` - restore your last submission

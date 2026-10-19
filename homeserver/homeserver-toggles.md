@@ -31,6 +31,14 @@ A fish function on the laptop, same style as `labvpn` ([[fortinet-vpn-client]]):
 Funnel commands below on the server over Tailscale SSH (key login, no sudo needed since
 `tailscale set --operator=<user>`). `start` refuses if Jellyfin isn't running.
 
+- `start` switches Funnel **off and back on** (forces a fresh announcement to Tailscale,
+  see Notes), then checks the public link every 5 s for up to a minute and says whether
+  it works.
+- `status` checks the link from the outside: public DNS (Cloudflare DNS-over-HTTPS, not
+  the laptop's MagicDNS, which always answers), then an HTTPS request to that public
+  address. It reports "ON, link works", or "ON on the server, but NOT reachable from the
+  internet — run 'start'".
+
 Set the server once (fish universal variable, so the function file holds no hostname):
 ```fish
 set -U moviesshare_host <user>@<nas>.<tailnet>.ts.net
@@ -173,6 +181,16 @@ sudo systemctl poweroff       # it won't come back until the power button (or a 
 ## Notes
 - Funnel was **on** when this was written (2026-10-04). Check with `tailscale funnel status`
   and turn it off when not actively sharing.
+- **Funnel "on" but the public link dead (2026-10-19).** After the server rebooted
+  (2026-10-14), `tailscale funnel status` still said "Funnel on", but public DNS answered
+  NXDOMAIN for the name, from every network. The setting survived the reboot, but it was
+  never re-announced to Tailscale (no `Hostinfo.IngressEnabled` in tailscaled's log for that
+  boot), so Tailscale had dropped the public record. `tailscale funnel --https=443 off`
+  then `tailscale funnel --bg 8096` fixed it: the name resolved again within 7 seconds.
+  The old `moviesshare status` only read the local setting, so it showed ON throughout;
+  that's why `start` now re-toggles and `status` checks from outside.
+- Right after Funnel is turned on, Tailscale can take up to 10 minutes to publish the
+  name, and a device that looked it up too early caches "no such name" for 5 minutes.
 - Funnel only publishes HTTPS 443 → 8096. Port 8096 itself stays LAN + Tailscale only;
   Samba, SSH and qBittorrent are never public.
 - A Jellyfin user sees every item in the libraries they're given. A separate "shared"

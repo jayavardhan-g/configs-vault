@@ -1,0 +1,7 @@
+[Unit]
+Description=Re-announce Tailscale Funnel if its public name disappeared
+After=tailscaled.service network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/funnel-watchdog

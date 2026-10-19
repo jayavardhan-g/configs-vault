@@ -1,0 +1,11 @@
+[Unit]
+Description=Re-announce Tailscale Funnel after boot (only if it was on)
+After=tailscaled.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/funnel-watchdog --boot
+
+[Install]
+WantedBy=multi-user.target

@@ -188,7 +188,11 @@ sudo systemctl poweroff       # it won't come back until the power button (or a 
   boot), so Tailscale had dropped the public record. `tailscale funnel --https=443 off`
   then `tailscale funnel --bg 8096` fixed it: the name resolved again within 7 seconds.
   The old `moviesshare status` only read the local setting, so it showed ON throughout;
-  that's why `start` now re-toggles and `status` checks from outside.
+  that's why `start` now re-toggles and `status` checks from outside. The server now also
+  fixes this by itself — at boot, and every 15 min if the name goes missing — but only
+  when sharing was on: see Phase 9 in [[homeserver-setup]]. Turn that off with
+  `sudo systemctl disable --now funnel-watchdog.timer` and
+  `sudo systemctl disable funnel-watchdog-boot.service`.
 - Right after Funnel is turned on, Tailscale can take up to 10 minutes to publish the
   name, and a device that looked it up too early caches "no such name" for 5 minutes.
 - Funnel only publishes HTTPS 443 → 8096. Port 8096 itself stays LAN + Tailscale only;

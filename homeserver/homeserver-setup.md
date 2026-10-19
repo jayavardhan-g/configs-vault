@@ -13,6 +13,8 @@ boots headless)
 **Files touched** (all on the server; copies under [`files/`](files/)):
 - `/usr/local/bin/net-watchdog` → [`files/usr/local/bin/net-watchdog`](files/usr/local/bin/net-watchdog)
 - `/etc/systemd/system/net-watchdog.service` + `.timer` → [`files/etc/systemd/system/`](files/etc/systemd/system/)
+- `/usr/local/bin/funnel-watchdog` → [`files/usr/local/bin/funnel-watchdog`](files/usr/local/bin/funnel-watchdog)
+- `/etc/systemd/system/funnel-watchdog-boot.service`, `funnel-watchdog.service` + `.timer` → [`files/etc/systemd/system/`](files/etc/systemd/system/)
 - `/etc/systemd/logind.conf.d/nas.conf` → [`files/etc/systemd/logind.conf.d/nas.conf`](files/etc/systemd/logind.conf.d/nas.conf)
 - `/etc/ssh/sshd_config.d/10-key-only.conf` → [`files/etc/ssh/sshd_config.d/10-key-only.conf`](files/etc/ssh/sshd_config.d/10-key-only.conf)
 - `/etc/default/limine` → [`files/etc/default/limine`](files/etc/default/limine) (root UUID redacted)
@@ -238,6 +240,33 @@ allow out on `lo` above it. Restore lists and deletes every `TEST:` rule (highes
 first) and reloads ufw. While blocked, SSH/Samba/Jellyfin kept working from the LAN; after
 restoring, Tailscale and WARP reconnected within seconds by themselves. Not meant to stay
 applied — rerun only when testing.
+
+### Phase 9 — public link survives reboots (2026-10-19)
+After a reboot the Funnel setting survives but isn't re-announced to Tailscale, so the
+public name disappears (see Notes in [[homeserver-toggles]]). Fix installed by
+`~/nas-setup/phase9-funnel-watchdog.sh` (copy:
+[`files/nas-setup/phase9-funnel-watchdog.sh`](files/nas-setup/phase9-funnel-watchdog.sh)),
+which writes the script and units, enables them, and does one test run:
+```bash
+sudo bash ~/nas-setup/phase9-funnel-watchdog.sh
+journalctl -t funnel-watchdog        # what it has done
+```
+- `/usr/local/bin/funnel-watchdog` does nothing unless the saved serve config says
+  "Funnel on" (`moviesshare start` sets it, `stop` clears it, it survives reboots). It
+  never turns Funnel on by itself.
+- `funnel-watchdog-boot.service` (enabled, after `tailscaled` + `network-online`): runs it
+  with `--boot`, which waits up to 2 min for Tailscale to connect, then always re-toggles
+  (`funnel --https=443 off`, `funnel --bg 8096`) if Funnel was on.
+- `funnel-watchdog.timer` (10 min after boot, then every 15 min): re-toggles only if
+  public DNS (Cloudflare DNS-over-HTTPS, since the server's MagicDNS always answers) returns
+  NXDOMAIN for the name. If the DNS request itself fails (no internet, e.g. the college
+  login expired), it does nothing.
+- The port (8096) is hard-coded in the script, matching `moviesshare`.
+
+Verified 2026-10-19: both units enabled, timer active, first timer run exited 0 with no
+log line (Funnel on and the name resolving, so nothing to do). Boot path not yet tested
+with a real reboot: reboot while sharing is on, then `moviesshare` → `status` should say
+"ON, link works" within about 2 minutes.
 
 ### Quick reference
 | What | LAN | Tailscale (anywhere) |

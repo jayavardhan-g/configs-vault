@@ -184,6 +184,11 @@ ENTITIES = {
     "VSCode": dict(hub="Apps",
         summary="Official Microsoft build, with the keyring for Settings Sync.",
         config="", related=["GNOME Keyring"], match=r"vscode-official|VSCode \(official|Settings Sync"),
+    "adb": dict(hub="Shell",
+        summary="Android Debug Bridge (`android-tools`) to the phone over wireless debugging: "
+                "logs, dumpsys and test APK installs for the Wake alarm app.",
+        config="`~/.android/` (pairing keys, not stored)", related=[],
+        match=r"\badb\b|android-tools|wake-alarm-app"),
     "Bitwarden": dict(hub="System",
         summary="Password manager; its CLI (`bw`) feeds BitLocker unlock keys to cryptsetup.",
         config="", related=["BitLocker"], match=r"bitwarden|\bbw get\b"),

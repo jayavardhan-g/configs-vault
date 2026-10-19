@@ -43,6 +43,7 @@ Personal runbook of system/config decisions, split by scope:
 | [`locale/`](locale/utf8-locale-name.md) | `/etc/locale.conf` — `en_IN.UTF-8` instead of bare `en_IN`, so btop (and anything else that looks for UTF-8 in the locale name) starts from the app launcher |
 | [`mango/`](mango/keybinds.md) | MangoWM (tried alongside Hyprland) — keybinds/appearance/input matched to the Hyprland setup, the 0.16.1→0.17.0 AUR upgrade story |
 | [`bitlocker/`](bitlocker/bit-unlock-cryptsetup.md) | Unlock BitLocker drives via `cryptsetup` + Bitwarden CLI, no retyped passwords or plaintext keyfiles |
+| [`android-tools/`](android-tools/wireless-adb-phone-debugging.md) | adb over Wi-Fi to the phone — wireless debugging pairing, useful `dumpsys`/`logcat` commands, how to run Doze tests without disturbing them; used to debug the Wake alarm app |
 | [`antigravity-cli/`](antigravity-cli/antigravity-cli.md) | Google Antigravity CLI (`agy`) for quick terminal Q&A — official installer; replaces the retired Gemini CLI |
 
 **Every folder above also has a `files/` subtree** holding actual copies of the real

@@ -3238,8 +3238,9 @@ The same actions as commands:
 - `:Leet submit` - submit for judging
 - `:Leet console` - show / hide the docked console
 - `:Leet desc` - toggle the problem description
-- `:Leet restore` - put the layout back as the question opened: description,
-  code, console docked at the bottom, default sizes, extra splits closed **[custom]**
+- `:Leet restore` - put the layout back to the default (the one saved with
+  `\l`): description, code, console docked at the bottom, extra splits
+  closed **[custom]**
 - `:Leet lang` - switch language for this problem
 - `:Leet reset` - reset the code to the starting template
 - `:Leet last_submit` - restore your last submission
@@ -3258,6 +3259,8 @@ All **[custom]**, only inside LeetCode solution files (`\` = local leader):
 - `\y` - yank just the solution code
 - `\R` - reset the code to the starting template (`u` undoes)
 - `\L` - restore your last submission (`u` undoes)
+- `\l` - save the current window layout as the default (new questions and
+  `:Leet restore` use it)
 
 Capitals are the two that replace your code.
 
@@ -3267,10 +3270,15 @@ Every question opens as **[custom]**:
 ```text
   ┌─ description ─┬───── code ─────┐
   │               │                │
-  ├── testcases ──┴──── result ────┤
+  ├── testcases ──┼──── result ────┤
   └────────────────────────────────┘
 ```
 
+- default sizes: description 40% wide, console 30% high, and the bottom
+  split lined up with the top one (testcases as wide as the description).
+  Rearrange freely, then `\l` makes that the default (saved as fractions
+  of the screen in `~/.local/share/nvim/leetcode/layout.json`; delete it
+  to go back to the built-in default)
 - the console stays open while you edit - compare output with code
   side by side
 - `<C-'>` / `<C-CR>` keep you in the code; the result fills in below

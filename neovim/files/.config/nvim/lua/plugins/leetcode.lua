@@ -81,7 +81,7 @@ end
 ---
 ---   ┌─ description ─┬───── code ─────┐
 ---   │               │                │
----   ├── testcases ──┴──── result ────┤
+---   ├── testcases ──┼──── result ────┤
 ---   └────────────────────────────────┘
 ---
 --- Neovim (0.10+) can turn a float into a split with nvim_win_set_config,
@@ -179,6 +179,71 @@ local function dock_console(console)
   )
 end
 
+--- The default layout, as fractions of the screen so it fits any size:
+--- description width, console height, and testcases width. Saved by `\l`
+--- (save_layout); without a saved one, description 40% (the plugin's own
+--- `description.width`), console 30% high, and testcases exactly as wide as
+--- the description, so the bottom split lines up with the top one.
+local layout_file = vim.fn.stdpath("data") .. "/leetcode/layout.json"
+
+local function default_layout()
+  local ok, saved = pcall(function()
+    return vim.json.decode(table.concat(vim.fn.readfile(layout_file), "\n"))
+  end)
+  if ok and type(saved) == "table" and saved.desc and saved.console and saved.testcases then
+    return saved
+  end
+  local width = require("leetcode.config").user.description.width
+  local pct = type(width) == "string" and tonumber(width:match("^(%d+)%%$"))
+  local desc = pct and pct / 100 or (tonumber(width) or 80) / vim.o.columns
+  return { desc = desc, console = 0.3, testcases = desc }
+end
+
+--- The question's description, testcases and result windows, if all docked.
+local function layout_wins(q)
+  local function split(win)
+    return win and vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_get_config(win).relative == "" and win
+  end
+  local desc = split(q.description and q.description.winid)
+  local tc = split(q.console and q.console.testcase.winid)
+  local res = split(q.console and q.console.result.winid)
+  if desc and tc and res then
+    return desc, tc, res
+  end
+end
+
+--- Put the question's windows at the default layout's sizes.
+local function apply_layout(q)
+  local desc, tc = layout_wins(q)
+  if not desc then
+    return
+  end
+  local l = default_layout()
+  vim.api.nvim_win_set_width(desc, math.floor(vim.o.columns * l.desc + 0.5))
+  vim.api.nvim_win_set_height(tc, math.floor(vim.o.lines * l.console + 0.5))
+  vim.api.nvim_win_set_width(tc, math.floor(vim.o.columns * l.testcases + 0.5))
+  dock_sizes[q.console] = { height = vim.api.nvim_win_get_height(tc), width = vim.api.nvim_win_get_width(tc) }
+end
+
+--- `\l`: make the current arrangement the default for new questions and
+--- :Leet restore.
+local function save_layout(q)
+  local desc, tc = layout_wins(q)
+  if not desc then
+    vim.notify("Show the description and console first", vim.log.levels.WARN, { title = "LeetCode layout" })
+    return
+  end
+  vim.fn.mkdir(vim.fn.fnamemodify(layout_file, ":h"), "p")
+  vim.fn.writefile({
+    vim.json.encode({
+      desc = vim.api.nvim_win_get_width(desc) / vim.o.columns,
+      console = vim.api.nvim_win_get_height(tc) / vim.o.lines,
+      testcases = vim.api.nvim_win_get_width(tc) / vim.o.columns,
+    }),
+  }, layout_file)
+  vim.notify("Saved this layout as the default", vim.log.levels.INFO, { title = "LeetCode layout" })
+end
+
 --- Class patches that put the console in dock_console's layout. Applied from
 --- the `enter` hook, not config(): these modules pull in the plugin's cookie
 --- cache, which only exists after the plugin's own setup at VimEnter -
@@ -246,21 +311,9 @@ local function patch_console()
         pcall(vim.api.nvim_win_close, win, false)
       end
     end
-    -- console: shown if hidden, then first-open size (30% high, even split)
-    dock_sizes[console] = nil
+    -- console shown if hidden, then everything at the default layout's sizes
     console:show()
-    local tc, res = console.testcase.winid, console.result.winid
-    if tc and vim.api.nvim_win_is_valid(tc) and res and vim.api.nvim_win_is_valid(res) then
-      vim.api.nvim_win_set_height(tc, math.floor(vim.o.lines * 0.3))
-      vim.api.nvim_win_set_width(tc, math.floor((vim.o.columns - 1) / 2))
-      dock_sizes[console] = { height = vim.api.nvim_win_get_height(tc), width = vim.api.nvim_win_get_width(tc) }
-    end
-    -- description back to its configured width (40% by default)
-    if desc.winid and vim.api.nvim_win_is_valid(desc.winid) then
-      local width = require("leetcode.config").user.description.width
-      local pct = type(width) == "string" and tonumber(width:match("^(%d+)%%$"))
-      vim.api.nvim_win_set_width(desc.winid, pct and math.floor(vim.o.columns * pct / 100) or tonumber(width))
-    end
+    apply_layout(q)
     vim.api.nvim_set_current_win(q.winid)
   end
   cmd.restore = restore_layout
@@ -330,11 +383,15 @@ return {
             -- the description is a side panel, so `e` like the explorer's
             -- <leader>e - on the local leader, leaving the explorer alone
             map("<localleader>e", "desc", "LeetCode: Description show/hide")
+            vim.keymap.set("n", "<localleader>l", function()
+              save_layout(question)
+            end, { buffer = question.bufnr, desc = "LeetCode: Save this layout as the default" })
 
-            -- open with the console already docked (see dock_console), focus
-            -- staying in the code; `q` in the console still hides it and
-            -- :Leet console brings it back
+            -- open with the console already docked (see dock_console) at the
+            -- default layout's sizes, focus staying in the code; `q` in the
+            -- console still hides it and :Leet console brings it back
             question.console:show()
+            apply_layout(question)
             if vim.api.nvim_win_is_valid(question.winid) then
               vim.api.nvim_set_current_win(question.winid)
             end

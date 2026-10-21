@@ -7,7 +7,7 @@
 **Graph:** [[Neovim]]
 <!-- graph:end -->
 
-Solving LeetCode inside Neovim: setup, health check, run/submit keys, two-box sign-in, the swap-file fix, the console docked at the bottom, the solution-file keys, the split that window moves/resizes created, and `:Leet restore` rebuilding the layout. Part of the LazyVim setup - see [[lazyvim-migration]] for the migration itself and the index of all topic files.
+Solving LeetCode inside Neovim: setup, health check, run/submit keys, two-box sign-in, the swap-file fix, the console docked at the bottom, the solution-file keys, the split that window moves/resizes created, `:Leet restore` rebuilding the layout, and a saveable default layout. Part of the LazyVim setup - see [[lazyvim-migration]] for the migration itself and the index of all topic files.
 
 Entries are in the order they happened. They were split out of `lazyvim-migration.md` on 2026-09-23 without rewording, so "above" and "previous follow-up" refer to entries in this file unless a link says otherwise.
 
@@ -335,6 +335,7 @@ buffer at all.
 | `\y` | `:Leet yank` | solution code only |
 | `\R` | `:Leet reset` | starting template - capital, replaces code (`u` undoes) |
 | `\L` | `:Leet last_submit` | last submission - capital, replaces code |
+| `\l` | save layout as default | added 2026-10-21 (see below) |
 
 **Why `\e` for the description**: proposed as `\d`; the user wanted it to match the
 explorer's `<leader>e`, since the description is a side panel too. `<leader>e`
@@ -445,4 +446,34 @@ reference in `cmd.commands.restore[1]`, as with the cookie prompt) wrapped as
 the same sizes with focus in the code; the scratch buffer still existed. (One case
 read 32 rows instead of 33 - bufferline's tab bar had appeared because the scratch
 buffer was a second listed buffer, not restore.)
+
+## Follow-up: aligned default layout, saved with `\l` (2026-10-21)
+
+**What**: the default layout's bottom split didn't line up with the top one
+(description 80 | code 119 over testcases 99 | result 100 - the console was split
+evenly). Now testcases is as wide as the description by default, the windows can still
+be rearranged freely, and `\l` (user's pick from `\D` / `\l` / `\w` / `\s`) saves the
+current arrangement as the default for new questions and `:Leet restore`.
+
+**Change** - `lua/plugins/leetcode.lua`:
+- `default_layout()`: reads `~/.local/share/nvim/leetcode/layout.json` -
+  `{ desc, console, testcases }` as fractions of `columns` / `lines` / `columns`, so it
+  fits any window size. Without the file: description = the plugin's
+  `description.width` (40%), console 0.3, testcases = description.
+- `apply_layout(q)`: sets the description width, console height and testcases width
+  from it (only when all three are docked splits) and updates `dock_sizes`, so a
+  re-dock keeps it. Called from `question_enter` right after `console:show()`, and by
+  `restore_layout` (replacing its fixed 30% / even-split sizes).
+- `save_layout(q)`: `\l`, buffer-local like the other keys; writes the file, or warns
+  if the description or console isn't showing.
+
+**Verified** (pty `nvim leetcode.nvim`, 200x50): new question opens 80 | 119 on both
+rows. Rearranged to 60 | 139 over 120 | 79 with the console 20 rows high, pressed `\l`
+(sent as keystrokes) -> `{"desc":0.3,"testcases":0.6,"console":0.4}`; shrinking
+things + hiding the console + `:Leet restore` came back to exactly that; `:Leet random`
+opened in it too; deleting the file and restoring gave 80 | 119 again. The test's
+file was deleted afterwards - no saved layout ships.
+
+**Notes**: to go back to the built-in default, delete `layout.json`. It's per-machine
+state, not stored here.
 

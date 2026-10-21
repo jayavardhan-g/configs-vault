@@ -16,5 +16,7 @@ Back to [[Home]].
 - [[Noctalia]] — The desktop shell: bar, launcher, notifications, lock screen, greeter sync, wallpaper and the generated colour palette other apps (kitty, Neovim) follow (19 entries)
 - [[Quickshell]] — QML shell toolkit running next to Noctalia (`qs -d` autostart) (3 entries)
 - [[DankMaterialShell]] — DMS (`dms-shell`), a Quickshell/QML desktop shell on trial against Noctalia: configured to match Noctalia exactly, then measured (1 entries)
+- [[Noctalia]] — The desktop shell: bar, launcher, notifications, lock screen, greeter sync, wallpaper and the generated colour palette other apps (kitty, Neovim) follow (16 entries)
+- [[Quickshell]] — QML shell toolkit (2 entries)
 - [[Monitors]] — Laptop panel (eDP-1, 1.2 scale) plus an external monitor: layout, refresh rate, SUPER+P display-mode menu, per-monitor workspaces (18 entries)
 <!-- auto:end -->

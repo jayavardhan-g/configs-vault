@@ -1,12 +1,15 @@
-# Pomodoro widget on SUPER+C (Quickshell, click-through corner timer + stats)
+# Pomodoro widget on SUPER+C (Quickshell, click-through corner timer + stats) — REMOVED
 
-**Date:** 2026-10-02 (on-the-go focus/break/rounds added 2026-10-04)
+**Date:** 2026-10-02 (on-the-go focus/break/rounds added 2026-10-04; **removed 2026-10-21**)
 **Category:** system
-**Files touched:** `~/.config/quickshell/` (`shell.qml`, `Pomo.qml`, `PomoPill.qml`, `PomoPanel.qml`, `RunStepper.qml`, `Theme.qml`, `Btn.qml`, `Icon.qml`, `Ring.qml`, `Switch.qml`, `SetStepper.qml`, `SetToggle.qml`, `SetChoice.qml`, `SetText.qml`), `~/.config/hypr/config/binds.lua`, `~/.config/hypr/config/autostart.lua`. Copies: [`../files/.config/quickshell/`](../files/.config/quickshell/), [`../files/.config/hypr/config/`](../files/.config/hypr/config/). Data: `~/.local/share/pomodoro/data.json` (not stored; personal history).
+**Status:** Removed as unused on 2026-10-21. SUPER+C opens the calculator again. The
 
 <!-- graph:begin -->
 **Graph:** [[Hyprland]] · [[Noctalia]] · [[Quickshell]] · [[Monitors]]
 <!-- graph:end -->
+
+sections below describe the widget as it was, for reference or to bring it back.
+**Files touched:** `~/.config/quickshell/` (deleted), `~/.local/share/pomodoro/` (deleted), `~/.config/hypr/config/binds.lua`, `~/.config/hypr/config/autostart.lua`, `~/.config/hypr/scripts/shell-theme.sh`. Copies: [`../files/.config/hypr/config/`](../files/.config/hypr/config/), [`../files/.config/hypr/scripts/shell-theme.sh`](../files/.config/hypr/scripts/shell-theme.sh). The widget's QML and `pomo-sync.py` are no longer stored here; the last copies are in commit `d3eb46e` under `configs/cachyos/files/.config/quickshell/`.
 
 ## What
 A pomodoro timer with categories and statistics, modelled on Android focus apps (Forest,
@@ -92,11 +95,23 @@ reachable via a shortcut, and keeps per-category stats.
   and clicks always reach the window buttons, app toolbars and bar under the corner.
 
 ## Change
+**Current state (2026-10-21): removed.**
+- `~/.config/hypr/config/binds.lua`: SUPER+C is the calculator again
+  (`hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(launchPrefix .. CALCULATOR))`).
+- `~/.config/hypr/config/autostart.lua`: the `hl.exec_cmd("qs -d")` line is gone.
+- Deleted `~/.config/quickshell/` and `~/.local/share/pomodoro/`. The latter held the
+  session history, the phone-pairing state and the Firebase service-account key.
+- The `quickshell` package stays installed, because `dms-shell` (the DMS trial) depends
+  on it.
+
+**To bring it back** (the former setup):
 ```bash
 sudo pacman -S quickshell
-cp -r cachyos/files/.config/quickshell ~/.config/
+mkdir -p ~/.config/quickshell
+git -C ~/claude/vaults archive d3eb46e configs/cachyos/files/.config/quickshell \
+  | tar -x --strip-components=5 -C ~/.config/quickshell
 ```
-`~/.config/hypr/config/binds.lua`: SUPER+C replaces the calculator, which keeps the
+`~/.config/hypr/config/binds.lua`: SUPER+C replaced the calculator, which kept the
 `XF86Calculator` key:
 ```lua
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("sh -c 'qs ipc call pomodoro toggle || { qs -d && sleep 1 && qs ipc call pomodoro toggle; }'"))
@@ -194,3 +209,8 @@ IPC (for scripting): `qs ipc call pomodoro toggle | startPause | stop`.
   `listen`, `status`, `unpair`. The key and channel are generated at pairing time and
   live outside this repo. The `Pomo.qml` / `PomoPanel.qml` copies were re-synced to the
   live files at the same time; the UI changes that came with sync aren't described here.
+- **Removed 2026-10-21 as unused** (Jayavardhan's call). Its phone side: the laptop
+  Focus sync only ever existed on the Sync app's unmerged `feat/focus-sync` branch, which
+  built the separate "Sync dev" app (`dev.jay.sync.debug`). The real Sync app (`main`)
+  never had it. `shellctl.sh` (the Noctalia/DMS DND helper the widget called) was deleted
+  with the folder and isn't in commit `d3eb46e`.

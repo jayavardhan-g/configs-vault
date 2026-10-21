@@ -356,11 +356,9 @@ hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(launchPrefix .. FILE_MANAGER))
 -- which handed the bare command to uwsm with no terminal: nvim started, had
 -- nowhere to render, and exited immediately, so the bind did nothing visible.
 hl.bind(mainMod .. " + T", hl.dsp.exec_cmd(launchPrefix .. TERMINAL .. " -e " .. EDITOR))
--- SUPER+C ("clock") toggles the Quickshell pomodoro panel (~/.config/quickshell/).
--- It used to open the calculator, which is rarely used and stays on its own
--- XF86Calculator key below. qs is autostarted (autostart.lua); if it isn't
--- running, the bind starts it and retries once.
-hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("sh -c 'qs ipc call pomodoro toggle || { qs -d && sleep 1 && qs ipc call pomodoro toggle; }'"))
+-- SUPER+C opens the calculator again. From 2026-10-02 to 2026-10-21 it toggled
+-- the Quickshell pomodoro panel, which was removed as unused.
+hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(launchPrefix .. CALCULATOR))
 hl.bind("XF86Calculator", hl.dsp.exec_cmd(launchPrefix .. CALCULATOR))
 -- Browser is on B only. SUPER+W used to be a second browser bind; W now means
 -- Wallpaper (moved here from SUPER+SHIFT+W), which is the more obvious mnemonic

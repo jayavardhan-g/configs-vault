@@ -22,7 +22,7 @@ CHECK = "--check" in sys.argv
 HUBS = {
     "Desktop": "Window managers, the shell around them, and everything on screen: Hyprland "
                "(daily driver), Mango and niri (tried), Noctalia (bar, launcher, theming), "
-               "Quickshell (pomodoro widget), monitors.",
+               "Quickshell (no longer in use), monitors.",
     "Editors": "Text editing: Neovim (LazyVim) as the main editor, plain Vim kept for SSH and "
                "parity, Obsidian for notes with vim keys mirroring Neovim.",
     "Shell": "Terminal and command line: kitty, fish (the login shell), and CLI tools.",
@@ -56,9 +56,9 @@ ENTITIES = {
         config="`~/.config/noctalia/config.toml`, `~/.local/state/noctalia/settings.toml`",
         related=["Hyprland", "kitty", "Quickshell", "greetd"], match=r"noctalia"),
     "Quickshell": dict(hub="Desktop",
-        summary="QML shell toolkit running next to Noctalia (`qs -d` autostart). Hosts the "
-                "SUPER+C pomodoro widget with phone sync; a left-edge side island is shelved.",
-        config="`~/.config/quickshell/` (copies in `cachyos/files/.config/quickshell/`)",
+        summary="QML shell toolkit. Hosted the SUPER+C pomodoro widget (removed 2026-10-21) and "
+                "a shelved left-edge side island; the package stays only as a `dms-shell` dependency.",
+        config="`~/.config/quickshell/` (removed 2026-10-21)",
         related=["Noctalia", "Hyprland"], match=r"quickshell|\bqs\b|pomodoro"),
     "DankMaterialShell": dict(hub="Desktop",
         summary="DMS (`dms-shell`), a Quickshell/QML desktop shell on trial against Noctalia: "

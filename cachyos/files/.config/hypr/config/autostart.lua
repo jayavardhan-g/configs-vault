@@ -28,8 +28,6 @@ hl.on("hyprland.start", function ()
     -- shell-theme.sh first points kitty/GTK/Qt/KDE/btop/alacritty at that shell's colours.
     hl.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/shell-theme.sh " .. SHELL_NAME)
     hl.exec_cmd(SHELL_START)
-    -- Quickshell, alongside the shell: hosts the pomodoro widget (SUPER+C).
-    hl.exec_cmd("qs -d")
     -- Removed: hl.exec_cmd("xhost +SI:localuser:root") — CachyOS boilerplate
     -- that grants the local root account access to the X (XWayland) display, so
     -- that root GUI apps like `sudo gparted` don't fail with "cannot open

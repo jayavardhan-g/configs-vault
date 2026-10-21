@@ -1,39 +1,33 @@
 ---
 name: quickshell-trial-plan
-description: Quickshell runs next to Noctalia (autostarted) for the SUPER+C pomodoro; the left-edge side island is still shelved
+description: Quickshell pomodoro (SUPER+C) removed 2026-10-21 as unused; no qs autostart, no ~/.config/quickshell; side island still shelved
 metadata:
   node_type: memory
   type: project
   originSessionId: 23998626-e4c5-4225-a9a4-88bdf9a9f75c
-  modified: 2026-10-02T17:33:10.156Z
+  modified: 2026-10-21T00:00:00.000Z
 ---
 
-**2026-10-02:** Quickshell is installed and autostarted (`qs -d` in autostart.lua) next to
-Noctalia. It hosts the pomodoro widget on SUPER+C (`~/.config/quickshell/Pomo*.qml`,
-recorded in `configs/cachyos/system/quickshell-pomodoro-widget.md`). Jayavardhan chose
-Quickshell over a Noctalia plugin because Noctalia desktop widgets sit on the Bottom
-layer and can't move. The widget is a click-through, translucent corner notch.
+**Removed 2026-10-21 (Jayavardhan: "I'm not using it"):** the pomodoro widget, its
+`qs -d` autostart, `~/.config/quickshell/` and `~/.local/share/pomodoro/` (history,
+phone-pairing state, Firebase key) are gone. SUPER+C is the calculator again. The
+`quickshell` package stays only because `dms-shell` (the DMS trial) depends on it.
+Record: `configs/cachyos/system/quickshell-pomodoro-widget.md`; the last QML copies are
+in vault commit `d3eb46e`. Its phone side (laptop Focus sync) only existed on the Sync
+app's unmerged `feat/focus-sync` branch, i.e. the separate "Sync dev" app.
 
-**Port to Noctalia re-evaluated and declined (2026-10-02):**
-- Memory: `qs` ~175 MB (Qt/QML baseline) vs Noctalia ~138 MB.
-- Noctalia bars can't be click-through and short bars only centre on an edge. Every
-  Noctalia placement either covered something (tabs, a scrollbar strip), reserved
-  window space (~2%), or was hidden by the auto-hide bar.
-- Jayavardhan chose to keep Quickshell for ~1% of RAM. Don't re-propose the port unless
-  Noctalia gains click-through or free-positioned overlay surfaces.
+**Earlier history:** Quickshell ran next to Noctalia from 2026-10-02 for that widget,
+chosen over a Noctalia plugin because Noctalia desktop widgets sit on the Bottom layer
+and can't be click-through. A port to Noctalia was evaluated and declined the same day.
 
 **Still shelved (since 2026-09-30):** the left-edge hover "side island" (media + xpad
 notes). Its QML is saved in `configs/cachyos/system/quickshell-trial/`, and
 `quickshell-trial-shelved.md` holds the gotchas (e.g. Lua dispatch strings).
 
-**Why:** Jayavardhan wants custom widgets that Noctalia's Luau plugins can't do, added
-one at a time.
-
-**How to apply:** new widget requests go into the existing `~/.config/quickshell/`
-config (add a component and instantiate it in `shell.qml`), not a fresh one. Reuse the
-`Theme` singleton (live Noctalia palette) and the `Btn` / `Icon` / `Ring` helpers. First
-check whether Noctalia already covers it ([[noctalia-plugin-registry]],
-[[lead-with-simpler-options]]).
+**How to apply:** don't suggest the pomodoro or Quickshell widgets again unless
+Jayavardhan asks. For a desktop-widget request, check Noctalia first
+([[noctalia-plugin-registry]], [[lead-with-simpler-options]]); a new Quickshell config
+would start from scratch (or from commit `d3eb46e`).
 
 <!-- graph:begin -->
 **Graph:** [[Noctalia]] · [[Quickshell]] · [[Xpad]]

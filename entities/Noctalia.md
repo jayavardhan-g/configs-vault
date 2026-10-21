@@ -23,7 +23,7 @@ The desktop shell: bar, launcher, notifications, lock screen, greeter sync, wall
 - [[mango-nvidia-cpu-spin-switched-to-hyprland|Switched default session back to Hyprland — Mango has an unresolved NVIDIA GPU-selection bug]]
 - [[noctalia-greeter-sync-password-prompt|Noctalia greeter-sync password prompt]]
 - [[noctalia-shell-mode-vs-theme-mode|Noctalia shell chrome shifting to light mode]]
-- [[quickshell-pomodoro-widget|Pomodoro widget on SUPER+C (Quickshell, click-through corner timer + stats)]]
+- [[quickshell-pomodoro-widget|Pomodoro widget on SUPER+C (Quickshell, click-through corner timer + stats) — REMOVED]]
 - [[quickshell-trial-shelved|Quickshell: tried alongside Noctalia, shelved for later]]
 - [[uwsm-orphan-autoremove-breaks-login|pacman autoremove took out uwsm, silently broke uwsm-managed Hyprland login]]
 - [[keybinds|Keybinds reworked to match the Hyprland setup]]

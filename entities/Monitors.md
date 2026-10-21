@@ -19,7 +19,7 @@ Laptop panel (eDP-1, 1.2 scale) plus an external monitor: layout, refresh rate, 
 - [[special-workspace-toggle|Smart special-workspace (scratchpad) toggle]]
 - [[workspace-switching|hjkl workspace switching]]
 - [[mango-nvidia-cpu-spin-switched-to-hyprland|Switched default session back to Hyprland — Mango has an unresolved NVIDIA GPU-selection bug]]
-- [[quickshell-pomodoro-widget|Pomodoro widget on SUPER+C (Quickshell, click-through corner timer + stats)]]
+- [[quickshell-pomodoro-widget|Pomodoro widget on SUPER+C (Quickshell, click-through corner timer + stats) — REMOVED]]
 - [[display-mode-menu-follows-monitors-lua|SUPER+P display-mode menu re-applies monitors.lua]]
 - [[monitor-gap-blocks-directional-focus|Directional focus across the monitor gap]]
 - [[refresh-rate-script-keeps-monitor-layout|Refresh-rate switcher no longer re-places the laptop panel]]

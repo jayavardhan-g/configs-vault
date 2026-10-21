@@ -5,7 +5,7 @@
 - [Noctalia plugin registry](noctalia-plugin-registry.md) — 200+ plugin catalogue; check it before installing an app or writing a script
 - [VeraCrypt migration plan](veracrypt-migration-plan.md) — maybe move desktop-c from BitLocker to VeraCrypt someday; nani was decrypted instead
 - [Ask before subjective choices](ask-before-subjective-choices.md) — propose options for pure-preference calls (keybindings, naming) instead of picking silently
-- [Quickshell trial plan](quickshell-trial-plan.md) — qs autostarted next to Noctalia for SUPER+C pomodoro; side island still shelved
+- [Quickshell trial plan](quickshell-trial-plan.md) — pomodoro on SUPER+C removed 2026-10-21 (unused); qs kept only for dms-shell; side island shelved
 - [Noctalia switcher previews](noctalia-switcher-previews-shelved.md) — fixed by Oct 3–5 upgrades (Noctalia 5.2.1 / Hyprland rebuild / kernel); live previews now, no config change
 - [ALT+Tab carousel declined](alt-tab-carousel-declined.md) — no per-bind workspace scope in Noctalia switcher; ALT+Tab kept as cycle_next
 - [CSE department PC specs](cse-department-pc-specs.md) — H97M-D3H/i7-4790K/8GB DDR3 desktop, now the headless home server (configs `homeserver/`); laptop is G512LU with 1 free DDR4 SO-DIMM slot

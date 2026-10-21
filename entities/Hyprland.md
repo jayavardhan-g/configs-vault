@@ -43,7 +43,7 @@ Wayland compositor, the daily-driver session. Config is Lua, split into topic fi
 - [[mango-nvidia-cpu-spin-switched-to-hyprland|Switched default session back to Hyprland — Mango has an unresolved NVIDIA GPU-selection bug]]
 - [[niri-tried-and-reverted|Tried niri, went back to Hyprland]]
 - [[noctalia-greeter-sync-password-prompt|Noctalia greeter-sync password prompt]]
-- [[quickshell-pomodoro-widget|Pomodoro widget on SUPER+C (Quickshell, click-through corner timer + stats)]]
+- [[quickshell-pomodoro-widget|Pomodoro widget on SUPER+C (Quickshell, click-through corner timer + stats) — REMOVED]]
 - [[uwsm-orphan-autoremove-breaks-login|pacman autoremove took out uwsm, silently broke uwsm-managed Hyprland login]]
 - [[vscode-official-build|VSCode (official Microsoft build) + keyring for Settings Sync]]
 - [[colresize-unmaximize-first|Scrolling column resize (SUPER+U) un-maximizes first]]

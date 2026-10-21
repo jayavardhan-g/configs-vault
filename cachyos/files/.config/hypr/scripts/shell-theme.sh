@@ -9,7 +9,7 @@
 #
 #   app        Noctalia file                      DMS file
 #   kitty      themes/noctalia.conf               dank-theme.conf     (Neovim follows kitty's include)
-#   GTK 3/4    noctalia.css                       dank-colors.css     (pomodoro Theme.qml follows gtk-4.0)
+#   GTK 3/4    noctalia.css                       dank-colors.css
 #   Qt         qt6ct/colors/noctalia.conf         qt6ct/colors/matugen.conf
 #   KDE        ColorScheme=Noctalia               ColorScheme=DankMatugenDark (+ kde-colors-from-dms.path)
 #   btop       themes/noctalia.theme              themes/dank.theme   (~/.config/matugen/config.toml)

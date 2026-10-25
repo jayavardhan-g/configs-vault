@@ -14,7 +14,8 @@ phone-pairing state, Firebase key) are gone. SUPER+C is the calculator again. Th
 `quickshell` package stays only because `dms-shell` (the DMS trial) depends on it.
 Record: `configs/cachyos/system/quickshell-pomodoro-widget.md`; the last QML copies are
 in vault commit `d3eb46e`. Its phone side (laptop Focus sync) only existed on the Sync
-app's unmerged `feat/focus-sync` branch, i.e. the separate "Sync dev" app.
+app's unmerged `feat/focus-sync` branch, i.e. the separate "Sync dev" app. That branch
+was deleted 2026-10-21 and archived as tag `archive/feat-focus-sync` in jayavardhan-g/Sync.
 
 **Earlier history:** Quickshell ran next to Noctalia from 2026-10-02 for that widget,
 chosen over a Noctalia plugin because Noctalia desktop widgets sit on the Bottom layer

@@ -212,5 +212,8 @@ IPC (for scripting): `qs ipc call pomodoro toggle | startPause | stop`.
 - **Removed 2026-10-21 as unused** (Jayavardhan's call). Its phone side: the laptop
   Focus sync only ever existed on the Sync app's unmerged `feat/focus-sync` branch, which
   built the separate "Sync dev" app (`dev.jay.sync.debug`). The real Sync app (`main`)
-  never had it. `shellctl.sh` (the Noctalia/DMS DND helper the widget called) was deleted
+  never had it. That branch was deleted 2026-10-21; its code is kept as the tag
+  `archive/feat-focus-sync` (`cbd9bd2`) in `jayavardhan-g/Sync`. The dev-120/121
+  pre-releases built from it were left for Jayavardhan to delete (`gh release delete`
+  was blocked for Claude). `shellctl.sh` (the Noctalia/DMS DND helper the widget called) was deleted
   with the folder and isn't in commit `d3eb46e`.

@@ -47,7 +47,14 @@ Session\LSDEnabled=false
 - ipleak.net → **Torrent Address detection** → add its magnet link. It should show only
   Cloudflare IPs (`104.28.x.x` / `2a09:bac5:…`), not the home IP.
 - Then run `warp-cli disconnect` and refresh ipleak.net. **No new entries** should appear.
-  Both checks passed on 2026-09-25.
+  Both checks passed on 2026-09-25, and again on 2026-10-28.
+- 2026-10-28 socket check with WARP disconnected: qBittorrent had **no sockets at all**
+  (none on the home addresses), and re-bound to `CloudflareWARP` on its own within ~10 s
+  of `warp-cli connect`, without a restart.
+- With WARP on, Tailscale still reaches LAN peers directly over the LAN
+  (`tailscale ping` → `via <lan-ip>:41641`, 1 ms), because WARP's exclude list covers
+  `192.168.0.0/16`. Off-LAN, Tailscale's direct UDP fails through WARP and it falls back
+  to a DERP relay (slower, still works).
 
 ## Notes
 - **WARP can't do port forwarding.** Other peers can't connect in to you, so you only

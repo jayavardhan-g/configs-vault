@@ -122,14 +122,17 @@ sudo systemctl enable --now jellyfin    # on
 | Pause all torrents | WebUI → select all → Pause |
 | Stop qBittorrent | `sudo systemctl disable --now qbittorrent-nox@<user>` |
 | Start it | `sudo systemctl enable --now qbittorrent-nox@<user>` |
-| Disconnect WARP | `warp-cli disconnect` — torrents stall, they don't leak |
-| Reconnect WARP | `warp-cli connect` |
-| Turn WARP off for good | `warp-cli disconnect && sudo systemctl disable --now warp-svc` |
+| Disconnect WARP | `warp-cli --accept-tos disconnect` — torrents stall (bound to `CloudflareWARP`), they don't leak; the whole server then uses the normal connection |
+| Reconnect WARP | `warp-cli --accept-tos connect` |
+| Back to the old proxy setup | `warp-cli --accept-tos mode proxy` + restore `qBittorrent.conf.bak.<epoch>` (qBittorrent stopped) — see Phase 10 / Notes in [[homeserver-setup]] |
+| Turn WARP off for good | `warp-cli disconnect && sudo systemctl disable --now warp-svc` — torrents then never connect (still bound) |
+| Exclusion refresher | `sudo systemctl disable --now warp-tailscale-exclude.timer` / `enable --now`; log: `journalctl -t warp-tailscale-exclude` |
 
-**Don't remove** `/etc/systemd/system/qbittorrent-nox@.service.d/warp-lockdown.conf` unless
-you've also taken qBittorrent off WARP on purpose. Without it, DHT/uTP can reach peers
-directly with the real IP. To remove it anyway: delete the file, then
-`sudo systemctl daemon-reload && sudo systemctl restart qbittorrent-nox@<user>`.
+Since Phase 10 (2026-10-29) WARP is a **full tunnel** for the whole server, with Tailscale's
+relay/control servers excluded so Funnel keeps working. **Don't remove WARP's exclude
+entries** (`warp-cli tunnel ip reset` would) while in full-tunnel mode — the public link
+breaks within a minute. If that happens: `sudo /usr/local/bin/warp-tailscale-exclude`, then
+`moviesshare` → `start`.
 
 ### Network watchdog
 ```bash

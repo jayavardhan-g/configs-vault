@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Keeps Tailscale's relay (DERP) and control servers out of the WARP tunnel, so
+# Tailscale and Funnel keep working while WARP carries everything else.
+# Only adds addresses; never removes. Safe to run any time.
+set -u
+log() { logger -t warp-tailscale-exclude "$*"; }
+for _ in $(seq 1 60); do
+    tailscale status --json 2>/dev/null | grep -q '"BackendState": "Running"' && break
+    sleep 2
+done
+WANT=$( {
+    tailscale debug derp-map 2>/dev/null | python3 -I -c '
+import json, sys
+d = json.load(sys.stdin)
+for r in (d.get("Regions") or {}).values():
+    for n in r.get("Nodes") or []:
+        if n.get("IPv4"): print(n["IPv4"])'
+    getent ahostsv4 controlplane.tailscale.com log.tailscale.com | awk '{print $1}'
+} | sort -u )
+if [ -z "$WANT" ]; then log "no Tailscale addresses found - skipping"; exit 0; fi
+HAVE=$(warp-cli --accept-tos tunnel ip list 2>/dev/null)
+added=0; total=0
+for ip in $WANT; do
+    total=$((total + 1))
+    grep -qwF "$ip" <<<"$HAVE" && continue
+    warp-cli --accept-tos tunnel ip add "$ip" >/dev/null && added=$((added + 1))
+done
+log "checked $total Tailscale addresses, added $added new"

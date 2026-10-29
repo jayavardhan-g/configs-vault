@@ -1,0 +1,9 @@
+[Unit]
+Description=Refresh Tailscale exclusions in WARP daily (and shortly after boot)
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=1d
+
+[Install]
+WantedBy=timers.target

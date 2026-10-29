@@ -1,0 +1,8 @@
+[Unit]
+Description=Keep Tailscale relay/control servers out of the WARP tunnel
+After=tailscaled.service warp-svc.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/warp-tailscale-exclude

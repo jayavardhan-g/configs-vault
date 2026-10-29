@@ -20,8 +20,10 @@ boots headless)
 - `/etc/default/limine` → [`files/etc/default/limine`](files/etc/default/limine) (root UUID redacted)
 - `/etc/NetworkManager/conf.d/dns.conf` → [`files/etc/NetworkManager/conf.d/dns.conf`](files/etc/NetworkManager/conf.d/dns.conf)
 - `/etc/samba/smb.conf` → [`files/etc/samba/smb.conf`](files/etc/samba/smb.conf) (username redacted)
-- `/etc/systemd/system/qbittorrent-nox@.service.d/warp-lockdown.conf` → [`files/etc/systemd/system/qbittorrent-nox@.service.d/warp-lockdown.conf`](files/etc/systemd/system/qbittorrent-nox@.service.d/warp-lockdown.conf)
-- `~/.config/qBittorrent/qBittorrent.conf` — **not stored** (holds the WebUI password hash); relevant keys listed in Phase 7b
+- `/usr/local/bin/warp-tailscale-exclude` → [`files/usr/local/bin/warp-tailscale-exclude`](files/usr/local/bin/warp-tailscale-exclude)
+- `/etc/systemd/system/warp-tailscale-exclude.service` + `.timer` → [`files/etc/systemd/system/`](files/etc/systemd/system/)
+- `~/.config/qBittorrent/qBittorrent.conf` — **not stored** (holds the WebUI password hash); relevant keys listed in Phase 10
+- `/etc/systemd/system/qbittorrent-nox@.service.d/warp-lockdown.conf` — **removed** 2026-10-29 (Phase 10); old copy in git history
 
 How to switch each feature off/on, and how to share/stop sharing a movie:
 [[homeserver-toggles]] (`homeserver-toggles.md`).
@@ -52,7 +54,7 @@ on this router. Firewall is `ufw` (was already active); every rule below was add
 | 445/tcp | Samba | LAN + Tailscale |
 | 8096/tcp | Jellyfin | LAN + Tailscale (+ public on 443 while Funnel is on) |
 | 8080/tcp | qBittorrent WebUI | LAN + Tailscale |
-| 40000/tcp | WARP local SOCKS5 proxy | loopback only |
+| 23251 tcp+udp | qBittorrent peers | bound to `CloudflareWARP` only (no port forwarding) |
 
 ### Phase 1 — baseline
 ```bash
@@ -173,14 +175,13 @@ and `/srv/nas/downloads` (so finished torrents show up without moving them).
 
 ### Phase 7b — qBittorrent-nox through Cloudflare WARP
 The college network blocks/throttles BitTorrent with DPI; WARP's encrypted tunnel gets
-around it. WARP runs as a **local SOCKS5 proxy**, not a system-wide tunnel, so only
-qBittorrent uses it and Tailscale's routing is left alone.
+around it. **WARP mode and qBittorrent's network settings are in Phase 10** (since
+2026-10-29: full tunnel + interface binding, as on the laptop). The original proxy-mode
+setup is described in Notes.
 ```bash
 sudo pacman -S cloudflare-warp-bin      # cachyos repo
 sudo systemctl enable --now warp-svc
 warp-cli --accept-tos registration new
-warp-cli --accept-tos mode proxy
-warp-cli --accept-tos proxy port 40000
 warp-cli --accept-tos connect           # "Always On" — reconnects by itself after reboot
 
 sudo pacman -S qbittorrent-nox
@@ -190,37 +191,8 @@ sudo ufw allow in on tailscale0 to any port 8080 proto tcp comment 'qBittorrent 
 sudo systemctl enable --now qbittorrent-nox@<user>
 ```
 WebUI `http://<nas-lan-ip>:8080`. First login uses `admin` + a temporary password printed
-once in `journalctl -u qbittorrent-nox@<user>`; changed immediately. Settings:
-- Connection → Proxy: SOCKS5, `127.0.0.1`, port `40000`, "Use proxy for peer connections" on.
-- Connection → UPnP/NAT-PMP off (WARP has no port forwarding).
-- Downloads → default save path `/srv/nas/downloads`.
-- BitTorrent → DHT, PeX and Local Peer Discovery off (DHT/uTP are UDP and skip SOCKS5).
-
-Resulting `qBittorrent.conf` keys:
-```ini
-[BitTorrent]
-Session\DHTEnabled=false
-Session\PeXEnabled=false
-Session\LSDEnabled=false
-Session\DefaultSavePath=/srv/nas/downloads
-Session\ProxyPeerConnections=true
-[Network]
-PortForwardingEnabled=false
-Proxy\Type=SOCKS5
-Proxy\IP=127.0.0.1
-Proxy\Profiles\BitTorrent=true
-```
-Kernel-level lockdown so nothing can leak even if a setting is wrong (this qBittorrent build
-has no "disable connections not supported by proxies" option):
-```bash
-sudo mkdir -p "/etc/systemd/system/qbittorrent-nox@.service.d"
-sudo cp "files/etc/systemd/system/qbittorrent-nox@.service.d/warp-lockdown.conf" "/etc/systemd/system/qbittorrent-nox@.service.d/"
-sudo systemctl daemon-reload && sudo systemctl restart qbittorrent-nox@<user>
-```
-It denies everything except loopback (the WARP proxy), the LAN and the Tailscale range.
-
-Verified 2026-10-04: ipleak.net torrent test showed only Cloudflare IPs; after
-`warp-cli disconnect` no new IP appeared at all (connections just fail), so it fails closed.
+once in `journalctl -u qbittorrent-nox@<user>`; changed immediately. Downloads → default
+save path `/srv/nas/downloads`. Everything network-related: Phase 10.
 
 ### Phase 8 — handover check
 **Reboot test (passed 2026-10-04):** after `sudo reboot`, with no manual steps: headless
@@ -257,16 +229,57 @@ journalctl -t funnel-watchdog        # what it has done
 - `funnel-watchdog-boot.service` (enabled, after `tailscaled` + `network-online`): runs it
   with `--boot`, which waits up to 2 min for Tailscale to connect, then always re-toggles
   (`funnel --https=443 off`, `funnel --bg 8096`) if Funnel was on.
-- `funnel-watchdog.timer` (10 min after boot, then every 15 min): re-toggles only if
-  public DNS (Cloudflare DNS-over-HTTPS, since the server's MagicDNS always answers) returns
-  NXDOMAIN for the name. If the DNS request itself fails (no internet, e.g. the college
-  login expired), it does nothing.
+- `funnel-watchdog.timer` (10 min after boot, then every **5 min** since Phase 10):
+  re-toggles if public DNS (Cloudflare DNS-over-HTTPS, since the server's MagicDNS always
+  answers) returns NXDOMAIN for the name, **or** (since Phase 10) the link itself doesn't
+  answer through Tailscale's public entry, checked twice 20 s apart. If the DNS request
+  itself fails (no internet, e.g. the college login expired), it does nothing.
 - The port (8096) is hard-coded in the script, matching `moviesshare`.
 
 Verified 2026-10-19: both units enabled, timer active, first timer run exited 0 with no
 log line (Funnel on and the name resolving, so nothing to do). Boot path not yet tested
 with a real reboot: reboot while sharing is on, then `moviesshare` → `status` should say
 "ON, link works" within about 2 minutes.
+
+### Phase 10 — qBittorrent follows the torrentvpn guide, like the laptop (2026-10-29)
+The guide ([[qbittorrent-bound-to-warp]], rentry.org/torrentvpn) binds qBittorrent to the
+VPN interface. That needs WARP as a full tunnel, which the server avoided at first (see
+Notes). Installed by `~/nas-setup/phase10-warp-full-tunnel.sh` (copy:
+[`files/nas-setup/phase10-warp-full-tunnel.sh`](files/nas-setup/phase10-warp-full-tunnel.sh)):
+```bash
+sudo bash ~/nas-setup/phase10-warp-full-tunnel.sh
+sudo systemctl start warp-tailscale-exclude.timer   # the script only enabled it; fixed by hand
+```
+1. **Extra step, needed only because of Tailscale Funnel:** `warp-tailscale-exclude` adds
+   every Tailscale relay (DERP) IPv4 from `tailscale debug derp-map`, plus whatever
+   `controlplane.tailscale.com` and `log.tailscale.com` resolve to, to WARP's exclude list
+   (`warp-cli tunnel ip add <ip>`, plain IPs, no `/32`). It only adds, never removes. Runs
+   at setup, 3 min after boot, and daily (`warp-tailscale-exclude.timer`). The control
+   servers answer from rotating addresses, so the list keeps growing a little.
+2. `warp-cli --accept-tos mode tunnel_only` — WARP carries all traffic except its exclude
+   list (LAN, `100.64.0.0/10`, the Tailscale addresses). `tunnel_only` = no WARP DNS, so
+   MagicDNS and the router's DNS are untouched.
+3. qBittorrent (stopped, config backed up to `qBittorrent.conf.bak.<epoch>`, edited, started):
+   ```ini
+   [BitTorrent]
+   Session\Interface=CloudflareWARP
+   Session\InterfaceName=CloudflareWARP
+   Session\DHTEnabled=true
+   Session\PeXEnabled=true
+   Session\LSDEnabled=true
+   ExcludedFileNamesEnabled=true
+   Session\ExcludedFileNames=*.lnk, *.scr, *.arj
+   [Network]
+   PortForwardingEnabled=false
+   ```
+   All `Proxy\*` keys and `Session\ProxyPeerConnections` deleted (= no proxy, the default).
+4. Kernel lockdown drop-in removed — with the binding it would block every peer.
+5. `funnel-watchdog` upgraded to test the real link (Phase 9).
+
+Verified 2026-10-29: peer port `23251` (TCP+UDP, v4+v6) bound to `%CloudflareWARP` only;
+WebUI on `*:8080`; `warp=on`; Tailscale netcheck UDP true, relay Bengaluru; public link
+3/3 HTTP 302. **ipleak.net test still to do** (WebUI → add ipleak's magnet; only Cloudflare
+IPs; then `warp-cli --accept-tos disconnect` on the server → no new IPs; reconnect).
 
 ### Quick reference
 | What | LAN | Tailscale (anywhere) |
@@ -300,10 +313,31 @@ with a real reboot: reboot while sharing is on, then `moviesshare` → `status` 
   message) when there are no TEST rules, because the failing `grep` aborts the script.
   Harmless. A longer variant with a 10-minute auto-restore and a health check was written
   from the laptop session and replaced by these; it lives in git history.
-- **Why WARP proxy mode here, but interface binding on the laptop**
-  ([[qbittorrent-bound-to-warp]]): on the server WARP must not become the default route,
-  or it can break Tailscale's control connection. Pausing WARP (`warp-cli disconnect`)
-  during the *first* `tailscale up` on a machine that has both avoids a bootstrap clash.
+- **2026-10-04 → 2026-10-29: WARP was a SOCKS5 proxy, not a tunnel** (superseded by
+  Phase 10). Setup was `warp-cli mode proxy` + `proxy port 40000`; qBittorrent Connection →
+  Proxy SOCKS5 `127.0.0.1:40000` with "Use proxy for peer connections"; DHT, PeX and LPD off;
+  plus a `qbittorrent-nox@.service.d/warp-lockdown.conf` drop-in (`IPAddressDeny=any`,
+  allowing only loopback, the LAN and `100.64.0.0/10`). Chosen so WARP wouldn't become the
+  default route and disturb Tailscale. **Dropped because it starved torrents of peers:**
+  WARP's proxy answers SOCKS5 `UDP ASSOCIATE` with code `07` (command not supported), so UDP
+  trackers, DHT and uTP could never work; qBittorrent logged "SOCKS5 proxy error … End of
+  file" about every 2 min; and DHT/PeX had to stay off because their UDP would bypass the
+  proxy with the real IP.
+- **WARP full tunnel without the Tailscale exclusions breaks the public link**
+  (2026-10-28 test): Tailscale lost its UDP and relay probes, the public link answered
+  once, then failed TLS (`curl` exit 35) from every network. It also stayed broken after
+  switching back to proxy mode, until Funnel was re-announced. With the exclusions in place
+  first (2026-10-29 test), the link survived the switch to full tunnel, a WARP
+  reconnect, and the switch back — no re-announce needed. So always run
+  `warp-tailscale-exclude` **before** `warp-cli mode tunnel_only`.
+- WARP's proxy mode only supports MASQUE: `warp-cli tunnel protocol set WireGuard` in
+  proxy mode leaves it disconnected (`Proxy mode only supports MASQUE`). Reset with
+  `tunnel protocol set MASQUE` + `connect`.
+- **LPD listens on all interfaces** (`*:6771`), not just `CloudflareWARP`: it's a
+  LAN-multicast feature, so it can't reach the internet, but it announces your torrents to
+  other devices on the home network. Left at the guide's default (on); the laptop has it off.
+- Pausing WARP (`warp-cli disconnect`) during the *first* `tailscale up` on a machine that
+  has both avoids a bootstrap clash.
 - WARP has no port forwarding: weaker seeding. Cloudflare still sees the real IP; WARP
   only hides it from swarm peers.
 - **Redacted / not stored:** usernames, LAN IP, router MAC, Tailscale IPs and tailnet name

@@ -89,3 +89,5 @@ ln -sfn ~/claude/vaults/configs/claude-memory ~/.claude/projects/-home-jayavardh
   `git log -- configs/<file>` stops at the subtree merge. For one file's older history use
   `git log <merge-commit>^2 -- <file>` (path without `configs/`).
 - The old `jayavardhan-g/configs` GitHub repo is no longer used. Jayavardhan plans to delete it.
+- Superseded (2026-10-30): `~/claude/vaults` now has all four vaults checked out, and
+  sessions pull/push them; see [[vault-sync-hook]].

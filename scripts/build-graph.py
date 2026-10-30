@@ -92,6 +92,11 @@ ENTITIES = {
                 "Neovim; this configs repo is itself a vault too.",
         config="`/mnt/study/vaults/personal/.obsidian/.obsidian.vimrc`, `hotkeys.json`; this repo's `.obsidian/`",
         related=["Neovim", "Vim"], match=r"obsidian"),
+    "Claude Code": dict(hub="Shell",
+        summary="The Claude Code CLI, started from `~/claude`. Its project settings there run a "
+                "SessionStart hook that pulls the Obsidian vault clones.",
+        config="`~/claude/.claude/settings.json`, `~/.claude/hooks/` (copies in `obsidian/files/`)",
+        related=["Obsidian"], match=r"\.claude/(settings|hooks)"),
     "CachyOS": dict(hub="System",
         summary="The distro (Arch-based). Packages via pacman + AUR; some configs are "
                 "package-owned and must not be edited in place.",

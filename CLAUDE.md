@@ -41,8 +41,9 @@ table and re-run it. Hand-written text outside the markers is kept.
 read `entities/<Tool>.md` (or grep `[[<Tool>]]`) before searching folders by hand.
 
 **Where this lives and how to commit.** This folder is `configs/` inside the shared
-`jayavardhan-g/vaults` repo (one folder per Obsidian vault), sparse-cloned at
-`~/claude/vaults` with only `configs/` checked out. It used to be its own repo
+`jayavardhan-g/vaults` repo (one folder per Obsidian vault), cloned at `~/claude/vaults`
+with all four vaults checked out so sessions can reach every vault (see `~/claude/CLAUDE.md`
+for the pull-first / push-when-done rule). It used to be its own repo
 (`jayavardhan-g/configs`); its history was imported with `git subtree`. Commit from inside
 this folder with `git add .` (never `git add -A` / `git commit -a` from the repo root), then
 `git pull --rebase --autostash && git push`. See the repo root `README.md`.

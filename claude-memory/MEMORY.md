@@ -14,4 +14,4 @@
 - [GhostText custom stack](ghosttext-custom-stack.md) — own Lua server + add-on from our fork, built by GitHub on tags; no npm locally, never reinstall nvim-ghost
 - [GhostText rebrand plan](ghosttext-rebrand-plan.md) — shelved: own-branded extension from the fork; name/icon/nvim rename/repo still undecided
 - [Wake alarm app fork](wake-alarm-app-fork.md) — Chrono fork jayavardhan-g/wake, shipped v1.1.0 and paused (resume only for a wanted feature); CI builds on v* tags; signing key in ~/.local/share/wake-signing
-- [Study vault (personal)](study-vault-personal.md) — coding/DSA, ML/AI, concept notes go in /mnt/study/vaults/personal (layout in its CLAUDE.md), not configs
+- [Study vault (personal)](study-vault-personal.md) — coding/DSA, ML/AI, concept notes go in the personal vault, edited at ~/claude/vaults/personal (layout in its CLAUDE.md), not configs

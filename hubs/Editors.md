@@ -12,6 +12,6 @@ Back to [[Home]].
 
 - [[Neovim]] — Main editor, on LazyVim since 2026-09-15: custom keymaps, searchable `<leader>h` cheatsheet, LeetCode, GhostText, colours from kitty (18 entries)
 - [[Vim]] — Plain Vim with a minimal `~/.vimrc`, kept in parity with Neovim's keys for SSH use (6 entries)
-- [[Obsidian]] — Notes app (4 entries)
+- [[Obsidian]] — Notes app (5 entries)
 - [[GhostText]] — Edit browser text fields in Neovim (4 entries)
 <!-- auto:end -->

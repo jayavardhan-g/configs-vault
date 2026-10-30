@@ -43,17 +43,23 @@ is finished and what the commit message should say.
   }
 }
 ```
-`~/.claude/hooks/vault-sync.sh` (full copy in `obsidian/files/.claude/hooks/`): for each of
-`~/claude/vaults` and `/mnt/study/vaults` that exists, run
-`timeout 25 git pull --rebase --autostash`; on a conflict run `git rebase --abort`; print
-one "Vault sync" line (commit, unpushed commits, uncommitted changes, or the failure),
-which Claude Code adds to the session context. Always exits 0. `chmod +x` it.
+`~/.claude/hooks/vault-sync.sh` (full copy in `obsidian/files/.claude/hooks/`), for each of
+`~/claude/vaults` and `/mnt/study/vaults` that exists:
+1. If it has an unresolved conflict, report it and don't touch it.
+2. `timeout 25 git fetch`; on failure report "offline".
+3. If behind: compare the files with uncommitted edits (tracked and untracked) with the
+   files changed upstream. If any overlap, **don't pull**: report the held notes. Otherwise
+   `git pull --rebase --autostash`; if that rebase conflicts with local commits,
+   `git rebase --abort` and report.
+4. Print one "Vault sync" line per clone (commit, held notes, unpushed commits,
+   uncommitted changes); Claude Code adds it to the session context. Always exits 0.
+`chmod +x` it.
 
 Push rule (in `~/claude/CLAUDE.md`, "Vaults: pull first, push when done"):
 ```bash
 cd ~/claude/vaults/<vault> && git add . && git commit -m "<vault>: <what changed>"
 git pull --rebase --autostash && git push
-git -C /mnt/study/vaults pull --rebase --autostash   # if mounted
+~/.claude/hooks/vault-sync.sh      # brings /mnt/study/vaults up to date, safely
 ```
 
 ## Notes
@@ -72,3 +78,10 @@ git -C /mnt/study/vaults pull --rebase --autostash   # if mounted
   [[vaults-repo-migration]]. `~/claude/configs.old` (the pre-merge clone) was moved to the
   trash the same day after checking its history is inside `vaults`.
 - GitHub returned "Internal Server Error" on pushes twice that day; a retry went through.
+- 2026-10-31: the first version pulled every clone with `--autostash`. Jayavardhan had an
+  uncommitted edit to `KMP.md` open in Obsidian while a session pushed a change to the
+  same note; the pull in `/mnt/study/vaults` left conflict markers in his file (his edit
+  was safe in the autostash). Fixed by merging both versions by hand, and the script now
+  holds back a pull whose incoming changes touch an edited file. Tested: same-file edit
+  (held, file untouched, no stash), different-file edit (pulled, edit kept), leftover
+  conflict, offline, conflicting local commit.

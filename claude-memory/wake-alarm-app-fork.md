@@ -153,5 +153,5 @@ that left ringing snooze instead of being dismissed (Chrono had no ring timeout 
 - Constraint: never hold wake locks that block deep sleep.
 
 <!-- graph:begin -->
-**Graph:** [[Neovim]] · [[GhostText]]
+**Graph:** [[Neovim]] · [[GhostText]] · [[adb]]
 <!-- graph:end -->

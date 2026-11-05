@@ -15,6 +15,4 @@
 - [GhostText rebrand plan](ghosttext-rebrand-plan.md) — shelved: own-branded extension from the fork; name/icon/nvim rename/repo still undecided
 - [Wake alarm app fork](wake-alarm-app-fork.md) — Chrono fork jayavardhan-g/wake, shipped v1.1.0 and paused (resume only for a wanted feature); CI builds on v* tags; signing key in ~/.local/share/wake-signing
 - [Study vault (personal)](study-vault-personal.md) — coding/DSA, ML/AI, concept notes go in the personal vault, edited at ~/claude/vaults/personal (layout in its CLAUDE.md), not configs
-- [DMS trial](dms-trial-plan.md) — in progress: DMS made identical to Noctalia, then measured; ledger/log in configs/cachyos/system/dms-trial.md
-- [DMS trial](dms-trial-plan.md) — measured: DMS 434 MB vs Noctalia 116 MB PSS; SHELL_NAME in hypr shell.lua switches; keep/remove pending
 - [DMS trial](dms-trial-plan.md) — measured: DMS 434 MB vs Noctalia 116 MB PSS; kept installed but dormant (Noctalia stays); SHELL_NAME in hypr shell.lua switches

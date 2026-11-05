@@ -31,5 +31,5 @@ Jayavardhan asks. For a desktop-widget request, check Noctalia first
 would start from scratch (or from commit `d3eb46e`).
 
 <!-- graph:begin -->
-**Graph:** [[Noctalia]] · [[Quickshell]] · [[Xpad]]
+**Graph:** [[Noctalia]] · [[Quickshell]] · [[DankMaterialShell]] · [[Xpad]]
 <!-- graph:end -->

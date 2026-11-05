@@ -197,7 +197,9 @@ ENTITIES = {
         config="`~/.local/bin/agy`", related=["fish"], match=r"antigravity|\bagy\b"),
 }
 
-SKIP = {"README.md", "CLAUDE.md", "cachyos/README.md", "Home.md", "KEYBINDS.md"}
+SKIP = {"README.md", "CLAUDE.md", "cachyos/README.md", "Home.md", "KEYBINDS.md",
+        "Tools/Obsidian-Cheatsheet.md"  # same note in every vault (<Space>h), not an entry
+       }
 SKIP_DIRS = {"files", "hubs", "entities", "scripts", "claude-memory"}
 BEGIN, END = "<!-- graph:begin -->", "<!-- graph:end -->"
 AUTO_BEGIN, AUTO_END = "<!-- auto:begin -->", "<!-- auto:end -->"

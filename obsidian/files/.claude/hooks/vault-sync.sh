@@ -8,7 +8,8 @@
 # in that file, so in that case it only fetches and reports instead of pulling.
 
 export GIT_TERMINAL_PROMPT=0
-read -ra clones <<< "${VAULT_SYNC_CLONES:-$HOME/claude/vaults /mnt/study/vaults}"
+# One clone per vault repo, all on the study drive (~/claude/vaults is a symlink to it).
+read -ra clones <<< "${VAULT_SYNC_CLONES:-/mnt/study/vaults/configs /mnt/study/vaults/projects /mnt/study/vaults/study /mnt/study/vaults/personal}"
 out=()
 
 # NUL-separated paths with uncommitted changes (tracked or untracked; both sides of renames)

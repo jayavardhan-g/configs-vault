@@ -91,3 +91,67 @@ ln -sfn ~/claude/vaults/configs/claude-memory ~/.claude/projects/-home-jayavardh
 - The old `jayavardhan-g/configs` GitHub repo is no longer used. Jayavardhan plans to delete it.
 - Superseded (2026-10-30): `~/claude/vaults` now has all four vaults checked out, and
   sessions pull/push them; see [[vault-sync-hook]].
+
+## Follow-up: one repo per vault, one clone each (2026-11-05)
+
+**What**: the shared `jayavardhan-g/vaults` repo was split. Each vault now has its own repo,
+and the laptop has exactly one clone of each, on the study drive, used by both Obsidian
+and Claude:
+
+| Clone (`/mnt/study/vaults/…`) | Repo | Obsidian vault(s) |
+|---|---|---|
+| `configs/` | `jayavardhan-g/configs-vault` (history kept) | `configs/` |
+| `study/` | `jayavardhan-g/study-vault` (new: the study notes from `personal/`, plus `mtp/`) | `study/study/`, `study/mtp/` |
+| `projects/` | `jayavardhan-g/projects-vault` | `projects/` |
+| `personal/` | `jayavardhan-g/vaults` (now only `personal/`: interviews, app ideas) | `personal/personal/` |
+
+`~/claude/vaults` is a symlink to `/mnt/study/vaults`, so `~/claude/vaults/configs/
+claude-memory` (the target of Claude's memory symlink) resolves unchanged.
+
+**Why**: Jayavardhan wanted separate repos per vault, and study material separate from
+personal notes. The repos were created and filled by a cloud session; this laptop then
+had work the cloud session couldn't see. Chose a single set of clones on the study drive
+(over separate Claude and Obsidian clones) so there is no second copy to keep in sync.
+
+**Change**
+```bash
+mv /mnt/study/personal /mnt/study/personal.old      # the old sparse clone (personal/)
+mv /mnt/study/projects /mnt/study/projects.old      # a plain copy, not a clone
+mkdir /mnt/study/vaults && cd /mnt/study/vaults
+git clone https://github.com/jayavardhan-g/configs-vault.git configs
+git clone https://github.com/jayavardhan-g/projects-vault.git projects
+git clone https://github.com/jayavardhan-g/study-vault.git study
+git clone https://github.com/jayavardhan-g/vaults.git personal
+for d in configs projects study personal; do
+  git -C $d config core.fileMode false; git -C $d config core.autocrlf false
+done
+mv ~/claude/vaults ~/claude/vaults.old && ln -s /mnt/study/vaults ~/claude/vaults
+# git-ignored local state, copied without overwriting (cp -an): .obsidian/workspace.json per
+# vault, and configs/.claude/ (settings.local.json, skills/better-os-question)
+```
+Obsidian's vault list (`~/.config/obsidian/obsidian.json`, copy in
+`obsidian/files/.config/obsidian/obsidian.json`) keeps the old ids for configs, personal
+and projects with the new paths, and gained `study/study` and `study/mtp`. The sync hook's
+clone list is now the four clones ([[vault-sync-hook]]).
+
+**Merged before switching** (all of it had to reach GitHub first):
+- Five laptop branches that never reached `main` of the old repo (`dms-trial`,
+  `leetcode-resize-split`, `adb-entry`, `remove-pomodoro`, `moviesshare-reannounce`; 25
+  commits) were replayed onto configs-vault with `git format-patch --relative=configs` +
+  `git am -3`. Conflicts: index files unioned, stale stored copies of removed Quickshell
+  files deleted, `autostart.lua` / `shell-theme.sh` copies taken from the live files.
+- Uncommitted edits in the old `/mnt/study/personal`: `Z-function.md` and Obsidian's
+  `app.json` went to study-vault, `Texas Instruments.md` (placement test notes) to personal.
+- `/mnt/study/projects` held an older draft of `Interview plan (Nov 2026).md` (12:30),
+  superseded by the 16:51 version in projects-vault; not merged, kept in `projects.old`.
+
+**Notes**:
+- If the study drive doesn't mount (`nofail` in fstab), `~/claude/vaults` and Claude's
+  memory dangle until it does.
+- Claude stages only the files it changed: Obsidian's uncommitted edits share the clone.
+- `Tools/Obsidian-Cheatsheet.md` (opened with `<Space>h`) went to the study vault; the
+  personal vault has the same vimrc/plugins but no cheatsheet note.
+- On gpuserver1 the projects notes still point at `/data/jayavardhan/vaults/personal/Seminar/`;
+  the seminar notes are now in study-vault (`study/IITB/Seminar/`).
+- `.old` folders can be deleted once everything works: `~/claude/vaults.old`,
+  `/mnt/study/personal.old`, `/mnt/study/projects.old`.

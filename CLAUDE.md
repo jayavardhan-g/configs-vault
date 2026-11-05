@@ -40,13 +40,14 @@ table and re-run it. Hand-written text outside the markers is kept.
 **When working from this repo, use the graph**: to find everything that touches a tool,
 read `entities/<Tool>.md` (or grep `[[<Tool>]]`) before searching folders by hand.
 
-**Where this lives and how to commit.** This folder is `configs/` inside the shared
-`jayavardhan-g/vaults` repo (one folder per Obsidian vault), cloned at `~/claude/vaults`
-with all four vaults checked out so sessions can reach every vault (see `~/claude/CLAUDE.md`
-for the pull-first / push-when-done rule). It used to be its own repo
-(`jayavardhan-g/configs`); its history was imported with `git subtree`. Commit from inside
-this folder with `git add .` (never `git add -A` / `git commit -a` from the repo root), then
-`git pull --rebase --autostash && git push`. See the repo root `README.md`.
+**Where this lives and how to commit.** This repo is `jayavardhan-g/configs-vault`, cloned
+at `/mnt/study/vaults/configs` (`~/claude/vaults/configs`; `~/claude/vaults` is a symlink to
+`/mnt/study/vaults`). Obsidian opens the same clone. History: its own repo
+`jayavardhan-g/configs` → the `configs/` folder of the shared `jayavardhan-g/vaults` repo
+(2026-10-14, imported with `git subtree`) → its own repo again since 2026-11-05 (see
+[[vaults-repo-migration]]). Commit only the files you changed (`git add <files>`, never
+`.` / `-A` / `-a`: Jayavardhan's uncommitted Obsidian edits may sit in the same clone), run
+`~/.claude/hooks/vault-sync.sh` (it pulls safely), then `git push`. See `~/claude/CLAUDE.md`.
 
 **Don't commit `.claude/`** — it holds session-local Claude Code settings (e.g. `settings.local.json`, a permission allowlist), not part of this record. Keep a `.gitignore` at the repo root with `.claude/` in it.
 

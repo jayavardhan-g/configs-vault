@@ -132,3 +132,7 @@ Ctrl+Shift+F, Ctrl+Shift+M, Ctrl+O/I history, zo/zc/zR/zM folds, Alt+P paste-as-
   JS commands, and `[`/`]` → `{`/`}`, which would break `[b`, `[h` and `[[`.
 - Alternative not taken (for now): editing the vault from nvim with
   [obsidian.nvim](https://github.com/obsidian-nvim/obsidian.nvim), the maintained fork.
+- 2026-11-05: the vault these paths name (`/mnt/study/vaults/personal`) was split. The same
+  `.obsidian/` setup (vimrc, hotkeys, plugins) now lives in both `/mnt/study/vaults/study/study/`
+  and `/mnt/study/vaults/personal/personal/`; the cheatsheet note went to the study vault
+  only, so `<Space>h` opens nothing in personal. See [[vaults-repo-migration]].

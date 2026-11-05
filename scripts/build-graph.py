@@ -93,9 +93,9 @@ ENTITIES = {
         config="`~/.vimrc` (copy in `vim/files/.vimrc`)", related=["Neovim"],
         match=r"\.vimrc\b(?!.*obsidian)|^vim/"),
     "Obsidian": dict(hub="Editors",
-        summary="Notes app. Personal vault `/mnt/study/vaults/personal` (sparse clone of the shared `vaults` repo) uses vim keys mirroring "
-                "Neovim; this configs repo is itself a vault too.",
-        config="`/mnt/study/vaults/personal/.obsidian/.obsidian.vimrc`, `hotkeys.json`; this repo's `.obsidian/`",
+        summary="Notes app. One repo per vault, each cloned once in `/mnt/study/vaults` (configs, study, projects, personal); "
+                "the study and personal vaults use vim keys mirroring Neovim.",
+        config="`<vault>/.obsidian/.obsidian.vimrc`, `hotkeys.json` (study/study and personal/personal); `~/.config/obsidian/obsidian.json`",
         related=["Neovim", "Vim"], match=r"obsidian"),
     "Claude Code": dict(hub="Shell",
         summary="The Claude Code CLI, started from `~/claude`. Its project settings there run a "

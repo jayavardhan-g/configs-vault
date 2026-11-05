@@ -9,11 +9,11 @@
 <!-- graph:end -->
 
 ## What
-`~/claude/vaults` keeps all four vaults checked out (`configs`, `personal`, `mtp`,
-`projects`) so every Claude Code session started in `~/claude` can read and edit them. A
-SessionStart hook pulls that clone and `/mnt/study/vaults` at the start of each session,
-and `~/claude/CLAUDE.md` tells Claude to commit and push any vault change before the
-conversation ends, then pull `/mnt/study/vaults` so Obsidian sees it.
+Every vault is its own repo, cloned once on the study drive: `/mnt/study/vaults/{configs,
+study,projects,personal}` (`~/claude/vaults` is a symlink to it), and Obsidian opens the
+same clones. A SessionStart hook pulls each clone at the start of every session started in
+`~/claude`, and `~/claude/CLAUDE.md` tells Claude to commit and push any vault change before
+the conversation ends.
 
 ## Why
 Jayavardhan wanted Claude to always have access to the vaults, and to pull before starting
@@ -44,7 +44,8 @@ is finished and what the commit message should say.
 }
 ```
 `~/.claude/hooks/vault-sync.sh` (full copy in `obsidian/files/.claude/hooks/`), for each of
-`~/claude/vaults` and `/mnt/study/vaults` that exists:
+`/mnt/study/vaults/configs`, `/mnt/study/vaults/projects`, `/mnt/study/vaults/study` and
+`/mnt/study/vaults/personal` that exists (the default of `VAULT_SYNC_CLONES`):
 1. If it has an unresolved conflict, report it and don't touch it.
 2. `timeout 25 git fetch`; on failure report "offline".
 3. If behind: compare the files with uncommitted edits (tracked and untracked) with the
@@ -57,9 +58,11 @@ is finished and what the commit message should say.
 
 Push rule (in `~/claude/CLAUDE.md`, "Vaults: pull first, push when done"):
 ```bash
-cd ~/claude/vaults/<vault> && git add . && git commit -m "<vault>: <what changed>"
-git pull --rebase --autostash && git push
-~/.claude/hooks/vault-sync.sh      # brings /mnt/study/vaults up to date, safely
+cd ~/claude/vaults/<clone>
+git add <the files you changed>    # never . / -A / -a: Obsidian edits share this clone
+git commit -m "<vault>: <what changed>"
+~/.claude/hooks/vault-sync.sh      # pulls safely; reports a held note instead of forcing
+git push
 ```
 
 ## Notes
@@ -72,8 +75,11 @@ git pull --rebase --autostash && git push
   `obsidian/files/…/.claude/` were added with `git add -f`. Once tracked, re-copies are
   picked up by a normal `git add .`.
 - `~/claude` is not a git repo, so `settings.json` there is plain project settings.
-- Claude edits `personal` in `~/claude/vaults/personal`, not `/mnt/study`, so there is one
-  working copy for Claude; Obsidian's copy on the Study drive catches up by `git pull`.
+- Superseded 2026-11-05: Claude used to edit in `~/claude/vaults` (one clone of the shared
+  `jayavardhan-g/vaults` repo, all four vaults) while Obsidian opened a second clone at
+  `/mnt/study/vaults`, and the push rule used `git add .`. The vaults are now separate
+  repos with one clone each that Claude and Obsidian share (see [[vaults-repo-migration]]),
+  so Claude stages only its own files.
 - This replaces the `configs`-only sparse checkout described in
   [[vaults-repo-migration]]. `~/claude/configs.old` (the pre-merge clone) was moved to the
   trash the same day after checking its history is inside `vaults`.

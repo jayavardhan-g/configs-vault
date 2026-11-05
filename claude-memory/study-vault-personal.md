@@ -11,7 +11,8 @@ entities:
 ---
 
 Since 2026-11-05 Jayavardhan's study/knowledge notes are the `study/` vault of the
-`jayavardhan-g/study-vault` repo (next to `mtp/`, the thesis vault). On the laptop it is
+`jayavardhan-g/study-vault` repo, which also holds the M.Tech thesis notes in `IITB/MTP/`
+(start at `IITB/MTP/MTP Home.md`; `mtp` at the repo root is a symlink there). On the laptop it is
 cloned at `/mnt/study/vaults/study` (`~/claude/vaults/study`); Obsidian opens
 `study/study` from that same clone. Layout: `Coding/DSA` (incl. `Concepts/`, one note per
 algorithm), `Coding/CP`, `ML/<area>`, `Tools`, `IITB`, with `Home.md` as the index; its own

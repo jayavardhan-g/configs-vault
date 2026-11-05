@@ -134,13 +134,13 @@ Ctrl+Shift+F, Ctrl+Shift+M, Ctrl+O/I history, zo/zc/zR/zM folds, Alt+P paste-as-
   [obsidian.nvim](https://github.com/obsidian-nvim/obsidian.nvim), the maintained fork.
 - 2026-11-05: the vault these paths name (`/mnt/study/vaults/personal`) was split (see
   [[vaults-repo-migration]]), and the vim setup was then copied into **every** vault:
-  `study/study`, `personal/personal`, `configs`, `projects`, `study/mtp` (all under
-  `/mnt/study/vaults/`). Each has the same `.obsidian/.obsidian.vimrc`, `hotkeys.json`,
+  `study/study`, `personal/personal`, `configs`, `projects` (all under `/mnt/study/vaults/`;
+  the thesis vault `study/mtp` was merged into `study/study` the same day). Each has the same `.obsidian/.obsidian.vimrc`, `hotkeys.json`,
   `vimMode: true`, the five plugins the vimrc calls (Vimrc Support, Jump to link,
   Omnisearch, Git with every auto-commit/pull/push off, Hotkeys for specific files) and
   its own copy of `Tools/Obsidian-Cheatsheet.md` for `<Space>h`. Style Settings and Image
   Converter stayed in study/personal only (not vim). In configs the cheatsheet is listed
   in `SKIP` in `scripts/build-graph.py` (a reference copy, not an entry).
-- **Keep the five copies identical**: when a key changes, edit the vimrc and the
-  cheatsheet in one vault, then copy both files to the other four vaults (each is its own
+- **Keep the four copies identical**: when a key changes, edit the vimrc and the
+  cheatsheet in one vault, then copy both files to the other three vaults (each is its own
   repo: commit and push each).

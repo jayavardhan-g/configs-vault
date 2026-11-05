@@ -101,7 +101,7 @@ and Claude:
 | Clone (`/mnt/study/vaults/…`) | Repo | Obsidian vault(s) |
 |---|---|---|
 | `configs/` | `jayavardhan-g/configs-vault` (history kept) | `configs/` |
-| `study/` | `jayavardhan-g/study-vault` (new: the study notes from `personal/`, plus `mtp/`) | `study/study/`, `study/mtp/` |
+| `study/` | `jayavardhan-g/study-vault` (new: the study notes from `personal/`, plus the thesis) | `study/study/` (thesis in `IITB/MTP/`) |
 | `projects/` | `jayavardhan-g/projects-vault` | `projects/` |
 | `personal/` | `jayavardhan-g/vaults` (now only `personal/`: interviews, app ideas) | `personal/personal/` |
 
@@ -155,3 +155,12 @@ clone list is now the four clones ([[vault-sync-hook]]).
   the seminar notes are now in study-vault (`study/IITB/Seminar/`).
 - `.old` folders can be deleted once everything works: `~/claude/vaults.old`,
   `/mnt/study/personal.old`, `/mnt/study/projects.old`.
+- Same day, later: the thesis vault (`mtp/`) was merged **into** the study vault as
+  `study/IITB/MTP/` (next to the existing `To-do` and `GPU Setup`), so study and thesis
+  notes share one Obsidian vault (search, links, graph). `git mv` kept history; `Home.md`
+  became `MTP Home.md` (the one name clash); mtp's own `.obsidian/` was dropped for the
+  study vault's, and the study templates folder now points at `IITB/MTP/Templates`. A
+  repo-root symlink `mtp -> study/IITB/MTP` keeps gpuserver1's old path
+  (`/data/jayavardhan/vaults/study/mtp`) working. Every link resolved the same before and
+  after (668 links; the 6 unresolved ones were already unresolved: template placeholders and
+  `[[wavtokenizer]]`). The `study/mtp` Obsidian vault entry was removed.

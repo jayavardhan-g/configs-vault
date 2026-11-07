@@ -1,4 +1,4 @@
-# eduroam at IIT Bombay (NetworkManager profile)
+# eduroam and IITB-Wireless-Ex at IIT Bombay (NetworkManager profiles)
 
 **Date:** 2026-11-07
 **Category:** networkmanager
@@ -31,6 +31,19 @@ nmcli connection add type wifi con-name eduroam ssid eduroam \
   802-1x.domain-suffix-match iitb.ac.in 802-1x.system-ca-certs no \
   802-1x.password-flags 0
 nmcli --ask connection up eduroam   # prompts for the LDAP password once; NM stores it
+```
+
+
+**IITB-Wireless-Ex** uses the same RADIUS server, the same IITB CA and the same login, so
+it gets the identical profile with only the name and SSID changed (added 2026-11-07,
+connected first try):
+```bash
+nmcli connection add type wifi con-name IITB-Wireless-Ex ssid IITB-Wireless-Ex \
+  wifi-sec.key-mgmt wpa-eap 802-1x.eap peap 802-1x.phase2-auth mschapv2 \
+  802-1x.identity '<ldap>@iitb.ac.in' \
+  802-1x.domain-suffix-match iitb.ac.in 802-1x.system-ca-certs no \
+  802-1x.password-flags 0
+nmcli --ask connection up IITB-Wireless-Ex
 ```
 
 ## Notes

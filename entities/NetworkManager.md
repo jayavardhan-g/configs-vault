@@ -14,5 +14,5 @@ Wi-Fi/network connection profiles via `nmcli` (e.g. eduroam 802.1X at IITB).
 ## Entries
 
 - [[homeserver-setup|Home server / NAS (the spare CSE-department desktop)]]
-- [[eduroam-iitb|eduroam at IIT Bombay (NetworkManager profile)]]
+- [[eduroam-iitb|eduroam and IITB-Wireless-Ex at IIT Bombay (NetworkManager profiles)]]
 <!-- auto:end -->

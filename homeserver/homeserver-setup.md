@@ -5,7 +5,7 @@
 **Machine:** a separate desktop, not the laptop — Gigabyte H97M-D3H, i7-4790K (iGPU only),
 
 <!-- graph:begin -->
-**Graph:** [[Hyprland]] · [[Limine]] · [[Cloudflare WARP]] · [[Tailscale]] · [[Home server]] · [[SSH]] · [[qBittorrent]]
+**Graph:** [[Hyprland]] · [[Limine]] · [[Cloudflare WARP]] · [[Tailscale]] · [[Home server]] · [[SSH]] · [[NetworkManager]] · [[qBittorrent]]
 <!-- graph:end -->
 
 8 GB DDR3, one ~460 GB btrfs disk, wired ethernet `enp2s0`, CachyOS (Hyprland installed but

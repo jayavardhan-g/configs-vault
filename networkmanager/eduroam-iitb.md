@@ -2,16 +2,17 @@
 
 **Date:** 2026-11-07
 **Category:** networkmanager
-**Files touched:** `/etc/NetworkManager/system-connections/eduroam.nmconnection` (created by `nmcli`; root-only and holds the password, so no copy is stored here)
+**Files touched:** `/etc/NetworkManager/system-connections/{eduroam,IITB-Wireless-Ex}.nmconnection` (created by `nmcli`; root-only and hold the password, so not copied), `/etc/NetworkManager/certs/iitb-ca.pem` (copy in `networkmanager/files/etc/NetworkManager/certs/`), capture script [`grab-iitb-ca.sh`](grab-iitb-ca.sh)
 
 <!-- graph:begin -->
 **Graph:** [[NetworkManager]]
 <!-- graph:end -->
 
 ## What
-An `eduroam` Wi-Fi profile made with `nmcli`: PEAP + MSCHAPv2, the identity in
-`<ldap>@iitb.ac.in` form, no check against the system CA store, and the server
-certificate pinned to the `iitb.ac.in` domain.
+`eduroam` and `IITB-Wireless-Ex` Wi-Fi profiles made with `nmcli`: PEAP + MSCHAPv2,
+the identity in `<ldap>@iitb.ac.in` form, and the server certificate checked against
+IITB's own CA (`/etc/NetworkManager/certs/iitb-ca.pem`) plus the `iitb.ac.in` domain.
+This gives the same protection as Android's "trust this certificate" prompt.
 
 ## Why
 Connecting from the Noctalia Wi-Fi menu kept failing. It failed in two separate ways:
@@ -25,26 +26,24 @@ Connecting from the Noctalia Wi-Fi menu kept failing. It failed in two separate 
 
 ## Change
 ```bash
-nmcli connection add type wifi con-name eduroam ssid eduroam \
-  wifi-sec.key-mgmt wpa-eap 802-1x.eap peap 802-1x.phase2-auth mschapv2 \
-  802-1x.identity '<ldap>@iitb.ac.in' \
-  802-1x.domain-suffix-match iitb.ac.in 802-1x.system-ca-certs no \
-  802-1x.password-flags 0
-nmcli --ask connection up eduroam   # prompts for the LDAP password once; NM stores it
-```
+# 1. IITB CA (public cert; a copy is in this repo)
+sudo install -Dm644 networkmanager/files/etc/NetworkManager/certs/iitb-ca.pem \
+  /etc/NetworkManager/certs/iitb-ca.pem
 
-
-**IITB-Wireless-Ex** uses the same RADIUS server, the same IITB CA and the same login, so
-it gets the identical profile with only the name and SSID changed (added 2026-11-07,
-connected first try):
-```bash
-nmcli connection add type wifi con-name IITB-Wireless-Ex ssid IITB-Wireless-Ex \
-  wifi-sec.key-mgmt wpa-eap 802-1x.eap peap 802-1x.phase2-auth mschapv2 \
-  802-1x.identity '<ldap>@iitb.ac.in' \
-  802-1x.domain-suffix-match iitb.ac.in 802-1x.system-ca-certs no \
-  802-1x.password-flags 0
-nmcli --ask connection up IITB-Wireless-Ex
+# 2. One profile per SSID, same settings
+for ssid in eduroam IITB-Wireless-Ex; do
+  nmcli connection add type wifi con-name "$ssid" ssid "$ssid" \
+    wifi-sec.key-mgmt wpa-eap 802-1x.eap peap 802-1x.phase2-auth mschapv2 \
+    802-1x.identity '<ldap>@iitb.ac.in' \
+    802-1x.ca-cert /etc/NetworkManager/certs/iitb-ca.pem \
+    802-1x.domain-suffix-match iitb.ac.in 802-1x.system-ca-certs no \
+    802-1x.password-flags 0
+  nmcli --ask connection up "$ssid"   # prompts for the LDAP password once
+done
 ```
+In Noctalia's sign-in dialog the same values work: PEAP, MSCHAPv2, identity
+`<ldap>@iitb.ac.in`, CA certificate path `/etc/NetworkManager/certs/iitb-ca.pem`,
+server domain suffix `iitb.ac.in`.
 
 ## Notes
 - **Noctalia deletes a Wi-Fi profile when a connection fails** (seen twice in the
@@ -52,10 +51,20 @@ nmcli --ask connection up IITB-Wireless-Ex
   Noctalia menu, so a wrong password doesn't wipe the profile settings.
 - The server first offers PEAP (EAP type 25). An older TTLS profile also got through
   the TLS step, but PEAP/MSCHAPv2 is the setup that worked.
-- A stronger setup would point `802-1x.ca-cert` at IITB's CA file. No public download
-  was found (guessed CC URLs returned 404, and IITB isn't in eduroam CAT). The CA's
-  SHA-256 hash, as `wpa_supplicant` reports it:
-  `e10803508e2c92f1ca1ac5e7c5fc7951cab14ecf731994df6e7555ffffbb71c9`.
+- **Getting the CA:** no public download was found (guessed CC URLs returned 404, and
+  IITB isn't in eduroam CAT). It was captured from a live login with
+  [`grab-iitb-ca.sh`](grab-iitb-ca.sh) (run with sudo: it watches `wpa_supplicant`'s
+  D-Bus `Certification` signal, which only root can see, while switching SSIDs to force
+  a full login, then saves the depth-1 cert). The script refuses to save unless the
+  SHA-256 of the DER cert is
+  `e10803508e2c92f1ca1ac5e7c5fc7951cab14ecf731994df6e7555ffffbb71c9`. The cert
+  expires 2029-12-06. When IITB rotates it, logins fail with
+  `CTRL-EVENT-EAP-TLS-CERT-ERROR`; check the new hash in the journal and re-run the
+  script with the new value.
+- The CA is deliberately **not** added to the system trust store, so browsers don't
+  trust it. Only these two profiles use it.
+- Set up first (same day) without the CA, using only `domain-suffix-match`; the CA was
+  added once captured.
 - Debug with `journalctl -u wpa_supplicant -n 40`. `CTRL-EVENT-EAP-TLS-CERT-ERROR`
   means a certificate problem; `EAP-TLV: TLV Result - Failure` means the username or
   password was rejected.

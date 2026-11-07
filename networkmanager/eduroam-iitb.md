@@ -10,19 +10,16 @@
 
 ## What
 `eduroam` and `IITB-Wireless-Ex` Wi-Fi profiles made with `nmcli`: PEAP + MSCHAPv2,
-the identity in `<ldap>@iitb.ac.in` form, and the server certificate checked against
-IITB's own CA (`/etc/NetworkManager/certs/iitb-ca.pem`) plus the `iitb.ac.in` domain.
+the LDAP id as identity, and the server certificate checked against IITB's own CA
+(`/etc/NetworkManager/certs/iitb-ca.pem`).
 This gives the same protection as Android's "trust this certificate" prompt.
 
 ## Why
-Connecting from the Noctalia Wi-Fi menu kept failing. It failed in two separate ways:
-1. **Certificate:** IITB's RADIUS server chains to its own private CA ("IIT Bombay
-   Computer Centre Certificate Authority"). That CA isn't in the system trust store, so
-   `wpa_supplicant` failed with `self-signed certificate in certificate chain`
-   whenever the profile used the system CAs.
-2. **Login:** once the certificate was accepted, the inner login still failed
-   (`EAP-TLV: TLV Result - Failure`) when the identity was the bare LDAP id. It needs
-   the realm: `<ldap>@iitb.ac.in`.
+Connecting from the Noctalia Wi-Fi menu kept failing. IITB's RADIUS server chains to
+its own private CA ("IIT Bombay Computer Centre Certificate Authority"). That CA isn't
+in the system trust store, and a Noctalia profile with a blank CA path checks against
+the system CAs, so `wpa_supplicant` failed with `self-signed certificate in certificate
+chain`. Giving the profile IITB's CA file is the whole fix.
 
 ## Change
 ```bash
@@ -34,16 +31,15 @@ sudo install -Dm644 networkmanager/files/etc/NetworkManager/certs/iitb-ca.pem \
 for ssid in eduroam IITB-Wireless-Ex; do
   nmcli connection add type wifi con-name "$ssid" ssid "$ssid" \
     wifi-sec.key-mgmt wpa-eap 802-1x.eap peap 802-1x.phase2-auth mschapv2 \
-    802-1x.identity '<ldap>@iitb.ac.in' \
-    802-1x.ca-cert /etc/NetworkManager/certs/iitb-ca.pem \
-    802-1x.domain-suffix-match iitb.ac.in 802-1x.system-ca-certs no \
+    802-1x.identity '<ldap>' \
+    802-1x.ca-cert /etc/NetworkManager/certs/iitb-ca.pem 802-1x.system-ca-certs no \
     802-1x.password-flags 0
   nmcli --ask connection up "$ssid"   # prompts for the LDAP password once
 done
 ```
-In Noctalia's sign-in dialog the same values work: PEAP, MSCHAPv2, identity
-`<ldap>@iitb.ac.in`, CA certificate path `/etc/NetworkManager/certs/iitb-ca.pem`,
-server domain suffix `iitb.ac.in`.
+In Noctalia's sign-in dialog: PEAP, MSCHAPv2, identity = bare LDAP id, password, CA
+certificate path `/etc/NetworkManager/certs/iitb-ca.pem`. The server domain suffix can
+stay blank (verified working 2026-11-07).
 
 ## Notes
 - **Noctalia deletes a Wi-Fi profile when a connection fails** (seen twice in the
@@ -65,6 +61,10 @@ server domain suffix `iitb.ac.in`.
   trust it. Only these two profiles use it.
 - Set up first (same day) without the CA, using only `domain-suffix-match`; the CA was
   added once captured.
+- **Misdiagnosis, corrected:** one failed attempt showed `EAP-TLV: TLV Result - Failure`
+  (the server rejected the login itself). It was blamed on the bare LDAP id missing
+  `@iitb.ac.in`, but the bare id works fine with the CA set. That failure was most
+  likely a mistyped password. Either identity form works.
 - Debug with `journalctl -u wpa_supplicant -n 40`. `CTRL-EVENT-EAP-TLS-CERT-ERROR`
   means a certificate problem; `EAP-TLV: TLV Result - Failure` means the username or
   password was rejected.

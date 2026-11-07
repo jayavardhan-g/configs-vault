@@ -30,16 +30,23 @@ In qBittorrent, **Tools → Options**:
 - **Advanced → Network interface** → `CloudflareWARP`. The interface only appears
   while WARP is connected. Find it with `ip -br addr show`, connected vs. disconnected.
 - **BitTorrent** → uncheck **Enable Local Peer Discovery**.
-- **Connection** → uncheck **Use UPnP / NAT-PMP port forwarding from my router**. This was
-  still on at the time of writing (see Notes).
+- **Connection** → uncheck **Use UPnP / NAT-PMP port forwarding from my router**
+  (done 2026-10-29; see Notes).
+- **Downloads → Excluded file names** → on, `*.lnk, *.scr, *.arj` (guide step 5).
 
 The resulting keys in `qBittorrent.conf`:
 ```ini
 [BitTorrent]
+ExcludedFileNamesEnabled=true
+Session\ExcludedFileNames=*.lnk, *.scr, *.arj
 Session\Interface=CloudflareWARP
 Session\InterfaceName=CloudflareWARP
 Session\LSDEnabled=false
+[Network]
+PortForwardingEnabled=false
 ```
+The NAS runs the same setup (qbittorrent-nox, since 2026-10-29): Phase 10 in
+[[homeserver-setup]].
 
 ## Verify
 - `ss -tulpn | grep qbittorrent` shows the peer port listening only on
@@ -60,7 +67,11 @@ Session\LSDEnabled=false
 - **WARP can't do port forwarding.** Other peers can't connect in to you, so you only
   reach peers who accept incoming connections. Expect slower downloads and weak seeding.
   UPnP is useless under the binding: it would only open a port on the home router,
-  where qBittorrent isn't listening.
+  where qBittorrent isn't listening. It stayed on until 2026-10-29 (qBittorrent's default,
+  so no key in the config; port `1900` was open, bound to the WARP address). Turned off
+  with `PortForwardingEnabled=false` under `[Network]`, edited with qBittorrent closed;
+  checked afterwards: no `:1900` socket, everything still on `%CloudflareWARP`, and the
+  key survived qBittorrent's rewrite of the file on exit.
 - **WARP isn't a privacy VPN.** It hides your IP from swarm peers, which is where copyright
   notices come from, but Cloudflare still sees the real IP. For heavy use, the guide's
   choice is Proton VPN (paid, with port forwarding).
@@ -69,5 +80,5 @@ Session\LSDEnabled=false
   keep it on.
 - **No app-based split tunneling is needed.** WARP on Linux doesn't offer it, and the
   interface binding already keeps qBittorrent inside the tunnel.
-- The stored `.conf` also holds GUI layout state. It contains no secrets, so it's
-  copied as-is.
+- The stored `.conf` also holds GUI layout state. It contains no secrets; the username in
+  two folder paths is replaced with `<user>`.

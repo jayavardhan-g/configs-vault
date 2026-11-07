@@ -15,4 +15,5 @@ The spare CSE-department desktop (i7-4790K, 8 GB DDR3), headless NAS: storage, J
 
 - [[homeserver-setup|Home server / NAS (the spare CSE-department desktop)]]
 - [[homeserver-toggles|Home server — switching features off/on, and sharing]]
+- [[dns-via-systemd-resolved|NetworkManager hands DNS to systemd-resolved (fixes Tailscale's MagicDNS warning)]]
 <!-- auto:end -->

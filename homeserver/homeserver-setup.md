@@ -79,10 +79,15 @@ journalctl -t net-watchdog          # its log
 The script pings the router every minute. Router unreachable → resets `enp2s0`. Router
 reachable but both archlinux.org and cloudflare.com unreachable → only logs it, because
 that means the router's upstream (the college network's captive-portal/LDAP login) expired,
-which resetting the NIC can't fix.
+which resetting the NIC can't fix. **No default gateway at all** → if the cable has a link,
+`nmcli device connect enp2s0` (since Phase 11, 2026-11-07; before that it only logged
+"skipping check" — see Notes, router swap).
 
 Stable address: DHCP reservation on the router (TP-Link: Advanced → Network → DHCP Server →
-Address Reservation) for the server's MAC.
+Address Reservation) for the server's MAC. **Not set up yet** (as of 2026-11-07): the
+address has moved `.102` → `.103` (2026-11-05 boot) → `.104` (2026-11-07, new router).
+Nothing depends on it (`moviesshare`, the laptop's NAS mount and SSH all use the
+Tailscale name); the firewall rules use the whole `<lan-subnet>`.
 
 ### Phase 3 — always on, headless
 ```bash
@@ -237,9 +242,11 @@ journalctl -t funnel-watchdog        # what it has done
 - The port (8096) is hard-coded in the script, matching `moviesshare`.
 
 Verified 2026-10-19: both units enabled, timer active, first timer run exited 0 with no
-log line (Funnel on and the name resolving, so nothing to do). Boot path not yet tested
-with a real reboot: reboot while sharing is on, then `moviesshare` → `status` should say
-"ON, link works" within about 2 minutes.
+log line (Funnel on and the name resolving, so nothing to do). **Boot path verified
+2026-11-07:** after a hard reboot at 22:25 the boot unit logged
+`boot - re-announced Funnel` (22:25:41) and the public link answered 3/3 by 22:26. Also
+2026-11-01: a network reconnect left Funnel stale; the timer caught it ("public link not
+answering - re-announced Funnel", 19:19:00) and the link was back 30 s later.
 
 ### Phase 10 — qBittorrent follows the torrentvpn guide, like the laptop (2026-10-29)
 The guide ([[qbittorrent-bound-to-warp]], rentry.org/torrentvpn) binds qBittorrent to the
@@ -266,7 +273,7 @@ sudo systemctl start warp-tailscale-exclude.timer   # the script only enabled it
    Session\InterfaceName=CloudflareWARP
    Session\DHTEnabled=true
    Session\PeXEnabled=true
-   Session\LSDEnabled=true
+   Session\LSDEnabled=false          # true from Phase 10, set false in Phase 10b
    ExcludedFileNamesEnabled=true
    Session\ExcludedFileNames=*.lnk, *.scr, *.arj
    [Network]
@@ -278,8 +285,28 @@ sudo systemctl start warp-tailscale-exclude.timer   # the script only enabled it
 
 Verified 2026-10-29: peer port `23251` (TCP+UDP, v4+v6) bound to `%CloudflareWARP` only;
 WebUI on `*:8080`; `warp=on`; Tailscale netcheck UDP true, relay Bengaluru; public link
-3/3 HTTP 302. **ipleak.net test still to do** (WebUI → add ipleak's magnet; only Cloudflare
-IPs; then `warp-cli --accept-tos disconnect` on the server → no new IPs; reconnect).
+3/3 HTTP 302. **ipleak.net test passed** (2026-10-29, run by hand from the WebUI: only
+Cloudflare IPs; after `warp-cli --accept-tos disconnect` on the server, no new IPs).
+
+### Phase 10b — cleanup after Phase 10, LPD off (2026-10-29 → applied 2026-11-07)
+`~/nas-setup/phase10b-cleanup-lsd-off.sh` (copy:
+[`files/nas-setup/phase10b-cleanup-lsd-off.sh`](files/nas-setup/phase10b-cleanup-lsd-off.sh)):
+removes `wgcf` + `wireguard-tools` (`pacman -Rns`; installed only for a WireGuard test, see
+Notes), and sets `Session\LSDEnabled=false` with qBittorrent stopped. Done without sudo
+beforehand: deleted the test scripts and the spare `wgcf` WARP identity
+(`~/nas-setup/wgcf/`, held a private key), and `warp-cli tunnel protocol reset` (back to
+MASQUE from network policy instead of a manual override).
+
+Verified 2026-11-07: both packages gone (snapper pre/post snapshots 33/34); qBittorrent
+sockets only on `%CloudflareWARP` plus WebUI `*:8080`, no `:6771`.
+
+### Phase 11 — watchdog reconnects when there's no gateway (2026-11-07)
+`~/nas-setup/phase11-watchdog-no-gateway.sh` (copy:
+[`files/nas-setup/phase11-watchdog-no-gateway.sh`](files/nas-setup/phase11-watchdog-no-gateway.sh))
+rewrites `/usr/local/bin/net-watchdog` (copy in `files/`, old one kept as
+`net-watchdog.bak.<epoch>` on the server). New branch: no default gateway + cable link
+(`/sys/class/net/enp2s0/carrier` = 1) → `nmcli device connect enp2s0`; no link → logs
+"no cable link". Everything else unchanged. Why: router swap in Notes.
 
 ### Quick reference
 | What | LAN | Tailscale (anywhere) |
@@ -299,7 +326,8 @@ IPs; then `warp-cli --accept-tos disconnect` on the server → no new IPs; recon
 - **CMOS battery is dying:** after a power cut the BIOS stops at "load optimized defaults"
   and waits for a keypress, and it can also reset AC BACK. Until the CR2032 is replaced,
   the server won't reliably come back on its own. After replacing it, redo the BIOS
-  settings in Phase 3.
+  settings in Phase 3. **Still not replaced as of 2026-11-07, and won't be for a while.**
+  (Both boots so far, 2026-11-05 and 2026-11-07, came up on their own.)
 - **Single disk, no redundancy** — never the only copy of anything important.
 - **First outage test cut the server off its own router (2026-10-04).** Two bugs in the
   original scripts: `ufw insert 1` puts each rule at the top, so adding allow-lo, allow-LAN,
@@ -335,7 +363,39 @@ IPs; then `warp-cli --accept-tos disconnect` on the server → no new IPs; recon
   `tunnel protocol set MASQUE` + `connect`.
 - **LPD listens on all interfaces** (`*:6771`), not just `CloudflareWARP`: it's a
   LAN-multicast feature, so it can't reach the internet, but it announces your torrents to
-  other devices on the home network. Left at the guide's default (on); the laptop has it off.
+  other devices on the home network. Left at the guide's default (on) in Phase 10, then
+  **turned off** (Phase 10b) to match the laptop.
+- **WireGuard test (2026-10-28):** before settling on the full tunnel, `wgcf` + a throwaway
+  network namespace showed WARP's plain WireGuard *does* get through the campus network,
+  on port **500** (2408 didn't answer). Not used; packages removed in Phase 10b. Useful if
+  qBittorrent ever needs its own isolated tunnel again.
+- **`warp-tailscale-exclude` adding an address makes WARP reconnect** ("Reconnecting on
+  settings change"). Harmless normally (seconds), but during a campus-portal logout it
+  drops WARP's still-working tunnel for good (2026-11-06, 11:44).
+- **Campus portal logout, 2026-11-06 — the NAS was not idle.** The home router sits on
+  the campus network, whose portal logs out after an hour with no internet use. The NAS
+  was suspected of going quiet, but its logs show otherwise: WARP reported tunnel health
+  every 15 s all night (traffic flowing, 3 ms, no loss). At **01:14** new name lookups and
+  connections suddenly failed (net-watchdog: "Gateway … reachable but internet is NOT"
+  every minute) while the already-open WARP tunnel kept working until 11:44. That pattern
+  fits the portal ending the session (session limit or a nightly cut-off) and blocking only
+  new traffic, not inactivity. **Auto-login isn't possible:** the portal signs in through
+  `sso.iitb.ac.in` (username, password and a 2FA code), then "login as \<user\>" on
+  `internet.iitb.ac.in` reuses that SSO session. **After signing in again, the NAS recovers
+  by itself** (checked 2026-11-06 ~12:10): WARP and Tailscale reconnect, and the
+  funnel-watchdog re-announces the public link within 5 min if needed.
+- **Router swap, 2026-11-07 — NAS stuck offline until a hard reboot.** The home router
+  was replaced (new one: WAN `10.12.20.x` on campus, LAN still `192.168.0.0/24`, so the
+  firewall rules still fit and no new portal sign-in was needed). The NAS lost its address
+  (watchdog: "No default gateway found, skipping check" from 22:14). At 22:20:35 the new
+  router's link came up ("carrier: link connected"), but NetworkManager stayed
+  `disconnected` and never asked for an address, even though `autoconnect=yes`,
+  `autoconnect-retries=0` and `dhcp-timeout=infinity` were all still set; the router's
+  DHCP client list didn't show it. The old watchdog just skipped "no gateway", so only the
+  hard reboot at 22:25 fixed it (new address `.104`). Phase 11 makes the watchdog handle
+  that case. Why NetworkManager got stuck is unknown: its log for that boot only starts
+  at 22:20 (earlier lines weren't kept). Wiring: campus wall cable → router **WAN**, NAS →
+  **LAN1** (LAN2 for the laptop or free).
 - Pausing WARP (`warp-cli disconnect`) during the *first* `tailscale up` on a machine that
   has both avoids a bootstrap clash.
 - WARP has no port forwarding: weaker seeding. Cloudflare still sees the real IP; WARP

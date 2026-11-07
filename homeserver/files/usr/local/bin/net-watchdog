@@ -3,6 +3,10 @@
 # If the gateway itself is unreachable, this is a real local link/DHCP
 # problem -> reset the ethernet interface.
 #
+# If there is NO default gateway at all but the cable is connected,
+# NetworkManager is stuck "disconnected" (seen 2026-11-07 after a router swap)
+# -> ask it to connect, which also requests a new DHCP lease.
+#
 # If the gateway IS reachable but a real internet site is NOT, that means
 # the LAN link is fine but the router's own upstream connection is down
 # (e.g. the college network's LDAP captive-portal session expired).
@@ -13,7 +17,13 @@ IFACE="enp2s0"
 GATEWAY=$(ip route show default | awk '/default/ {print $3; exit}')
 
 if [ -z "$GATEWAY" ]; then
-    logger -t net-watchdog "No default gateway found, skipping check"
+    if [ "$(cat "/sys/class/net/$IFACE/carrier" 2>/dev/null)" = "1" ]; then
+        logger -t net-watchdog "No default gateway but $IFACE has a cable link - asking NetworkManager to connect"
+        nmcli device connect "$IFACE" >/dev/null 2>&1 \
+            || logger -t net-watchdog "nmcli device connect $IFACE failed"
+    else
+        logger -t net-watchdog "No default gateway and no cable link on $IFACE - nothing to do"
+    fi
     exit 0
 fi
 

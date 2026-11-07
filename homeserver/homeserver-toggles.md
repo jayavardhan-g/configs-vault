@@ -141,7 +141,24 @@ sudo systemctl enable --now net-watchdog.timer     # on
 journalctl -t net-watchdog --since today           # what it did
 ```
 If the log says "Gateway reachable but internet is NOT", the college portal login expired:
-log in again from a browser on any device behind the same router.
+log in again from a browser on any device behind the same router (sso.iitb.ac.in, then
+"login as" on internet.iitb.ac.in; can't be automated because of the 2FA). Nothing to do
+on the NAS afterwards: WARP, Tailscale and the public link come back by themselves (link
+within 5 min).
+
+If it says "No default gateway but enp2s0 has a cable link - asking NetworkManager to
+connect" every minute, the NAS isn't getting an address from the router: check the router's
+DHCP client list, the cable (NAS → a **LAN** port, campus wall cable → **WAN**), and as a
+last resort hard-reboot the NAS.
+
+### NAS not reachable at all
+1. Laptop: `tailscale status` (NAS "offline"?) and the router's DHCP client list (NAS MAC
+   listed?).
+2. If missing from the router: cable/port (LAN, not WAN), link lights, then the NAS's own
+   screen. On the NAS: `ip -br link show enp2s0` (UP?), `nmcli device status`
+   (connected?), and `sudo nmcli connection up "Wired connection 1"` if it's disconnected.
+3. Frozen, or stuck at a BIOS prompt (dying CMOS battery): press the key it asks for, or
+   hold power ~5 s and power on again. Every service starts by itself within ~10 s.
 
 ### Desktop (GUI)
 ```bash

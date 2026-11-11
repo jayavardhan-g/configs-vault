@@ -151,14 +151,26 @@ connect" every minute, the NAS isn't getting an address from the router: check t
 DHCP client list, the cable (NAS → a **LAN** port, campus wall cable → **WAN**), and as a
 last resort hard-reboot the NAS.
 
+### Auto-reboot after a freeze
+Hardware watchdog (resets the board if the whole machine hangs ~30 s):
+```bash
+sudo rm /etc/systemd/system.conf.d/watchdog.conf && sudo systemctl daemon-reexec   # off
+sudo bash ~/nas-setup/phase12-freeze-reboot.sh                                      # on again
+journalctl -b -t systemd | grep -i "hardware watchdog"                              # is it on?
+```
+Kernel reboot-on-panic: `sudo sysctl kernel.panic=0` (off until next boot), or delete
+`/etc/sysctl.d/90-freeze-reboot.conf` (off for good). After an unexplained reboot,
+`journalctl --list-boots` and `journalctl -b -1 -n 50` show what happened before.
+
 ### NAS not reachable at all
 1. Laptop: `tailscale status` (NAS "offline"?) and the router's DHCP client list (NAS MAC
    listed?).
 2. If missing from the router: cable/port (LAN, not WAN), link lights, then the NAS's own
    screen. On the NAS: `ip -br link show enp2s0` (UP?), `nmcli device status`
    (connected?), and `sudo nmcli connection up "Wired connection 1"` if it's disconnected.
-3. Frozen, or stuck at a BIOS prompt (dying CMOS battery): press the key it asks for, or
-   hold power ~5 s and power on again. Every service starts by itself within ~10 s.
+3. Frozen: since Phase 12 it should reboot by itself within ~1 min; if it stays frozen,
+   hold power ~5 s and power on again. Stuck at a BIOS prompt (dying CMOS battery): press
+   the key it asks for. Every service starts by itself within ~10 s.
 
 ### Desktop (GUI)
 ```bash

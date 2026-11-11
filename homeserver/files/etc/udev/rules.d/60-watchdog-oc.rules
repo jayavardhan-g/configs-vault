@@ -1,0 +1,1 @@
+SUBSYSTEM=="watchdog", ATTR{identity}=="intel_oc_wdt", SYMLINK+="watchdog-oc"

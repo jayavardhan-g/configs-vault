@@ -22,6 +22,9 @@ boots headless)
 - `/etc/samba/smb.conf` → [`files/etc/samba/smb.conf`](files/etc/samba/smb.conf) (username redacted)
 - `/usr/local/bin/warp-tailscale-exclude` → [`files/usr/local/bin/warp-tailscale-exclude`](files/usr/local/bin/warp-tailscale-exclude)
 - `/etc/systemd/system/warp-tailscale-exclude.service` + `.timer` → [`files/etc/systemd/system/`](files/etc/systemd/system/)
+- `/etc/sysctl.d/90-freeze-reboot.conf` → [`files/etc/sysctl.d/90-freeze-reboot.conf`](files/etc/sysctl.d/90-freeze-reboot.conf) (Phase 12)
+- `/etc/systemd/system.conf.d/watchdog.conf` → [`files/etc/systemd/system.conf.d/watchdog.conf`](files/etc/systemd/system.conf.d/watchdog.conf) (Phase 12)
+- `/etc/udev/rules.d/60-watchdog-oc.rules` → [`files/etc/udev/rules.d/60-watchdog-oc.rules`](files/etc/udev/rules.d/60-watchdog-oc.rules) (Phase 12)
 - `~/.config/qBittorrent/qBittorrent.conf` — **not stored** (holds the WebUI password hash); relevant keys listed in Phase 10
 - `/etc/systemd/system/qbittorrent-nox@.service.d/warp-lockdown.conf` — **removed** 2026-10-29 (Phase 10); old copy in git history
 
@@ -308,6 +311,31 @@ rewrites `/usr/local/bin/net-watchdog` (copy in `files/`, old one kept as
 (`/sys/class/net/enp2s0/carrier` = 1) → `nmcli device connect enp2s0`; no link → logs
 "no cable link". Everything else unchanged. Why: router swap in Notes.
 
+### Phase 12 — reboots by itself after a freeze (2026-11-11)
+`~/nas-setup/phase12-freeze-reboot.sh` (copy:
+[`files/nas-setup/phase12-freeze-reboot.sh`](files/nas-setup/phase12-freeze-reboot.sh)),
+then reboot. Why: the 2026-11-11 freeze in Notes. Three layers:
+1. **Kernel** (`/etc/sysctl.d/90-freeze-reboot.conf`): `kernel.panic = 10`,
+   `panic_on_oops`, `softlockup_panic`, `hardlockup_panic` = 1. Was `panic = 0` (hang forever).
+2. **Cmdline**: dropped CachyOS's default `nowatchdog` from `KERNEL_CMDLINE` in
+   `/etc/default/limine` (backup `.bak.<epoch>`), then `limine-update`, so the soft-lockup
+   detector runs (`kernel.watchdog = 1`). Old snapshot entries in `/boot/limine.conf` still
+   carry `nowatchdog`; harmless. `kernel.nmi_watchdog` stays 0 (CachyOS sysctl), so
+   hard lockups are left to layer 3.
+3. **Hardware watchdog**: systemd pings `intel_oc_wdt` (`RuntimeWatchdogSec=30s`,
+   `RebootWatchdogSec=10min`, `WatchdogDevice=/dev/watchdog-oc`; the udev rule gives it a
+   stable name because `watchdogN` depends on load order, `iamt_wdt` is the other one).
+   **`iTCO_wdt` can't be used:** CachyOS blacklists it, and loading it by name fails with
+   "unable to reset NO_REBOOT flag, device disabled by hardware/BIOS". `iamt_wdt` (AMT) isn't
+   used either.
+
+Tested 2026-11-11 with
+[`files/nas-setup/phase12-test-hw-watchdog.sh`](files/nas-setup/phase12-test-hw-watchdog.sh)
+(sets `kernel.panic=0` for that boot, then `echo c > /proc/sysrq-trigger`): crash at
+22:01:21, next boot 22:02:13, no button pressed, so the hardware watchdog does reset this
+board (~30 s + ~20 s POST). Check: `journalctl -b -t systemd | grep -i "hardware watchdog"`
+→ "Using hardware watchdog /dev/watchdog-oc: 'intel_oc_wdt'" + "hardware timeout of 30s".
+
 ### Quick reference
 | What | LAN | Tailscale (anywhere) |
 |---|---|---|
@@ -328,6 +356,15 @@ rewrites `/usr/local/bin/net-watchdog` (copy in `files/`, old one kept as
   the server won't reliably come back on its own. After replacing it, redo the BIOS
   settings in Phase 3. **Still not replaced as of 2026-11-07, and won't be for a while.**
   (Both boots so far, 2026-11-05 and 2026-11-07, came up on their own.)
+- **Hard freeze, 2026-11-11 15:10 → manual reset 21:46.** Offline on Tailscale and
+  missing from the router's list, but still powered (fans on). The previous boot's log just
+  stops at 15:10:51: all normal until then (net-watchdog passing every minute, no errors,
+  no kernel warnings, no shutdown lines); the router stayed up (the laptop kept getting its
+  multicast queries). Not a network problem, so net-watchdog couldn't help; nothing could
+  reboot it (`kernel.panic = 0`, `nowatchdog`, no hardware watchdog in use). Cause unknown;
+  Phase 12 makes the next one reboot by itself. If it recurs, compare
+  `journalctl -b -1 -n 50` across freezes; the RTC kept the right time, so the CMOS battery
+  didn't reset settings this time.
 - **Single disk, no redundancy** — never the only copy of anything important.
 - **First outage test cut the server off its own router (2026-10-04).** Two bugs in the
   original scripts: `ufw insert 1` puts each rule at the top, so adding allow-lo, allow-LAN,

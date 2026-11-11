@@ -19,6 +19,7 @@ Wayland compositor, the daily-driver session. Config is Lua, split into topic fi
 - [[window-decorations|Tighter gaps + orange-only active border]]
 - [[right-alt-as-super|Right Alt acts as Super]]
 - [[scroll-direction|Scroll direction: Windows-style per device type]]
+- [[touchpad-gestures|Touchpad gestures: 3-finger swipe cycles windows]]
 - [[absolute-workspace-and-monitor-binds|Bare SUPER+num for workspaces, SUPER+bracket for monitors]]
 - [[browser-launch-super-b|SUPER+B also launches the browser (alongside SUPER+W)]]
 - [[dead-bind-cleanup|Dead-bind cleanup: hyprpicker removed, SUPER+T fixed, SUPER+SHIFT+7 added]]

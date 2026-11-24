@@ -1,6 +1,6 @@
 # mpv video player
 
-**Date:** 2026-09-14 (updated 2026-10-15)
+**Date:** 2026-09-14 (updated 2026-10-15, 2026-11-24)
 **Category:** mpv
 **Files touched:** `~/.config/mpv/mpv.conf`, `~/.config/mpv/input.conf` (copies: `mpv/files/.config/mpv/`), `~/.config/mpv/scripts/uosc/`, `~/.config/mpv/scripts/thumbfast.lua`, `~/.config/mpv/scripts/autoload.lua`, `~/.config/mpv/scripts/memo.lua`, `~/.config/mpv/scripts/hide-idle-text.lua`, `~/.config/mpv/script-opts/uosc.conf`, `~/.config/mpv/script-opts/autoload.conf` (copies in `files/`), `~/.config/mpv/fonts/`
 
@@ -55,7 +55,8 @@ save-position-on-quit=yes   # resume where you left off; quit with Q to save
 keep-open=yes
 volume-max=150
 vo=gpu-next
-hwdec=auto-safe
+vulkan-device='Intel(R) UHD Graphics (CML GT2)'   # see "Hybrid GPU" below
+hwdec=vaapi
 screenshot-directory=~/Pictures      # same folder satty saves to
 screenshot-template=mpv-%F-%P
 ```
@@ -88,6 +89,24 @@ videos=yes
 
 YouTube/URL playback needs `yt-dlp`; deliberately NOT installed (2026-10-15), so links fail to load. `mpv-mpris` (media keys/Noctalia widget) was installed with
 `sudo pacman -S mpv-mpris`.
+
+## Hybrid GPU: keep mpv on the Intel iGPU (2026-11-24)
+This laptop has Intel UHD (laptop panel eDP-1) plus an NVIDIA GTX 1660 Ti (wired to the
+HDMI port), and the compositor renders on Intel. With `hwdec=auto-safe` and the default
+Vulkan device, mpv decoded with `nvdec-copy` and rendered on NVIDIA, so every frame
+crossed between the GPUs. On the HDMI screen it crossed twice: NVIDIA to Intel for
+compositing, then back to NVIDIA for scanout. Playback froze periodically (the render
+thread was blocked in `drm_syncobj_timeline_wait`) and then jumped ahead as frames were
+dropped to catch up with the audio. The file was fine: no timestamp gaps, and it decoded
+without errors.
+
+Fix: pin both decoding and rendering to Intel:
+```
+vulkan-device='Intel(R) UHD Graphics (CML GT2)'   # name from: mpv --vulkan-device=help
+hwdec=vaapi                                       # intel-media-driver (iHD)
+```
+Revert by restoring `hwdec=auto-safe` and deleting the `vulkan-device` line. On a different
+machine, replace the device name with the GPU the compositor runs on.
 
 ## Keybinds (2026-10-15)
 vim-style, rewritten from scratch the same day; final file in `mpv/files/.config/mpv/input.conf`:
